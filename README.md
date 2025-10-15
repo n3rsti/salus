@@ -27,11 +27,11 @@ Throughout this project, we’re learning to:
 
 - Explore new technologies and frameworks, such as:
 
- - Frontend: Nuxt / Vue.js
+  - Frontend: Nuxt / Vue.js
 
- - Backend: Django / Python
+  - Backend: Django / Python
 
- - Data & AI: Recommendation algorithms for personalization
+  - Data & AI: Recommendation algorithms for personalization
 
 ## Functional Requirements
 
@@ -71,7 +71,7 @@ Krzysztof Witucki\
 Wiktor Górka\
 Kacper Malak\
 Theodoros Iliadis\
-Filip Špiljar\
+Filip Špiljar
 
 ## Contributions (Optional)
 > Rules depend on the team’s organization and are often outlined in `CONTRIBUTING.md`.
