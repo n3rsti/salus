@@ -18,6 +18,13 @@ Table Programs {
   language text
 }
 
+Table ProgramDays {
+  id int [pk, increment]
+  program_id int [not null, ref: > Programs.id]
+  description text
+  day_number int
+}
+
 Table Activities {
   id int [pk, increment]
   name text [not null]
@@ -33,12 +40,12 @@ Table ActivityMedia {
   type text
 }
 
-Table ProgramActivities {
-  program_id int [not null, ref: > Programs.id]
+Table ProgramDaysActivities {
+  program_day_id int [not null, ref: > ProgramDays.id]
   activity_id int [not null, ref: > Activities.id]
 
   Indexes {
-    (program_id, activity_id) [pk]
+    (program_day_id, activity_id) [pk]
   }
 }
 
@@ -102,4 +109,20 @@ Table Reviews {
   rating int
   comment text
   created_at datetime
+}
+
+Table ActivityPlan {
+  id int [pk, increment]
+  user_id int [not null, ref: > Users.id]
+  activity_id int [not null, ref: > Activities.id]
+  time datetime
+}
+
+Table UserPreferences {
+  user_id int [pk, ref: > Users.id]
+  mood int
+  sleep_score int
+  stress int
+  focus int
+  physical_activity int
 }
