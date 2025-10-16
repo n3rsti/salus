@@ -1,0 +1,105 @@
+Table Roles {
+  id int [pk, increment]
+  name text [unique, not null]
+}
+
+Table Users {
+  id int [pk, increment]
+  username text [unique, not null]
+  password text [not null]
+  role_id int [not null, ref: > Roles.id]
+}
+
+Table Programs {
+  id int [pk, increment]
+  name text [not null]
+  duration_days int
+  description text
+  language text
+}
+
+Table Activities {
+  id int [pk, increment]
+  name text [not null]
+  duration_minutes int
+  description text
+  difficulty int
+}
+
+Table ActivityMedia {
+  id int [pk, increment]
+  activity_id int [not null, ref: > Activities.id]
+  url text [not null]
+  type text
+}
+
+Table ProgramActivities {
+  program_id int [not null, ref: > Programs.id]
+  activity_id int [not null, ref: > Activities.id]
+
+  Indexes {
+    (program_id, activity_id) [pk]
+  }
+}
+
+Table Tags {
+  id int [pk, increment]
+  name text [unique, not null]
+  icon text
+}
+
+Table ProgramTags {
+  tag_id int [not null, ref: > Tags.id]
+  program_id int [not null, ref: > Programs.id]
+
+  Indexes {
+    (tag_id, program_id) [pk]
+  }
+}
+
+Table UserActivities {
+  id int [pk, increment]
+  user_id int [not null, ref: > Users.id]
+  program_id int [ref: > Programs.id]
+  activity_id int [ref: > Activities.id]
+  start_date date
+  end_date date
+}
+
+Table Emotions {
+  id int [pk, increment]
+  name text [unique, not null]
+  icon text
+}
+
+Table DailyLogs {
+  id int [pk, increment]
+  user_id int [not null, ref: > Users.id]
+  date date [not null]
+  mood int
+  sleep_score int
+  stress int
+  focus int
+  physical_activity int
+  alcohol_intake int
+  notes text
+}
+
+Table DailyLogEmotions {
+  dailylog_id int [not null, ref: > DailyLogs.id]
+  emotion_id int [not null, ref: > Emotions.id]
+
+  Indexes {
+    (dailylog_id, emotion_id) [pk]
+  }
+}
+
+Table Reviews {
+  id int [pk, increment]
+  user_id int [not null, ref: > Users.id]
+  content_type text [not null]
+  content_id int [not null]
+  rating int
+  comment text
+  created_at datetime
+}
