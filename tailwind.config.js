@@ -1,8 +1,14 @@
-/** @type {import('tailwindcss').Config} */
+import colors from 'tailwindcss/colors'
+
 export default {
-    content: [],
+    darkMode: 'class',
     theme: {
-        extend: {},
-    },
-    plugins: [],
-};
+        extend: {
+            colors: {
+                primary_light: colors.emerald[200],
+                primary: colors.emerald[300],
+                primary_dark: colors.emerald[400],
+            }
+        }
+    }
+}
