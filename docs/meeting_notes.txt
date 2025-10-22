@@ -1,0 +1,21 @@
+Meeting 09.10.2025
+Participants: Špiljar Filip, Górka Wiktor, Malak Kacper, Witucki Krzysztof, Iliadis Theodoros
+During meeting technologies that will be used in project were agreed; thats is Nuxt framework (Vue.js) for frontend and FastAPI (Python) for backend.
+Team was divided into smaller groups responsible for backend, frontend and fullstack.
+Frontend: Špiljar Filip, Górka Wiktor
+Backend: Malak Kacper, Iliadis Theodoros
+Fullstack: Witucki Krzysztof
+
+Meeting 10.10.2025
+Participants: Górka Wiktor, Malak Kacper, Witucki Krzysztof
+Dicusson about and making database schema and requirements analysys
+
+Meeting 15.10.2025
+Participants: Špiljar Filip, Górka Wiktor, Malak Kacper, Witucki Krzysztof, Iliadis Theodoros
+During meeting specific tasks were given to each member to start research and coding
+Špiljar Filip: Create profile page view
+Górka Wiktor: Create login/register view
+Malak Kacper: Implement activities db schema on backend
+Witucki Krzysztof: Create dashboard view
+Iliadis Theodoros: Implement OAuth 2.0
+
