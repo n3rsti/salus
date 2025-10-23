@@ -1,7 +1,8 @@
 <template>
     <nav class="p-4 bg-white shadow-sm flex items-center">
         <AppButton
-            class="flex items-center bg-green-500 border-green-400 shadow-none rounded-xl py-1"
+            class="flex items-center border-green-400 shadow-none rounded-xl py-1"
+            :color="'green'"
         >
             <Icon
                 class="text-2xl text-green-100"
@@ -12,7 +13,7 @@
             >
         </AppButton>
         <label
-            class="input bg-white mx-3 text-muted border-primary-dark rounded-xl"
+            class="input bg-white mx-3 text-muted border-primary-dark rounded-xl focus-within:border-green-500"
         >
             <svg
                 class="h-[1em] opacity-50"
