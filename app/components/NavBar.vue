@@ -1,5 +1,7 @@
 <template>
-    <nav class="p-4 bg-white shadow-sm flex items-center">
+    <nav
+        class="p-4 sm:px-8 md:px-10 lg:px-14 bg-white shadow-sm flex items-center justify-between"
+    >
         <AppButton
             class="flex items-center border-green-400 shadow-none rounded-xl py-1"
             :color="'green'"
@@ -13,7 +15,7 @@
             >
         </AppButton>
         <label
-            class="input bg-white mx-3 text-muted border-primary-dark rounded-xl focus-within:border-green-500"
+            class="input bg-white mx-3 text-muted border-2 border-primary-dark rounded-xl focus-within:border-green-500 xl:w-2/5"
         >
             <svg
                 class="h-[1em] opacity-50"
@@ -33,7 +35,7 @@
             </svg>
             <input type="search" required placeholder="Search" />
         </label>
-        <AppButton class="ml-auto border-primary-dark rounded-xl">
+        <AppButton class="border-2 border-primary-dark rounded-xl lg:scale-0">
             <Icon class="text-2xl text-green-500" name="ic:round-menu" />
         </AppButton>
     </nav>

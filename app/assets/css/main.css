@@ -7,4 +7,6 @@
     --color-primary-light: hsl(0 0% 100%);
     --color-primary: hsl(0 0% 95%);
     --color-primary-dark: hsl(0 0% 90%);
+
+    --font-display: "Inter", "sans-serif";
 }

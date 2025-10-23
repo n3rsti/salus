@@ -6,6 +6,8 @@ export class Program {
         public description: string,
         public language: string,
         public image: string,
+        public progress: number,
+        public rating: number,
     ) {}
 }
 
@@ -16,6 +18,8 @@ export class ProgramBuilder {
     private description!: string;
     private language!: string;
     private image!: string;
+    private progress!: number;
+    private rating!: number;
 
     setId(id: number): this {
         this.id = id;
@@ -47,6 +51,16 @@ export class ProgramBuilder {
         return this;
     }
 
+    setProgress(progress: number): this {
+        this.progress = progress;
+        return this;
+    }
+
+    setRating(rating: number): this {
+        this.rating = rating;
+        return this;
+    }
+
     build(): Program {
         return new Program(
             this.id,
@@ -55,6 +69,8 @@ export class ProgramBuilder {
             this.description,
             this.language,
             this.image,
+            this.progress,
+            this.rating,
         );
     }
 }

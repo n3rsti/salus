@@ -16,6 +16,9 @@ const styles: Record<string, string[]> = {
     green: [
         "bg-green-500 border-green-300 shadow-green-300 hover:bg-green-600 hover:shadow-none",
     ],
+    green_dark: [
+        "bg-green-600 border-green-400 shadow-green-400 hover:bg-green-700 hover:shadow-none",
+    ],
     "": [],
 };
 
