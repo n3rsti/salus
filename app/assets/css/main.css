@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "daisyui";
 
 @theme {
     --color-text: hsl(0 0% 5%);

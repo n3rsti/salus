@@ -5,6 +5,8 @@ export class Activity {
         public duration: number,
         public description: string,
         public difficulty: number,
+        public rating: number,
+        public image: string,
     ) {}
 }
 
@@ -14,6 +16,8 @@ export class ActivityBuilder {
     private duration!: number;
     private description!: string;
     private difficulty!: number;
+    private rating!: number;
+    private image!: string;
 
     setId(id: number): this {
         this.id = id;
@@ -40,6 +44,16 @@ export class ActivityBuilder {
         return this;
     }
 
+    setRating(rating: number): this {
+        this.rating = rating;
+        return this;
+    }
+
+    setImage(image: string): this {
+        this.image = image;
+        return this;
+    }
+
     build(): Activity {
         return new Activity(
             this.id,
@@ -47,6 +61,8 @@ export class ActivityBuilder {
             this.duration,
             this.description,
             this.difficulty,
+            this.rating,
+            this.image,
         );
     }
 }
