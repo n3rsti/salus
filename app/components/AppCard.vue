@@ -40,7 +40,7 @@
             ></progress>
 
             <AppButton
-                class="w-full bg-green-500 border-green-300 shadow-green-500 text-white mt-3"
+                class="w-full bg-green-500 border-green-300 shadow-sm shadow-green-500 border-t-transparent text-white mt-3"
             >
                 View info
             </AppButton>
