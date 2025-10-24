@@ -6,6 +6,7 @@ postgresql_database_url = "postgresql://postgres:admin@localhost:5432/salus"
 engine = create_engine(postgresql_database_url, echo=True)
 
 def create_db_and_tables():
+    # SQLModel.metadata.drop_all(engine)
     SQLModel.metadata.create_all(engine)
 
 def get_session():
