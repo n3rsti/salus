@@ -47,23 +47,25 @@
             max="100"
         ></progress>
 
-        <AppButton
-            v-if="props.program.progress"
-            class="w-full shadow-sm border-t-transparent text-white mt-3"
-            :color="'green'"
-        >
-            Continue
+        <NuxtLink :to="'/programs/' + props.program.id">
+            <AppButton
+                v-if="props.program.progress"
+                class="w-full shadow-sm border-t-transparent text-white mt-3"
+                :color="'green'"
+            >
+                Continue
 
-            <Icon class="text-lg ml-2" name="ic:round-play-arrow" />
-        </AppButton>
-        <AppButton
-            v-else
-            class="w-full shadow-sm border-t-transparent text-white mt-3"
-            :color="'green_dark'"
-        >
-            View info
-            <Icon class="text-lg ml-2" name="ic:round-remove-red-eye" />
-        </AppButton>
+                <Icon class="text-lg ml-2" name="ic:round-play-arrow" />
+            </AppButton>
+            <AppButton
+                v-else
+                class="w-full shadow-sm border-t-transparent text-white mt-3"
+                :color="'green_dark'"
+            >
+                View info
+                <Icon class="text-lg ml-2" name="ic:round-remove-red-eye" />
+            </AppButton>
+        </NuxtLink>
     </AppCard>
 </template>
 <script setup lang="ts">

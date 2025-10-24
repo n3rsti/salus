@@ -18,13 +18,16 @@
                 />
             </p>
         </div>
-        <AppButton
-            class="w-full shadow-sm border-t-transparent text-white mt-3"
-            :color="'green_dark'"
-        >
-            View info
-            <Icon class="text-lg ml-2" name="ic:round-remove-red-eye" />
-        </AppButton>
+
+        <NuxtLink :to="'/activities/' + props.activity.id">
+            <AppButton
+                class="w-full shadow-sm border-t-transparent text-white mt-3"
+                :color="'green_dark'"
+            >
+                View info
+                <Icon class="text-lg ml-2" name="ic:round-remove-red-eye" />
+            </AppButton>
+        </NuxtLink>
     </AppCard>
 </template>
 <script setup lang="ts">

@@ -30,9 +30,6 @@ import type { Program } from "~/models/program.model";
 
 const { data: activities } = await useFetch<Activity[]>(
     "http://localhost:8080/api/activities",
-    {
-        server: true,
-    },
 );
 
 faker.seed(1);
@@ -44,7 +41,7 @@ const programs: Program[] = [];
 for (let i = 0; i < 3; i++) {
     const newProgram: Program = {
         language: "en",
-        id: 0,
+        id: faker.number.int({ min: 1, max: 100 }),
         name: faker.commerce.product(),
         description: faker.commerce.productDescription(),
         duration_days: faker.number.int({ min: 1, max: 10 }),

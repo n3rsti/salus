@@ -21,8 +21,8 @@
 </template>
 <script setup lang="ts">
 const props = defineProps<{
-    image: string;
-    title: string;
-    description: string;
+    image?: string;
+    title?: string;
+    description?: string;
 }>();
 </script>
