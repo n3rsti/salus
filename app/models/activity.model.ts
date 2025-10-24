@@ -1,7 +1,7 @@
 export interface Activity {
     id: number;
     name: string;
-    duration: number;
+    duration_minutes: number;
     description: string;
     difficulty: number;
     rating: number;

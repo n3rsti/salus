@@ -15,35 +15,11 @@
                 :key="program.id"
                 :program="program"
             />
-            <AppCard
+            <AppActivityCard
                 v-for="activity in activities"
                 :key="activity.id"
-                :image="activity.image"
-                :title="activity.name"
-                :description="activity.description"
-            >
-                <div class="flex items-center justify-between mt-auto">
-                    <p class="text-muted/90 text-sm flex items-center gap-1">
-                        <Icon name="ic:outline-access-time" />
-                        {{ activity.duration }}
-                        minutes
-                    </p>
-                    <p class="text-sm flex items-center text-text gap-1">
-                        {{ activity.rating }}/5
-                        <Icon
-                            name="material-symbols:star-rounded"
-                            class="text-yellow-400 text-2xl"
-                        />
-                    </p>
-                </div>
-                <AppButton
-                    class="w-full shadow-sm border-t-transparent text-white mt-3"
-                    :color="'green_dark'"
-                >
-                    View info
-                    <Icon class="text-lg ml-2" name="ic:round-remove-red-eye" />
-                </AppButton>
-            </AppCard>
+                :activity="activity"
+            />
         </section>
     </div>
 </template>
@@ -71,7 +47,7 @@ for (let i = 0; i < 3; i++) {
         id: 0,
         name: faker.commerce.product(),
         description: faker.commerce.productDescription(),
-        duration: faker.number.int({ min: 1, max: 10 }),
+        duration_minutes: faker.number.int({ min: 1, max: 10 }),
         rating: faker.number.float({ min: 0.1, max: 5.0, fractionDigits: 1 }),
         image: faker.image.url({ width: 400, height: 300 }),
     };
