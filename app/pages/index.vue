@@ -13,54 +13,136 @@
             <AppCard
                 v-for="program in programs"
                 :key="program.id"
-                :data="program"
-            />
+                :image="program.image"
+                :title="program.name"
+                :description="program.description"
+            >
+                <div
+                    v-if="program.progress"
+                    class="flex items-center justify-between mt-auto"
+                >
+                    <p
+                        v-if="program.duration"
+                        class="font-medium text-muted/90 text-sm flex items-center gap-1"
+                    >
+                        <Icon name="ic:baseline-calendar-month" />
+                        Day
+                        {{
+                            faker.number.int({
+                                min: 1,
+                                max: program.duration,
+                            })
+                        }}/{{ program.duration }}
+                    </p>
+                    <p class="text-sm flex items-center text-green-500 gap-1">
+                        {{ program.progress }}%
+                    </p>
+                </div>
+
+                <div v-else class="flex items-center justify-between mt-auto">
+                    <p class="text-muted/90 text-sm flex items-center gap-1">
+                        <Icon name="ic:outline-access-time" />
+                        {{ program.duration }}
+                        days
+                    </p>
+                    <p class="text-sm flex items-center text-text gap-1">
+                        {{ program.rating || 0 }}/5
+                        <Icon
+                            name="material-symbols:star-rounded"
+                            class="text-yellow-400 text-2xl"
+                        />
+                    </p>
+                </div>
+
+                <progress
+                    v-if="program.progress"
+                    class="progress progress-success w-full mt-4"
+                    :value="program.progress"
+                    max="100"
+                ></progress>
+
+                <AppButton
+                    v-if="program.progress"
+                    class="w-full shadow-sm border-t-transparent text-white mt-3"
+                    :color="'green'"
+                >
+                    Continue
+
+                    <Icon class="text-lg ml-2" name="ic:round-play-arrow" />
+                </AppButton>
+                <AppButton
+                    v-else
+                    class="w-full shadow-sm border-t-transparent text-white mt-3"
+                    :color="'green_dark'"
+                >
+                    View info
+                    <Icon class="text-lg ml-2" name="ic:round-remove-red-eye" />
+                </AppButton>
+            </AppCard>
             <AppCard
                 v-for="activity in activities"
                 :key="activity.id"
-                :data="activity"
-            />
+                :image="activity.image"
+                :title="activity.name"
+                :description="activity.description"
+            >
+                <div class="flex items-center justify-between mt-auto">
+                    <p class="text-muted/90 text-sm flex items-center gap-1">
+                        <Icon name="ic:outline-access-time" />
+                        {{ activity.duration }}
+                        minutes
+                    </p>
+                    <p class="text-sm flex items-center text-text gap-1">
+                        {{ activity.rating }}/5
+                        <Icon
+                            name="material-symbols:star-rounded"
+                            class="text-yellow-400 text-2xl"
+                        />
+                    </p>
+                </div>
+                <AppButton
+                    class="w-full shadow-sm border-t-transparent text-white mt-3"
+                    :color="'green_dark'"
+                >
+                    View info
+                    <Icon class="text-lg ml-2" name="ic:round-remove-red-eye" />
+                </AppButton>
+            </AppCard>
         </section>
     </div>
 </template>
 <script setup lang="ts">
 import type { Activity } from "~/models/activity.model";
-import { ActivityBuilder } from "~/models/activity.model";
 import { faker } from "@faker-js/faker";
-import { ProgramBuilder, type Program } from "~/models/program.model";
+import type { Program } from "~/models/program.model";
+
+const { data: activities } = await useFetch<Activity[]>(
+    "http://localhost:8080/api/activities",
+    {
+        server: true,
+    },
+);
+
+faker.seed(1);
 
 const name = faker.person.firstName();
 
 const programs: Program[] = [];
-const activities: Activity[] = [];
 
 for (let i = 0; i < 3; i++) {
-    const newProgram = new ProgramBuilder()
-        .setName(faker.commerce.product())
-        .setDescription(faker.commerce.productDescription())
-        .setDuration(faker.number.int({ min: 1, max: 10 }))
-        .setRating(
-            faker.number.float({ min: 0.1, max: 5.0, fractionDigits: 1 }),
-        )
-        .setImage(faker.image.url({ width: 400, height: 300 }));
+    const newProgram: Program = {
+        language: "en",
+        id: 0,
+        name: faker.commerce.product(),
+        description: faker.commerce.productDescription(),
+        duration: faker.number.int({ min: 1, max: 10 }),
+        rating: faker.number.float({ min: 0.1, max: 5.0, fractionDigits: 1 }),
+        image: faker.image.url({ width: 400, height: 300 }),
+    };
 
     if (faker.number.int({ min: 0, max: 1 }) == 1) {
-        newProgram.setProgress(faker.number.int({ min: 0, max: 100 }));
+        newProgram.progress = faker.number.int({ min: 0, max: 100 });
     }
-    programs.push(newProgram.build());
-}
-
-for (let i = 0; i < 10; i++) {
-    activities.push(
-        new ActivityBuilder()
-            .setName(faker.commerce.product())
-            .setDescription(faker.commerce.productDescription())
-            .setDuration(faker.number.int({ min: 1, max: 10 }))
-            .setRating(
-                faker.number.float({ min: 0.1, max: 5.0, fractionDigits: 1 }),
-            )
-            .setImage(faker.image.url({ width: 400, height: 300 }))
-            .build(),
-    );
+    programs.push(newProgram);
 }
 </script>
