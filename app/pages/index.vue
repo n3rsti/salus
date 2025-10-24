@@ -47,7 +47,7 @@ for (let i = 0; i < 3; i++) {
         id: 0,
         name: faker.commerce.product(),
         description: faker.commerce.productDescription(),
-        duration_minutes: faker.number.int({ min: 1, max: 10 }),
+        duration_days: faker.number.int({ min: 1, max: 10 }),
         rating: faker.number.float({ min: 0.1, max: 5.0, fractionDigits: 1 }),
         image: faker.image.url({ width: 400, height: 300 }),
     };

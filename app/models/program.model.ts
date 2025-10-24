@@ -1,7 +1,7 @@
 export interface Program {
     id: number;
     name: string;
-    duration_minutes: number;
+    duration_days: number;
     description: string;
     language: string;
     image: string;

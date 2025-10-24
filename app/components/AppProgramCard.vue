@@ -16,9 +16,9 @@
                 {{
                     faker.number.int({
                         min: 1,
-                        max: props.program.duration_minutes,
+                        max: props.program.duration_days,
                     })
-                }}/{{ props.program.duration_minutes }}
+                }}/{{ props.program.duration_days }}
             </p>
             <p class="text-sm flex items-center text-green-500 gap-1">
                 {{ props.program.progress }}%
@@ -28,7 +28,7 @@
         <div v-else class="flex items-center justify-between mt-auto">
             <p class="text-muted/90 text-sm flex items-center gap-1">
                 <Icon name="ic:outline-access-time" />
-                {{ props.program.duration_minutes }}
+                {{ props.program.duration_days }}
                 days
             </p>
             <p class="text-sm flex items-center text-text gap-1">
