@@ -1,7 +1,14 @@
 <template>
     <main class="flex flex-col justify-center items-center content-center p-4">
+        <NuxtLink class="absolute top-4 left-4" to="/"
+            ><AppButton :color="'green'">
+                <Icon
+                    class="text-4xl"
+                    name="dashicons:admin-home"
+                /> </AppButton
+        ></NuxtLink>
         <form
-            class="rounded-xl border-3 border-green-500 bg-primary-light text-green-700 mt-8 p-4 w-4/6"
+            class="rounded-xl border-3 border-green-500 bg-primary-light text-green-700 mt-8 p-4 w-96 min-w-fit"
         >
             <h2 class="text-green-500 font-semibold text-4xl">
                 Log in to salus
@@ -101,23 +108,28 @@
 
             <p class="mt-4">
                 Not yet a user?<br />
-                <a
-                    class="text-green-900 underline hover:cursor-pointer hover:text-green-600"
-                    >Sign up</a
+                <NuxtLink
+                    class="text-green-900 underline hover:text-green-600"
+                    to="/register"
+                    >Sign up</NuxtLink
                 >
             </p>
 
             <button
-                class="btn bg-white text-black border-green-500 w-full mt-10"
+                class="btn bg-white text-black border-green-500 w-full mt-10 hover:bg-gray-300"
             >
                 <Icon name="logos:microsoft-icon" />
                 Login with Microsoft
             </button>
-            <button class="btn bg-white text-black border-blue-500 w-full mt-4">
+            <button
+                class="btn bg-white text-black border-blue-500 w-full mt-4 hover:bg-gray-300"
+            >
                 <Icon name="logos:google-icon" />
                 Login with Google
             </button>
-            <button class="btn bg-white text-black border-black w-full mt-4">
+            <button
+                class="btn bg-white text-black border-black w-full mt-4 hover:bg-gray-300"
+            >
                 <Icon name="logos:github-icon" />
                 Login with Github
             </button>

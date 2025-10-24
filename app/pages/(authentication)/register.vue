@@ -1,7 +1,14 @@
 <template>
     <main class="flex flex-col justify-center items-center content-center p-4">
+        <NuxtLink class="absolute top-4 left-4" to="/"
+            ><AppButton :color="'green'">
+                <Icon
+                    class="text-4xl"
+                    name="dashicons:admin-home"
+                /> </AppButton
+        ></NuxtLink>
         <form
-            class="rounded-xl border-3 border-green-500 bg-primary-light text-green-700 mt-8 p-4 w-4/6"
+            class="rounded-xl border-3 border-green-500 bg-primary-light text-green-700 mt-8 p-4 w-96 min-w-fit"
         >
             <h2 class="text-green-500 font-semibold text-4xl">
                 Sign up to salus
@@ -29,7 +36,7 @@
                 </svg>
                 <input type="email" placeholder="mail@site.com" required />
             </label>
-            <div class="validator-hint hidden">Enter valid email address</div>
+            <p class="validator-hint hidden">Enter valid email address</p>
             <label
                 class="input validator bg-amber-50 border-2 border-primary-dark rounded-xl focus-within:border-green-500 w-full mt-4"
             >
@@ -112,6 +119,11 @@
                 Sign up
             </AppButton>
         </form>
+        <NuxtLink
+            class="text-green-900 underline hover:text-green-600 mt-4"
+            to="/login"
+            >Go to Login</NuxtLink
+        >
     </main>
 </template>
 >
