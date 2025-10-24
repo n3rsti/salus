@@ -11,7 +11,7 @@
             class="rounded-xl border-3 border-green-500 bg-primary-light text-green-700 mt-8 p-4 w-96 min-w-fit"
         >
             <h2 class="text-green-500 font-semibold text-4xl">
-                Log in to salus
+                Sign up to salus
             </h2>
             <label
                 class="input validator bg-amber-50 border-2 border-primary-dark rounded-xl focus-within:border-green-500 w-full mt-8"
@@ -36,8 +36,42 @@
                 </svg>
                 <input type="email" placeholder="mail@site.com" required />
             </label>
-            <div class="validator-hint hidden">Enter valid email address</div>
-
+            <p class="validator-hint hidden">Enter valid email address</p>
+            <label
+                class="input validator bg-amber-50 border-2 border-primary-dark rounded-xl focus-within:border-green-500 w-full mt-4"
+            >
+                <svg
+                    class="h-[1em] opacity-50"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                >
+                    <g
+                        stroke-linejoin="round"
+                        stroke-linecap="round"
+                        stroke-width="2.5"
+                        fill="none"
+                        stroke="currentColor"
+                    >
+                        <path
+                            d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"
+                        ></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </g>
+                </svg>
+                <input
+                    type="text"
+                    required
+                    placeholder="Username"
+                    pattern="[A-Za-z][A-Za-z0-9\-]*"
+                    minlength="3"
+                    maxlength="30"
+                    title="Only letters, numbers or dash"
+                />
+            </label>
+            <p class="validator-hint hidden">
+                Must be 3 to 30 characters
+                <br />containing only letters, numbers or dash
+            </p>
             <label
                 class="input validator bg-amber-50 border-2 border-primary-dark rounded-xl focus-within:border-green-500 mt-4 w-full"
             >
@@ -78,64 +112,21 @@
                 <br />At least one number <br />At least one lowercase letter
                 <br />At least one uppercase letter
             </p>
-
             <AppButton
                 class="w-full shadow-sm border-t-transparent text-white mt-4"
                 :color="'green'"
             >
-                <svg
-                    aria-label="Email icon"
-                    width="16"
-                    height="16"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                >
-                    <g
-                        stroke-linejoin="round"
-                        stroke-linecap="round"
-                        stroke-width="2"
-                        fill="none"
-                        stroke="white"
-                    >
-                        <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-                        <path
-                            d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"
-                        ></path>
-                    </g>
-                </svg>
-                <span class="ml-1">Login with Email</span>
+                Sign up
             </AppButton>
-
-            <p class="mt-4">
-                Not yet a user?<br />
-                <NuxtLink
-                    class="text-green-900 underline hover:text-green-600"
-                    to="/register"
-                    >Sign up</NuxtLink
-                >
-            </p>
-
-            <button
-                class="btn bg-white text-black border-green-500 w-full mt-10 hover:bg-gray-300"
-            >
-                <Icon name="logos:microsoft-icon" />
-                Login with Microsoft
-            </button>
-            <button
-                class="btn bg-white text-black border-blue-500 w-full mt-4 hover:bg-gray-300"
-            >
-                <Icon name="logos:google-icon" />
-                Login with Google
-            </button>
-            <button
-                class="btn bg-white text-black border-black w-full mt-4 hover:bg-gray-300"
-            >
-                <Icon name="logos:github-icon" />
-                Login with Github
-            </button>
         </form>
+        <NuxtLink
+            class="text-green-900 underline hover:text-green-600 mt-4"
+            to="/login"
+            >Go to Login</NuxtLink
+        >
     </main>
 </template>
+>
 <script setup lang="ts">
 definePageMeta({
     layout: "authentication",

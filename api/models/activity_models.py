@@ -1,5 +1,5 @@
-from sqlmodel import SQLModel, Field, Relationship
 from typing import List, Optional
+from sqlmodel import SQLModel, Field, Relationship
 
 class Activity(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -7,7 +7,7 @@ class Activity(SQLModel, table=True):
     duration_minutes: int
     description: str
     difficulty: int
-    media: List["ActivityMedia"] = Relationship(back_populates="activity", cascade_delete=True, )
+    media: List["ActivityMedia"] = Relationship(back_populates="activity", cascade_delete=True)
 
 class ActivityMedia(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -30,5 +30,3 @@ class ActivityRead(SQLModel):
     description: str
     difficulty: int
     media: List[ActivityMediaRead] = []
-
-
