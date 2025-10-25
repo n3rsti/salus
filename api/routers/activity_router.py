@@ -5,6 +5,8 @@ from sqlalchemy.orm import selectinload
 from database import SessionDep
 from models.program_models import Activity, ActivityMedia, ActivityRead, ActivityMediaRead
 
+# This file contains API endpoints related to Activities
+
 router = APIRouter(prefix="/api/activities", tags=["Activities"])
 
 @router.post("/", response_model=Activity)

@@ -6,6 +6,8 @@ from database import SessionDep
 from models.program_models import Program, ProgramRead, ProgramDay, ProgramDayRead, Activity
 from models.program_day_activities_link import ProgramDayActivityLink
 
+# This file contains API endpoints related to Programs
+
 router = APIRouter(prefix="/api/programs", tags=["Programs"])
 
 @router.get("/", response_model=list[ProgramRead])

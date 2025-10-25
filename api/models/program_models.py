@@ -2,6 +2,8 @@ from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship
 from models.program_day_activities_link import ProgramDayActivityLink
 
+# This file contains models implementing: Activities, ActivityMedia, Programs and ProgramDays tables 
+
 class Program(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str
@@ -11,14 +13,6 @@ class Program(SQLModel, table=True):
 
     days: List["ProgramDay"] = Relationship(back_populates="program", cascade_delete=True)
 
-class ProgramRead(SQLModel):
-    id: int
-    name: str
-    duration_days: int
-    description: str
-    language: str
-    days: List["ProgramDayRead"] = []
-
 class ProgramDay(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     description: str
@@ -27,13 +21,6 @@ class ProgramDay(SQLModel, table=True):
     program_id: int | None = Field(default=None, foreign_key="program.id", ondelete="CASCADE")
     program: Program | None = Relationship(back_populates="days")
     activities: list["Activity"] = Relationship(back_populates="program_days", link_model=ProgramDayActivityLink)
-
-class ProgramDayRead(SQLModel):
-    id: int
-    description: str
-    day_number: int
-    program_id: int | None = None
-    activities: list["ActivityRead"] = []
 
 class Activity(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -52,6 +39,23 @@ class ActivityMedia(SQLModel, table=True):
 
     activity_id: int | None = Field(default=None, foreign_key="activity.id", ondelete="CASCADE")
     activity: Activity | None = Relationship(back_populates="media")
+
+##### Read Models #####
+
+class ProgramRead(SQLModel):
+    id: int
+    name: str
+    duration_days: int
+    description: str
+    language: str
+    days: List["ProgramDayRead"] = []
+
+class ProgramDayRead(SQLModel):
+    id: int
+    description: str
+    day_number: int
+    program_id: int | None = None
+    activities: list["ActivityRead"] = []
 
 class ActivityMediaRead(SQLModel):
     id: int
