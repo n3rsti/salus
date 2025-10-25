@@ -1,18 +1,16 @@
 <template>
     <nav
-        class="p-4 sm:px-8 md:px-10 lg:px-14 bg-white shadow-sm flex w-full items-center justify-between"
+        class="p-4 bg-white shadow-sm flex w-full items-center justify-between"
     >
         <AppButton
-            class="flex items-center border-green-400 shadow-none rounded-xl py-1"
+            class="flex items-center border-green-400 shadow-none rounded-xl py-1 lg:p-2 lg:px-3 justify-center"
             :color="'green'"
         >
             <Icon
-                class="text-2xl text-green-100"
+                class="text-2xl text-white"
                 name="material-symbols:local-fire-department-rounded"
             />
-            <span class="shadow-sm font-bold text-green-100"
-                >{{ streak }}d</span
-            >
+            <span class="shadow-sm font-bold text-white">{{ streak }}d</span>
         </AppButton>
         <label
             class="input bg-white mx-3 text-muted border-2 border-primary-dark rounded-xl focus-within:border-green-500 xl:w-2/5"
@@ -35,11 +33,20 @@
             </svg>
             <input type="search" required placeholder="Search" />
         </label>
-        <AppButton class="border-2 border-primary-dark rounded-xl lg:scale-0">
+        <AppButton
+            class="border-2 border-primary-dark rounded-xl lg:scale-0"
+            @click="toggleSidebar"
+        >
             <Icon class="text-2xl text-green-500" name="ic:round-menu" />
         </AppButton>
     </nav>
 </template>
 <script setup>
 const streak = 7;
+
+const emit = defineEmits(["toggle_sidebar"]);
+
+function toggleSidebar() {
+    emit("toggle_sidebar");
+}
 </script>

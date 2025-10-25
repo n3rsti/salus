@@ -8,7 +8,7 @@
             </h2>
         </div>
         <section
-            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3"
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3"
         >
             <AppProgramCard
                 v-for="program in programs"
