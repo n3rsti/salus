@@ -1,3 +1,4 @@
+
 Table Roles {
   id int [pk, increment]
   name text [unique, not null]
@@ -16,6 +17,7 @@ Table Programs {
   duration_days int
   description text
   language text
+  image_url text
 }
 
 Table ProgramDays {
@@ -31,6 +33,7 @@ Table Activities {
   duration_minutes int
   description text
   difficulty int
+  image_url text
 }
 
 Table ActivityMedia {

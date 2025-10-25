@@ -1,6 +1,6 @@
 <template>
     <main class="flex flex-col justify-center items-center content-center p-4">
-        <NuxtLink class="absolute top-4 left-4" to="/"
+        <NuxtLink class="absolute top-4 left-4 text-white" to="/"
             ><AppButton :color="'green'">
                 <Icon
                     class="text-4xl"
@@ -8,9 +8,9 @@
                 /> </AppButton
         ></NuxtLink>
         <form
-            class="rounded-xl border-3 border-green-500 bg-primary-light text-green-700 mt-8 p-4 w-96 min-w-fit"
+            class="rounded-xl bg-primary-light text-green-700 p-8 w-11/12 max-w-[560px] min-w-[300px] shadow border-neutral-100 border-t border-t-transparent"
         >
-            <h2 class="text-green-500 font-semibold text-4xl">
+            <h2 class="text-green-500 font-semibold text-3xl">
                 Sign up to salus
             </h2>
             <label
@@ -107,10 +107,46 @@
                     title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
                 />
             </label>
+            <label
+                class="input validator bg-amber-50 border-2 border-primary-dark rounded-xl focus-within:border-green-500 mt-4 w-full"
+            >
+                <svg
+                    class="h-[1em] opacity-50"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                >
+                    <g
+                        stroke-linejoin="round"
+                        stroke-linecap="round"
+                        stroke-width="2.5"
+                        fill="none"
+                        stroke="currentColor"
+                    >
+                        <path
+                            d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"
+                        ></path>
+                        <circle
+                            cx="16.5"
+                            cy="7.5"
+                            r=".5"
+                            fill="currentColor"
+                        ></circle>
+                    </g>
+                </svg>
+                <input
+                    type="password"
+                    required
+                    placeholder="Password"
+                    minlength="8"
+                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                    title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
+                />
+            </label>
             <p class="validator-hint hidden">
                 Must be more than 8 characters, including
                 <br />At least one number <br />At least one lowercase letter
-                <br />At least one uppercase letter
+                <br />At least one uppercase letter <br />Passwords needs to be
+                the same
             </p>
             <AppButton
                 class="w-full shadow-sm border-t-transparent text-white mt-4"

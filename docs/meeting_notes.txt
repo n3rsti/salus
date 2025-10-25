@@ -19,3 +19,7 @@ Malak Kacper: Implement activities db schema on backend
 Witucki Krzysztof: Create dashboard view
 Iliadis Theodoros: Implement OAuth 2.0
 
+Meeting 25.10.2025
+Participants: Malak Kacper, Witucki Krzysztof, Iliadis Theodoros
+During meeting we disscused OAuth 2.0 implementation
+

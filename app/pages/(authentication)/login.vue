@@ -1,6 +1,6 @@
 <template>
     <main class="flex flex-col justify-center items-center content-center p-4">
-        <NuxtLink class="absolute top-4 left-4" to="/"
+        <NuxtLink class="absolute top-4 left-4 text-white" to="/"
             ><AppButton :color="'green'">
                 <Icon
                     class="text-4xl"
@@ -8,9 +8,9 @@
                 /> </AppButton
         ></NuxtLink>
         <form
-            class="rounded-xl border-3 border-green-500 bg-primary-light text-green-700 mt-8 p-4 w-96 min-w-fit"
+            class="rounded-xl bg-primary-light text-green-700 p-8 w-11/12 shadow border-neutral-100 border-t border-t-transparent"
         >
-            <h2 class="text-green-500 font-semibold text-4xl">
+            <h2 class="text-green-500 font-semibold text-3xl">
                 Log in to salus
             </h2>
             <label

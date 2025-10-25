@@ -3,7 +3,9 @@ from sqlmodel import select
 from sqlalchemy.orm import selectinload
 
 from database import SessionDep
-from models.activity_models import Activity, ActivityMedia, ActivityRead, ActivityMediaRead
+from models.program_models import Activity, ActivityMedia, ActivityRead, ActivityMediaRead
+
+# This file contains API endpoints related to Activities
 
 router = APIRouter(prefix="/api/activities", tags=["Activities"])
 
@@ -43,6 +45,7 @@ def update_activity(session: SessionDep, activity_id: int, activity_updated: Act
     activity.duration_minutes = activity_updated.duration_minutes
     activity.description = activity_updated.description
     activity.difficulty = activity_updated.difficulty
+    activity.image_url = activity_updated.image_url
 
     session.add(activity)
     session.commit()

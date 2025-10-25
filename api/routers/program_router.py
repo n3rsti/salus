@@ -3,7 +3,10 @@ from sqlmodel import select
 from sqlalchemy.orm import selectinload
 
 from database import SessionDep
-from models.program_models import Program, ProgramRead, ProgramDay, ProgramDayRead
+from models.program_models import Program, ProgramRead, ProgramDay, ProgramDayRead, Activity
+from models.program_day_activities_link import ProgramDayActivityLink
+
+# This file contains API endpoints related to Programs
 
 router = APIRouter(prefix="/api/programs", tags=["Programs"])
 
@@ -43,6 +46,7 @@ def update_program(session: SessionDep, program_id: int, program_updated: Progra
     program.duration_days = program_updated.duration_days
     program.description = program_updated.description
     program.language = program_updated.language
+    program.image_url = program_updated.image_url
 
     session.add(program)
     session.commit()
@@ -84,3 +88,16 @@ def update_program_day(session: SessionDep, program_day_id: int, program_day_upd
     session.commit()
     session.refresh(program_day)
     return program_day
+
+@router.post("/days/{program_day_id}/activities/{activity_id}")
+def link_activity_to_program_day(program_day_id: int, activity_id: int, session: SessionDep):
+    program_day = session.get(ProgramDay, program_day_id)
+    activity = session.get(Activity, activity_id)
+
+    if not program_day or not activity:
+        raise HTTPException(status_code=404, detail="ProgramDay or Activity not found")
+
+    link = ProgramDayActivityLink(program_day_id=program_day_id, activity_id=activity_id)
+    session.add(link)
+    session.commit()
+    return {"ok": True, "message": f"Activity {activity_id} linked to ProgramDay {program_day_id}"}
