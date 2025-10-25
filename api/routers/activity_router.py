@@ -45,6 +45,7 @@ def update_activity(session: SessionDep, activity_id: int, activity_updated: Act
     activity.duration_minutes = activity_updated.duration_minutes
     activity.description = activity_updated.description
     activity.difficulty = activity_updated.difficulty
+    activity.image_url = activity_updated.image_url
 
     session.add(activity)
     session.commit()

@@ -46,6 +46,7 @@ def update_program(session: SessionDep, program_id: int, program_updated: Progra
     program.duration_days = program_updated.duration_days
     program.description = program_updated.description
     program.language = program_updated.language
+    program.image_url = program_updated.image_url
 
     session.add(program)
     session.commit()

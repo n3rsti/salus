@@ -10,6 +10,7 @@ class Program(SQLModel, table=True):
     duration_days: int
     description: str
     language: str
+    image_url: str
 
     days: List["ProgramDay"] = Relationship(back_populates="program", cascade_delete=True)
 
@@ -28,6 +29,7 @@ class Activity(SQLModel, table=True):
     duration_minutes: int
     description: str
     difficulty: int
+    image_url: str
     media: List["ActivityMedia"] = Relationship(back_populates="activity", cascade_delete=True)
 
     program_days: list["ProgramDay"] = Relationship(back_populates="activities", link_model=ProgramDayActivityLink)
@@ -48,6 +50,7 @@ class ProgramRead(SQLModel):
     duration_days: int
     description: str
     language: str
+    image_url: str
     days: List["ProgramDayRead"] = []
 
 class ProgramDayRead(SQLModel):
@@ -69,4 +72,5 @@ class ActivityRead(SQLModel):
     duration_minutes: int
     description: str
     difficulty: int
+    image_url: str
     media: List[ActivityMediaRead] = []
