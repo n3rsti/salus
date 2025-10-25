@@ -1,4 +1,3 @@
-from __future__ import annotations
 from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship
 from models.program_day_activities_link import ProgramDayActivityLink
