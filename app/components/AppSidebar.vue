@@ -6,7 +6,7 @@
             @click="toggleSidebar"
         ></section>
         <aside
-            class="h-screen fixed z-30 lg:z-0 left-0 top-0 w-60 bg-white transition-transform lg:mt-20"
+            class="h-screen fixed z-30 lg:z-0 left-0 top-0 w-60 bg-white transition-transform duration-200 lg:mt-20"
             :class="props.isOpen ? '' : '-translate-x-full lg:translate-0'"
         >
             <section
@@ -23,10 +23,10 @@
                     :color="'green'"
                 >
                     <Icon
-                        class="text-2xl text-green-100"
+                        class="text-2xl text-white"
                         name="material-symbols:local-fire-department-rounded"
                     />
-                    <span class="shadow-sm font-bold text-green-100"
+                    <span class="shadow-sm font-bold text-white"
                         >{{ streak }}d</span
                     >
                 </AppButton>
@@ -34,22 +34,28 @@
             <section class="p-3 lg:p-4 py-5">
                 <ul class="flex flex-col gap-2">
                     <li>
-                        <AppVerticalCard
-                            :icon="'material-symbols:home-rounded'"
-                            :is-active="true"
-                        >
-                            <p>Home</p>
-                        </AppVerticalCard>
+                        <NuxtLink to="/">
+                            <AppVerticalCard
+                                :icon="'material-symbols:home-rounded'"
+                                :is-active="true"
+                            >
+                                <p>Home</p>
+                            </AppVerticalCard>
+                        </NuxtLink>
                     </li>
                     <li>
-                        <AppVerticalCard :icon="'ic:round-timeline'">
-                            <p>In progress</p>
-                        </AppVerticalCard>
+                        <NuxtLink to="/">
+                            <AppVerticalCard :icon="'ic:round-timeline'">
+                                <p>In progress</p>
+                            </AppVerticalCard>
+                        </NuxtLink>
                     </li>
                     <li>
-                        <AppVerticalCard :icon="'ic:round-tag-faces'">
-                            <p>Mood log</p>
-                        </AppVerticalCard>
+                        <NuxtLink to="/">
+                            <AppVerticalCard :icon="'ic:round-tag-faces'">
+                                <p>Mood log</p>
+                            </AppVerticalCard>
+                        </NuxtLink>
                     </li>
                 </ul>
                 <span
@@ -57,14 +63,20 @@
                 ></span>
                 <ul class="flex flex-col gap-1">
                     <li>
-                        <AppVerticalCard :icon="'ic:round-calendar-month'">
-                            <p>Programs</p>
-                        </AppVerticalCard>
+                        <NuxtLink to="/">
+                            <AppVerticalCard :icon="'ic:round-calendar-month'">
+                                <p>Programs</p>
+                            </AppVerticalCard>
+                        </NuxtLink>
                     </li>
                     <li>
-                        <AppVerticalCard :icon="'ic:round-sports-gymnastics'">
-                            <p>Activities</p>
-                        </AppVerticalCard>
+                        <NuxtLink to="/">
+                            <AppVerticalCard
+                                :icon="'ic:round-sports-gymnastics'"
+                            >
+                                <p>Activities</p>
+                            </AppVerticalCard>
+                        </NuxtLink>
                     </li>
                 </ul>
             </section>
