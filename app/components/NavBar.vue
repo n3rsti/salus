@@ -1,6 +1,6 @@
 <template>
     <nav
-        class="p-4 sm:px-8 md:px-10 lg:px-14 bg-white shadow-sm flex items-center justify-between"
+        class="p-4 sm:px-8 md:px-10 lg:px-14 bg-white shadow-sm flex w-full items-center justify-between"
     >
         <AppButton
             class="flex items-center border-green-400 shadow-none rounded-xl py-1"

@@ -10,57 +10,48 @@
         <section
             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3"
         >
-            <AppCard
+            <AppProgramCard
                 v-for="program in programs"
                 :key="program.id"
-                :data="program"
+                :program="program"
             />
-            <AppCard
+            <AppActivityCard
                 v-for="activity in activities"
                 :key="activity.id"
-                :data="activity"
+                :activity="activity"
             />
         </section>
     </div>
 </template>
 <script setup lang="ts">
 import type { Activity } from "~/models/activity.model";
-import { ActivityBuilder } from "~/models/activity.model";
 import { faker } from "@faker-js/faker";
-import { ProgramBuilder, type Program } from "~/models/program.model";
+import type { Program } from "~/models/program.model";
+
+const { data: activities } = await useFetch<Activity[]>(
+    "http://localhost:8080/api/activities",
+);
+
+faker.seed(1);
 
 const name = faker.person.firstName();
 
 const programs: Program[] = [];
-const activities: Activity[] = [];
 
 for (let i = 0; i < 3; i++) {
-    const newProgram = new ProgramBuilder()
-        .setName(faker.commerce.product())
-        .setDescription(faker.commerce.productDescription())
-        .setDuration(faker.number.int({ min: 1, max: 10 }))
-        .setRating(
-            faker.number.float({ min: 0.1, max: 5.0, fractionDigits: 1 }),
-        )
-        .setImage(faker.image.url({ width: 400, height: 300 }));
+    const newProgram: Program = {
+        language: "en",
+        id: faker.number.int({ min: 1, max: 100 }),
+        name: faker.commerce.product(),
+        description: faker.commerce.productDescription(),
+        duration_days: faker.number.int({ min: 1, max: 10 }),
+        rating: faker.number.float({ min: 0.1, max: 5.0, fractionDigits: 1 }),
+        image: faker.image.url({ width: 400, height: 300 }),
+    };
 
     if (faker.number.int({ min: 0, max: 1 }) == 1) {
-        newProgram.setProgress(faker.number.int({ min: 0, max: 100 }));
+        newProgram.progress = faker.number.int({ min: 0, max: 100 });
     }
-    programs.push(newProgram.build());
-}
-
-for (let i = 0; i < 10; i++) {
-    activities.push(
-        new ActivityBuilder()
-            .setName(faker.commerce.product())
-            .setDescription(faker.commerce.productDescription())
-            .setDuration(faker.number.int({ min: 1, max: 10 }))
-            .setRating(
-                faker.number.float({ min: 0.1, max: 5.0, fractionDigits: 1 }),
-            )
-            .setImage(faker.image.url({ width: 400, height: 300 }))
-            .build(),
-    );
+    programs.push(newProgram);
 }
 </script>
