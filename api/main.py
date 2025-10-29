@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from database import create_db_and_tables
-from routers import activity_router, program_router
+from routers import activity_router, program_router, tag_router
 
 app = FastAPI()
 
@@ -10,3 +10,4 @@ def on_startup():
 
 app.include_router(activity_router.router)
 app.include_router(program_router.router)
+app.include_router(tag_router.router)
