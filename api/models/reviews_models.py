@@ -26,8 +26,16 @@ class ReviewCreate(ReviewBase):
     pass
 
 class ReviewUpdate(SQLModel):
-    rating: int = Field(ge=1, le=5, description="Rating must be between 1 and 5")
+    rating: Optional[int] = None
     comment: Optional[str] = None
+
+    @field_validator("rating")
+    def validate_rating(cls, v):
+        if v is None:
+            return v
+        if not (1 <= v <= 5):
+            raise ValueError("Rating must be between 1 and 5")
+        return v
 
 class ReviewRead(ReviewBase):
     id: int
