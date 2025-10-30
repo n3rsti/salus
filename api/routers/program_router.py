@@ -27,15 +27,6 @@ def create_program(program_in: ProgramCreate, session: SessionDep):
     session.refresh(program)
     return program
 
-@router.delete("/{program_id}")
-def delete_program(session: SessionDep, program_id: int):
-    program = session.get(Program, program_id)
-    if not program:
-        raise HTTPException(status_code=404, detail="Program not found")
-    session.delete(program)
-    session.commit()
-    return {"ok": True}
-
 @router.put("/{program_id}", response_model=ProgramRead)
 def update_program(session: SessionDep, program_id: int, program_update: ProgramUpdate):
     program = session.get(Program, program_id)
@@ -52,6 +43,14 @@ def update_program(session: SessionDep, program_id: int, program_update: Program
     session.refresh(program)
     return program
 
+@router.delete("/{program_id}")
+def delete_program(session: SessionDep, program_id: int):
+    program = session.get(Program, program_id)
+    if not program:
+        raise HTTPException(status_code=404, detail="Program not found")
+    session.delete(program)
+    session.commit()
+    return {"ok": True}
 
 @router.post("/days", response_model=ProgramDay)
 def create_program_day(day_in: ProgramDayCreate, session: SessionDep):
@@ -64,15 +63,6 @@ def create_program_day(day_in: ProgramDayCreate, session: SessionDep):
     session.commit()
     session.refresh(day)
     return day
-
-@router.delete("/days/{program_day_id}")
-def delete_program_day(session: SessionDep, program_day_id: int):
-    program_day = session.get(ProgramDay, program_day_id)
-    if not program_day:
-        raise HTTPException(status_code=404, detail="Program day not found")
-    session.delete(program_day)
-    session.commit()
-    return {"ok": True}
 
 @router.put("/days/{program_day_id}", response_model=ProgramDay)
 def update_program_day(session: SessionDep, program_day_id: int, program_day_update: ProgramDayUpdate):
@@ -94,6 +84,15 @@ def update_program_day(session: SessionDep, program_day_id: int, program_day_upd
     session.commit()
     session.refresh(program_day)
     return program_day
+
+@router.delete("/days/{program_day_id}")
+def delete_program_day(session: SessionDep, program_day_id: int):
+    program_day = session.get(ProgramDay, program_day_id)
+    if not program_day:
+        raise HTTPException(status_code=404, detail="Program day not found")
+    session.delete(program_day)
+    session.commit()
+    return {"ok": True}
 
 @router.post("/days/{program_day_id}/activities/{activity_id}")
 def link_activity_to_program_day(program_day_id: int, activity_id: int, session: SessionDep):

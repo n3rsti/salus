@@ -6,17 +6,6 @@ from pydantic import field_validator
 
 # This file contains models implementing: Activities, ActivityMedia, Programs and ProgramDays tables 
 
-# class Program(SQLModel, table=True):
-#     id: int | None = Field(default=None, primary_key=True)
-#     name: str
-#     duration_days: int
-#     description: str
-#     language: str
-#     image_url: str
-
-#     days: List["ProgramDay"] = Relationship(back_populates="program", cascade_delete=True)
-#     tags: list["Tag"] = Relationship(back_populates="programs", link_model=ProgramTagLink)
-
 class ProgramBase(SQLModel):
     name: str
     duration_days: int
@@ -61,15 +50,6 @@ class ProgramRead(ProgramBase):
     days: List["ProgramDayRead"] = []
     tags: List["TagRead"] = []
 
-# class ProgramDay(SQLModel, table=True):
-#     id: int | None = Field(default=None, primary_key=True)
-#     description: str
-#     day_number: int
-
-#     program_id: int | None = Field(default=None, foreign_key="program.id", ondelete="CASCADE")
-#     program: Program | None = Relationship(back_populates="days")
-#     activities: list["Activity"] = Relationship(back_populates="program_days", link_model=ProgramDayActivityLink)
-
 class ProgramDayBase(SQLModel):
     description: str
     day_number: int
@@ -93,68 +73,139 @@ class ProgramDayRead(ProgramDayBase):
     id: int
     program_id: int
     activities: List["ActivityRead"] = []
-#-----------------------------
-class Activity(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+
+class ActivityBase(SQLModel):
     name: str
     duration_minutes: int
     description: str
     difficulty: int
     image_url: str
-    media: List["ActivityMedia"] = Relationship(back_populates="activity", cascade_delete=True)
 
-    program_days: list["ProgramDay"] = Relationship(back_populates="activities", link_model=ProgramDayActivityLink)
+    @field_validator("difficulty")
+    def validate_difficulty(cls, v):
+        if not (1 <= v <= 5):
+            raise ValueError("difficulty must be between 1 and 5")
+        return v
 
-class ActivityMedia(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+class Activity(ActivityBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    media: List["ActivityMedia"] = Relationship(back_populates="activity",cascade_delete=True)
+    program_days: List["ProgramDay"] = Relationship(back_populates="activities",link_model=ProgramDayActivityLink)
+
+class ActivityCreate(ActivityBase):
+    pass
+
+class ActivityUpdate(SQLModel):
+    name: Optional[str] = None
+    duration_minutes: Optional[int] = None
+    description: Optional[str] = None
+    difficulty: Optional[int] = None
+    image_url: Optional[str] = None
+
+    @field_validator("difficulty")
+    def validate_difficulty(cls, v):
+        if v is None:
+            return v
+        if not (1 <= v <= 5):
+            raise ValueError("difficulty must be between 1 and 5")
+        return v
+
+class ActivityRead(ActivityBase):
+    id: int
+    media: List["ActivityMediaRead"] = []
+
+class ActivityMediaBase(SQLModel):
     url: str
     type: str
 
-    activity_id: int | None = Field(default=None, foreign_key="activity.id", ondelete="CASCADE")
-    activity: Activity | None = Relationship(back_populates="media")
+    @field_validator("type")
+    def validate_type(cls, v):
+        allowed_types = {"image", "video", "audio", "article"}
+        if v not in allowed_types:
+            raise ValueError(f"type must be one of {allowed_types}")
+        return v
 
-class Tag(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+class ActivityMedia(ActivityMediaBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    activity_id: Optional[int] = Field(default=None, foreign_key="activity.id", ondelete="CASCADE")
+    activity: Optional["Activity"] = Relationship(back_populates="media")
+
+class ActivityMediaCreate(ActivityMediaBase):
+    activity_id: int
+
+class ActivityMediaUpdate(SQLModel):
+    url: Optional[str] = None
+    type: Optional[str] = None
+    activity_id: Optional[int] = None
+
+    @field_validator("type")
+    def validate_type(cls, v):
+        if v is None:
+            return v
+        allowed_types = {"image", "video", "audio", "article"}
+        if v not in allowed_types:
+            raise ValueError(f"type must be one of {allowed_types}")
+        return v
+
+class ActivityMediaRead(ActivityMediaBase):
+    id: int
+    activity_id: int
+
+# class Tag(SQLModel, table=True):
+#     id: int | None = Field(default=None, primary_key=True)
+#     name: str
+#     icon: str
+
+#     programs: list["Program"] = Relationship(back_populates="tags", link_model=ProgramTagLink)
+
+class TagBase(SQLModel):
     name: str
     icon: str
 
-    programs: list["Program"] = Relationship(back_populates="tags", link_model=ProgramTagLink)
+    @field_validator("name")
+    def validate_name(cls, v):
+        if not v.strip():
+            raise ValueError("name cannot be empty or whitespace")
+        return v
 
-##### Read Models #####
+    @field_validator("icon")
+    def validate_icon(cls, v):
+        if not v.strip():
+            raise ValueError("icon cannot be empty or whitespace")
+        return v
 
-# class ProgramRead(SQLModel):
+class Tag(TagBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    programs: List["Program"] = Relationship(back_populates="tags",link_model=ProgramTagLink)
+
+class TagCreate(TagBase):
+    pass
+
+class TagUpdate(SQLModel):
+    name: Optional[str] = None
+    icon: Optional[str] = None
+
+    @field_validator("name")
+    def validate_name(cls, v):
+        if v is None:
+            return v
+        if not v.strip():
+            raise ValueError("name cannot be empty or whitespace")
+        return v
+
+    @field_validator("icon")
+    def validate_icon(cls, v):
+        if v is None:
+            return v
+        if not v.strip():
+            raise ValueError("icon cannot be empty or whitespace")
+        return v
+
+class TagRead(TagBase):
+    id: int
+
+# class TagRead(SQLModel):
 #     id: int
 #     name: str
-#     duration_days: int
-#     description: str
-#     language: str
-#     image_url: str
-#     days: List["ProgramDayRead"] = []
-#     tags: List["TagRead"] = []
-
-# class ProgramDayRead(SQLModel):
-#     id: int
-#     description: str
-#     day_number: int
-#     program_id: int | None = None
-#     activities: list["ActivityRead"] = []
-
-class ActivityMediaRead(SQLModel):
-    id: int
-    url: str
-    type: str
-    activity_id: int | None = None
-
-class ActivityRead(SQLModel):
-    id: int
-    name: str
-    duration_minutes: int
-    description: str
-    difficulty: int
-    image_url: str
-    media: List[ActivityMediaRead] = []
-
-class TagRead(SQLModel):
-    id: int
-    name: str
-    icon: str
+#     icon: str

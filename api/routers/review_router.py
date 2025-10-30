@@ -40,15 +40,6 @@ def create_review(review_in: ReviewCreate, session: SessionDep):
     session.refresh(review)
     return review
 
-@router.delete("/{review_id}")
-def delete_review(session: SessionDep, review_id: int):
-    review = session.get(Review, review_id)
-    if not review:
-        raise HTTPException(status_code=404, detail="Review not found")
-    session.delete(review)
-    session.commit()
-    return {"ok": True}
-
 @router.put("/{review_id}", response_model=ReviewRead)
 def update_review(review_id: int, review_update: ReviewUpdate, session: SessionDep):
     review = session.get(Review, review_id)
@@ -64,3 +55,13 @@ def update_review(review_id: int, review_update: ReviewUpdate, session: SessionD
     session.refresh(review)
 
     return review
+
+@router.delete("/{review_id}")
+def delete_review(session: SessionDep, review_id: int):
+    review = session.get(Review, review_id)
+    if not review:
+        raise HTTPException(status_code=404, detail="Review not found")
+    session.delete(review)
+    session.commit()
+    return {"ok": True}
+
