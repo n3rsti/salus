@@ -24,7 +24,6 @@ logs
 !.env.example
 
 __pycache__
-<<<<<<< HEAD
 venv
 # Devenv
 .devenv*
@@ -36,6 +35,4 @@ devenv.local.yaml
 
 # pre-commit
 .pre-commit-config.yaml
-=======
 venv
->>>>>>> feature/activities_api
