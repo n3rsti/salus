@@ -152,13 +152,6 @@ class ActivityMediaRead(ActivityMediaBase):
     id: int
     activity_id: int
 
-# class Tag(SQLModel, table=True):
-#     id: int | None = Field(default=None, primary_key=True)
-#     name: str
-#     icon: str
-
-#     programs: list["Program"] = Relationship(back_populates="tags", link_model=ProgramTagLink)
-
 class TagBase(SQLModel):
     name: str
     icon: str
@@ -204,8 +197,3 @@ class TagUpdate(SQLModel):
 
 class TagRead(TagBase):
     id: int
-
-# class TagRead(SQLModel):
-#     id: int
-#     name: str
-#     icon: str
