@@ -3,7 +3,7 @@ from sqlmodel import select
 from sqlalchemy.orm import selectinload
 
 from database import SessionDep
-from models.program_models import Tag, TagRead, Program, TagCreate, TagUpdate
+from models.tag_models import Tag, TagRead, Program, TagCreate, TagUpdate
 from models.programs_tags_link import ProgramTagLink
 
 # This file contains API endpoints related to Tags

@@ -3,7 +3,7 @@ from sqlmodel import select
 from sqlalchemy.orm import selectinload
 
 from database import SessionDep
-from models.program_models import Activity, ActivityMedia, ActivityRead, ActivityMediaRead, ActivityCreate, ActivityUpdate, ActivityMediaCreate, ActivityMediaUpdate
+from models.activity_models import Activity, ActivityMedia, ActivityRead, ActivityMediaRead, ActivityCreate, ActivityUpdate, ActivityMediaCreate, ActivityMediaUpdate
 
 # This file contains API endpoints related to Activities
 
