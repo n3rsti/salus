@@ -2,7 +2,9 @@ from fastapi import APIRouter, HTTPException, status
 from sqlmodel import select
 from passlib.context import CryptContext
 from database import SessionDep
-from models.user_models import (Users,UsersCreate,UsersRead,UsersUpdate,Role,)
+from models.user_models import (Users,UsersCreate,UsersRead,UsersUpdate,Role)
+
+# This file contains API endpoints related to Users (CRUD and role assignment)
 
 router = APIRouter(prefix="/api/users", tags=["Users"])
 
@@ -23,6 +25,14 @@ def create_user(data: UsersCreate, session: SessionDep):
             detail="Username already taken",
         )
 
+    if data.email is not None:
+        email_owner = session.exec(select(Users).where(Users.email == data.email)).first()
+        if email_owner:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Email already registered",
+            )
+
     # validate role_id
     role = session.get(Role, data.role_id)
     if not role:
@@ -36,6 +46,7 @@ def create_user(data: UsersCreate, session: SessionDep):
 
     user = Users(
         username=data.username,
+        email=data.email,
         role_id=data.role_id,
         password=password_hash,
     )
@@ -81,6 +92,17 @@ def update_user(user_id: int, data: UsersUpdate, session: SessionDep):
     # password change
     if data.password is not None:
         user.password = hash_password(data.password)
+
+    if data.email is not None:
+        email_owner = session.exec(
+            select(Users).where(Users.email == data.email, Users.id != user_id)
+        ).first()
+        if email_owner:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Email already registered",
+            )
+        user.email = data.email
 
     # role change
     if data.role_id is not None:
