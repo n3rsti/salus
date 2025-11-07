@@ -33,7 +33,7 @@ class Users(UsersBase, table=True):
     password: Optional[str] = Field(
         default=None,
         sa_column=Column("password", String, nullable=True),
-        description="BCrypt hashed user password when using credentials login",
+        description="Argonv2 hashed user password when using credentials login",
     )
     oauth_provider: Optional[str] = Field(
         default=None,

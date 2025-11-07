@@ -1,17 +1,17 @@
 from fastapi import APIRouter, HTTPException, status
 from sqlmodel import select
-from passlib.context import CryptContext
 from database import SessionDep
 from models.user_models import (Users,UsersCreate,UsersRead,UsersUpdate,Role)
+from argon2 import PasswordHasher
 
 # This file contains API endpoints related to Users (CRUD and role assignment)
 
 router = APIRouter(prefix="/api/users", tags=["Users"])
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+ph = PasswordHasher()
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    return ph.hash(password)
 
 
 # Users:
