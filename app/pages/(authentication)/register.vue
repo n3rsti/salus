@@ -9,6 +9,7 @@
         ></NuxtLink>
         <form
             class="rounded-xl bg-primary-light text-green-700 p-8 w-11/12 max-w-[560px] min-w-[300px] shadow border-neutral-100 border-t border-t-transparent"
+            @submit.prevent="handleRegister"
         >
             <h2 class="text-green-500 font-semibold text-3xl">
                 Sign up to salus
@@ -34,7 +35,13 @@
                         ></path>
                     </g>
                 </svg>
-                <input type="email" placeholder="mail@site.com" required />
+                <input
+                    v-model="email"
+                    autocomplete="off"
+                    type="email"
+                    placeholder="mail@site.com"
+                    required
+                />
             </label>
             <p class="validator-hint hidden">Enter valid email address</p>
             <label
@@ -59,6 +66,8 @@
                     </g>
                 </svg>
                 <input
+                    v-model="username"
+                    autocomplete="username"
                     type="text"
                     required
                     placeholder="Username"
@@ -99,6 +108,8 @@
                     </g>
                 </svg>
                 <input
+                    v-model="password"
+                    autocomplete="new-password"
                     type="password"
                     required
                     placeholder="Password"
@@ -134,6 +145,8 @@
                     </g>
                 </svg>
                 <input
+                    v-model="passwordConfirm"
+                    autocomplete="new-password"
                     type="password"
                     required
                     placeholder="Password"
@@ -162,9 +175,21 @@
         >
     </main>
 </template>
->
+
 <script setup lang="ts">
 definePageMeta({
     layout: "authentication",
 });
+
+const email = ref("");
+const username = ref("");
+const password = ref("");
+const passwordConfirm = ref("");
+async function handleRegister() {
+    if (password.value != passwordConfirm.value) {
+        passwordConfirm.value = "";
+        return;
+    }
+    //dodawanie usera
+}
 </script>
