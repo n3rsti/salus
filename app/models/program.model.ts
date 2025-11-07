@@ -1,10 +1,10 @@
 export interface Program {
-    id: number;
+    id?: number;
     name: string;
     duration_days: number;
     description: string;
     language: string;
-    image: string;
+    image_url: string;
     progress?: number;
     rating?: number;
 }

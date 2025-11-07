@@ -14,5 +14,10 @@ export default defineNuxtConfig({
             weights: [400, 500, 600, 700, 800, 900],
         },
     },
-});
 
+    runtimeConfig: {
+        public: {
+            apiBase: process.env.API_BASE_URL || "http://localhost:8080",
+        },
+    },
+});

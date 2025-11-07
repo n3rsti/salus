@@ -5,5 +5,5 @@ export interface Activity {
     description: string;
     difficulty: number;
     rating: number;
-    image: string;
+    image_url: string;
 }
