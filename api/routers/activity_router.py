@@ -3,18 +3,11 @@ from sqlmodel import select
 from sqlalchemy.orm import selectinload
 
 from database import SessionDep
-from models.program_models import Activity, ActivityMedia, ActivityRead, ActivityMediaRead
+from models.activity_models import Activity, ActivityMedia, ActivityRead, ActivityMediaRead, ActivityCreate, ActivityUpdate, ActivityMediaCreate, ActivityMediaUpdate
 
 # This file contains API endpoints related to Activities
 
 router = APIRouter(prefix="/api/activities", tags=["Activities"])
-
-@router.post("/", response_model=Activity)
-def create_activity(activity: Activity, session: SessionDep):
-    session.add(activity)
-    session.commit()
-    session.refresh(activity)
-    return activity
 
 @router.get("/", response_model=list[ActivityRead])
 def get_activities(session: SessionDep):
@@ -25,6 +18,31 @@ def get_activities(session: SessionDep):
     else:
         return []
 
+@router.post("/", response_model=ActivityRead)
+def create_activity(activity_in: ActivityCreate, session: SessionDep):
+    activity = Activity.model_validate(activity_in)
+
+    session.add(activity)
+    session.commit()
+    session.refresh(activity)
+    return activity
+
+@router.put("/{activity_id}", response_model=ActivityRead)
+def update_activity(session: SessionDep, activity_id: int, activity_update: ActivityUpdate):
+    activity = session.get(Activity, activity_id)
+
+    if not activity:
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    update_data = activity_update.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(activity, key, value)
+
+    session.add(activity)
+    session.commit()
+    session.refresh(activity)
+    return activity
+
 @router.delete("/{activity_id}")
 def delete_activity(session: SessionDep, activity_id: int):
     activity = session.get(Activity, activity_id)
@@ -34,29 +52,33 @@ def delete_activity(session: SessionDep, activity_id: int):
     session.commit()
     return {"ok": True}
 
-@router.put("/{activity_id}", response_model=Activity)
-def update_activity(session: SessionDep, activity_id: int, activity_updated: Activity):
-    activity = session.get(Activity, activity_id)
-
+@router.post("/media", response_model=ActivityMediaRead)
+def create_media(media_in: ActivityMediaCreate, session: SessionDep):
+    activity = session.get(Activity, media_in.activity_id)
     if not activity:
-        raise HTTPException(status_code=404, detail="Activity not found")
+        raise HTTPException(status_code=404, detail=f"Activity with id={media_in.activity_id} not found")
 
-    activity.name = activity_updated.name
-    activity.duration_minutes = activity_updated.duration_minutes
-    activity.description = activity_updated.description
-    activity.difficulty = activity_updated.difficulty
-    activity.image_url = activity_updated.image_url
-
-    session.add(activity)
+    media = ActivityMedia.model_validate(media_in)
+    session.add(media)
     session.commit()
-    session.refresh(activity)
-    return activity
+    session.refresh(media)
+    return media
 
-@router.post("/media", response_model=ActivityMedia)
-def create_media(media: ActivityMedia, session: SessionDep):
-    activity = session.get(Activity, media.activity_id)
-    if not activity:
-        raise HTTPException(status_code=404, detail="Activity not found")
+@router.put("/media/{media_id}", response_model=ActivityMediaRead)
+def update_media(session: SessionDep, media_id: int, media_update: ActivityMediaUpdate):
+    media = session.get(ActivityMedia, media_id)
+
+    if not media:
+        raise HTTPException(status_code=404, detail="Media not found")
+
+    if media_update.activity_id != None:
+        activity = session.get(Activity, media_update.activity_id)
+        if not activity:
+            raise HTTPException(status_code=404, detail=f"Activity with id={media_update.activity_id} not found")
+
+    update_data = media_update.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(media, key, value)
 
     session.add(media)
     session.commit()

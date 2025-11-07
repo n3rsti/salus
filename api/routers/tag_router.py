@@ -3,7 +3,7 @@ from sqlmodel import select
 from sqlalchemy.orm import selectinload
 
 from database import SessionDep
-from models.program_models import Tag, TagRead, Program
+from models.tag_models import Tag, TagRead, Program, TagCreate, TagUpdate
 from models.programs_tags_link import ProgramTagLink
 
 # This file contains API endpoints related to Tags
@@ -19,8 +19,26 @@ def get_tags(session: SessionDep):
     else:
         return []
 
-@router.post("/", response_model=Tag)
-def create_tag(tag: Tag, session: SessionDep):
+@router.post("/", response_model=TagRead)
+def create_tag(tag_in: TagCreate, session: SessionDep):
+    tag = Tag.model_validate(tag_in)
+
+    session.add(tag)
+    session.commit()
+    session.refresh(tag)
+    return tag
+
+@router.put("/{tag_id}", response_model=TagRead)
+def update_tag(session: SessionDep, tag_id: int, tag_update: TagUpdate):
+    tag = session.get(Tag, tag_id)
+
+    if not tag:
+        raise HTTPException(status_code=404, detail="Tag not found")
+
+    update_data = tag_update.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(tag, key, value)
+
     session.add(tag)
     session.commit()
     session.refresh(tag)
@@ -34,21 +52,6 @@ def delete_tag(session: SessionDep, tag_id: int):
     session.delete(tag)
     session.commit()
     return {"ok": True}
-
-@router.put("/{tag_id}", response_model=Tag)
-def update_tag(session: SessionDep, tag_id: int, tag_updated: Tag):
-    tag = session.get(Tag, tag_id)
-
-    if not tag:
-        raise HTTPException(status_code=404, detail="Tag not found")
-
-    tag.name = tag_updated.name
-    tag.icon = tag_updated.icon
-
-    session.add(tag)
-    session.commit()
-    session.refresh(tag)
-    return tag
 
 @router.post("/{tag_id}/programs/{program_id}")
 def link_tag_to_program(tag_id: int, program_id: int, session: SessionDep):

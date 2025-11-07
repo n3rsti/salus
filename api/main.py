@@ -9,6 +9,10 @@ app = FastAPI()
 def on_startup():
     create_db_and_tables()
 
+@app.get("/")
+async def root():
+    return "Bok!"
+
 app.include_router(activity_router.router)
 app.include_router(program_router.router)
 app.include_router(tag_router.router)
