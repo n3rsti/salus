@@ -9,6 +9,9 @@ services:
     volumes:
       - postgres-db-volume:/var/lib/postgresql
 
+    ports:
+      - "5432:5432"
+
   salus-api:
     image: salus-api
     restart: unless-stopped
