@@ -34,7 +34,7 @@
             <section class="p-3 lg:p-4 py-5">
                 <ul class="flex flex-col gap-2">
                     <li>
-                        <NuxtLink to="/">
+                        <NuxtLink to="/" @click="toggleSidebar">
                             <AppVerticalCard
                                 :icon="'material-symbols:home-rounded'"
                                 :is-active="true"
@@ -63,7 +63,7 @@
                 ></span>
                 <ul class="flex flex-col gap-1">
                     <li>
-                        <NuxtLink to="/">
+                        <NuxtLink to="/programs" @click="toggleSidebar">
                             <AppVerticalCard :icon="'ic:round-calendar-month'">
                                 <p>Programs</p>
                             </AppVerticalCard>
