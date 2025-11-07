@@ -10,6 +10,8 @@
         <section
             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3"
         >
+            <AppMoodCard class="lg:col-span-2"></AppMoodCard>
+
             <AppProgramCard
                 v-for="program in programs"
                 :key="program.id"
@@ -46,7 +48,7 @@ for (let i = 0; i < 3; i++) {
         description: faker.commerce.productDescription(),
         duration_days: faker.number.int({ min: 1, max: 10 }),
         rating: faker.number.float({ min: 0.1, max: 5.0, fractionDigits: 1 }),
-        image: faker.image.url({ width: 400, height: 300 }),
+        image: faker.image.url(),
     };
 
     if (faker.number.int({ min: 0, max: 1 }) == 1) {
