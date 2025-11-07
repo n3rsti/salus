@@ -9,6 +9,7 @@
         ></NuxtLink>
         <form
             class="rounded-xl bg-primary-light text-green-700 p-8 w-11/12 shadow border-neutral-100 border-t border-t-transparent"
+            @submit.prevent="handleLogin"
         >
             <h2 class="text-green-500 font-semibold text-3xl">
                 Log in to salus
@@ -34,7 +35,13 @@
                         ></path>
                     </g>
                 </svg>
-                <input type="email" placeholder="mail@site.com" required />
+                <input
+                    v-model="email"
+                    autocomplete="off"
+                    type="email"
+                    placeholder="mail@site.com"
+                    required
+                />
             </label>
             <div class="validator-hint hidden">Enter valid email address</div>
 
@@ -65,6 +72,8 @@
                     </g>
                 </svg>
                 <input
+                    v-model="password"
+                    autocomplete="current-password"
                     type="password"
                     required
                     placeholder="Password"
@@ -82,6 +91,7 @@
             <AppButton
                 class="w-full shadow-sm border-t-transparent text-white mt-4"
                 :color="'green'"
+                type="submit"
             >
                 <svg
                     aria-label="Email icon"
@@ -140,4 +150,10 @@
 definePageMeta({
     layout: "authentication",
 });
+
+const email = ref("");
+const password = ref("");
+async function handleLogin() {
+    alert("✅ Login successful!");
+}
 </script>
