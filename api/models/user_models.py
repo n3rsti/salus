@@ -46,7 +46,8 @@ class Users(UsersBase, table=True):
         description="Subject identifier returned by the OAuth provider",
     )
     role: Optional[Role] = Relationship(back_populates="users")
-    reviews: list["Review"] = Relationship(back_populates="user")
+    #TODO: uncomment when fixed
+    # reviews: list["Review"] = Relationship(back_populates="user")
 
 class UsersCreate(UsersBase):
     password: str
