@@ -1,6 +1,7 @@
 from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship
 from models.program_day_activities_link import ProgramDayActivityLink
+from models.programs_tags_link import ProgramTagLink
 
 # This file contains models implementing: Activities, ActivityMedia, Programs and ProgramDays tables 
 
@@ -13,6 +14,7 @@ class Program(SQLModel, table=True):
     image_url: str
 
     days: List["ProgramDay"] = Relationship(back_populates="program", cascade_delete=True)
+    tags: list["Tag"] = Relationship(back_populates="programs", link_model=ProgramTagLink)
 
 class ProgramDay(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -42,6 +44,13 @@ class ActivityMedia(SQLModel, table=True):
     activity_id: int | None = Field(default=None, foreign_key="activity.id", ondelete="CASCADE")
     activity: Activity | None = Relationship(back_populates="media")
 
+class Tag(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str
+    icon: str
+
+    programs: list["Program"] = Relationship(back_populates="tags", link_model=ProgramTagLink)
+
 ##### Read Models #####
 
 class ProgramRead(SQLModel):
@@ -52,6 +61,7 @@ class ProgramRead(SQLModel):
     language: str
     image_url: str
     days: List["ProgramDayRead"] = []
+    tags: List["TagRead"] = []
 
 class ProgramDayRead(SQLModel):
     id: int
@@ -74,3 +84,8 @@ class ActivityRead(SQLModel):
     difficulty: int
     image_url: str
     media: List[ActivityMediaRead] = []
+
+class TagRead(SQLModel):
+    id: int
+    name: str
+    icon: str
