@@ -48,7 +48,7 @@ for (let i = 0; i < 3; i++) {
         description: faker.commerce.productDescription(),
         duration_days: faker.number.int({ min: 1, max: 10 }),
         rating: faker.number.float({ min: 0.1, max: 5.0, fractionDigits: 1 }),
-        image: faker.image.url(),
+        image_url: faker.image.url(),
     };
 
     if (faker.number.int({ min: 0, max: 1 }) == 1) {
