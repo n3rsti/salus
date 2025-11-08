@@ -9,7 +9,7 @@
         />
         <div class="flex flex-col grow p-2 mt-3">
             <div class="flex items-end">
-                <h1 class="font-bold text-3xl mt-1">
+                <h1 class="font-bold text-3xl mt-1 text-text">
                     Activity {{ route.params.id }}
                 </h1>
                 <p class="ml-3 text-muted flex items-center">

@@ -70,7 +70,7 @@
                         </NuxtLink>
                     </li>
                     <li>
-                        <NuxtLink to="/">
+                        <NuxtLink to="/activities">
                             <AppVerticalCard
                                 :icon="'ic:round-sports-gymnastics'"
                             >
