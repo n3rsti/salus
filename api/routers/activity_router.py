@@ -2,8 +2,8 @@ from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 from sqlalchemy.orm import selectinload
 
-from database import SessionDep
-from models.activity_models import Activity, ActivityMedia, ActivityRead, ActivityMediaRead, ActivityCreate, ActivityUpdate, ActivityMediaCreate, ActivityMediaUpdate
+from api.database import SessionDep
+from api.models.activity_models import Activity, ActivityMedia, ActivityRead, ActivityMediaRead, ActivityCreate, ActivityUpdate, ActivityMediaCreate, ActivityMediaUpdate
 
 # This file contains API endpoints related to Activities
 

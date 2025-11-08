@@ -1,7 +1,7 @@
 from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship
 from pydantic import field_validator
-from models.programs_tags_link import ProgramTagLink
+from api.models.programs_tags_link import ProgramTagLink
 
 # This file contains models implementing: Tags table
 
@@ -51,5 +51,5 @@ class TagUpdate(SQLModel):
 class TagRead(TagBase):
     id: int
 
-from models.program_models import Program
+from api.models.program_models import Program
 SQLModel.model_rebuild()

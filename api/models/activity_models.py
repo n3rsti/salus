@@ -1,7 +1,7 @@
 from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship
 from pydantic import field_validator
-from models.program_day_activities_link import ProgramDayActivityLink
+from api.models.program_day_activities_link import ProgramDayActivityLink
 
 # This file contains models implementing: Activities and ActivitesMedia tables 
 
@@ -83,5 +83,5 @@ class ActivityMediaRead(ActivityMediaBase):
     id: int
     activity_id: int
 
-from models.program_models import ProgramDay
+from api.models.program_models import ProgramDay
 SQLModel.model_rebuild()

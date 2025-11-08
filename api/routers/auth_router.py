@@ -4,10 +4,10 @@ from typing import Any
 import httpx
 from fastapi import APIRouter, HTTPException, status
 from sqlmodel import select
-from database import SessionDep
+from api.database import SessionDep
 from dotenv import dotenv_values
-from models.user_models import Role, Users
-from security.jwt import create_access_token
+from api.models.user_models import Role, Users
+from api.security.jwt import create_access_token
 
 # This file contains API endpoints related to authentication via Google OAuth2.0
 
