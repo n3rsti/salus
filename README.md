@@ -50,6 +50,14 @@ For a demonstration of the application's functionality, a demo version is availa
 For detailed instructions on installation and running the application in a local environment, please refer to the documentation in the [link to Wiki].
 
 ## Installation
+### Docker
+`docker build -t 'salus-api' .`
+
+`docker compose -f docker-compose.yaml up -d`
+
+If you only need to run specific services:
+
+`docker compose -f docker-compose.yaml up service1 service2 -d`
 
 > - Provide clear instructions on how to install and run the project or [link to Wiki].
 > - Include dependencies (if any) and installation commands.
