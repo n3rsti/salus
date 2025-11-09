@@ -33,49 +33,19 @@
             </section>
             <section class="p-3 lg:p-4 py-5">
                 <ul class="flex flex-col gap-2">
-                    <li>
-                        <NuxtLink to="/" @click="toggleSidebar">
+                    <li v-for="link in links" :key="link.name">
+                        <NuxtLink :to="link.url" @click="toggleSidebar">
                             <AppVerticalCard
-                                :icon="'material-symbols:home-rounded'"
+                                v-if="link.name"
+                                :icon="link.icon || ''"
                                 :is-active="true"
                             >
-                                <p>Home</p>
+                                <p>{{ link.name }}</p>
                             </AppVerticalCard>
-                        </NuxtLink>
-                    </li>
-                    <li>
-                        <NuxtLink to="/">
-                            <AppVerticalCard :icon="'ic:round-timeline'">
-                                <p>In progress</p>
-                            </AppVerticalCard>
-                        </NuxtLink>
-                    </li>
-                    <li>
-                        <NuxtLink to="/">
-                            <AppVerticalCard :icon="'ic:round-tag-faces'">
-                                <p>Mood log</p>
-                            </AppVerticalCard>
-                        </NuxtLink>
-                    </li>
-                </ul>
-                <span
-                    class="w-full flex bg-green-500 border-b border-green-400 my-2"
-                ></span>
-                <ul class="flex flex-col gap-1">
-                    <li>
-                        <NuxtLink to="/programs" @click="toggleSidebar">
-                            <AppVerticalCard :icon="'ic:round-calendar-month'">
-                                <p>Programs</p>
-                            </AppVerticalCard>
-                        </NuxtLink>
-                    </li>
-                    <li>
-                        <NuxtLink to="/activities">
-                            <AppVerticalCard
-                                :icon="'ic:round-sports-gymnastics'"
-                            >
-                                <p>Activities</p>
-                            </AppVerticalCard>
+                            <span
+                                v-else
+                                class="w-full flex bg-green-500 border-b border-green-400 my-2"
+                            ></span>
                         </NuxtLink>
                     </li>
                 </ul>
@@ -85,6 +55,47 @@
 </template>
 <script setup lang="ts">
 import { faker } from "@faker-js/faker";
+
+const route = useRoute();
+
+interface Link {
+    name?: string;
+    url?: string;
+    icon?: string;
+}
+
+function isActive(path: string) {
+    return true;
+}
+
+const links: Link[] = [
+    {
+        name: "Home",
+        url: "/",
+        icon: "material-symbols:home-rounded",
+    },
+    {
+        name: "In progress",
+        url: "/",
+        icon: "ic:round-timeline",
+    },
+    {
+        name: "Mood log",
+        url: "/",
+        icon: "ic:round-tag-faces",
+    },
+    {},
+    {
+        name: "Programs",
+        url: "/programs",
+        icon: "ic:round-calendar-month",
+    },
+    {
+        name: "Activities",
+        url: "/activities",
+        icon: "ic:round-sports-gymnastics",
+    },
+];
 
 const streak = 7;
 
