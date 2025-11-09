@@ -59,6 +59,14 @@ If you only need to run specific services:
 
 `docker compose -f docker-compose.yaml up service1 service2 -d`
 
+#### Environment variables
+We are using `.env` file to store environment variables.
+Please refer to `.env.example`.
+
+If running in docker you should set:
+
+`POSTGRES_HOST=postgres`
+
 > - Provide clear instructions on how to install and run the project or [link to Wiki].
 > - Include dependencies (if any) and installation commands.
 > - Consider offering pre-built binaries or Docker images (if applicable).
