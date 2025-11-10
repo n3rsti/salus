@@ -51,7 +51,9 @@ For detailed instructions on installation and running the application in a local
 
 ## Installation
 ### Docker
-`docker build -t 'salus-api' .`
+`docker build -f api/Dockerfile -t 'salus-api' .`
+
+`docker build -t 'salus-frontend' .`
 
 `docker compose -f docker-compose.yaml up -d`
 

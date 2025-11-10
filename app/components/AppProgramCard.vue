@@ -1,6 +1,6 @@
 <template>
     <AppCard
-        :image="props.program.image"
+        :image="props.program.image_url"
         :title="props.program.name"
         :description="props.program.description"
     >

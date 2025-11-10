@@ -1,11 +1,21 @@
-from python:3.14-slim
+FROM node:22-alpine AS builder
 
-workdir /app
+WORKDIR /app
 
-copy ./ /app
+COPY package*.json ./
 
-run pip install -r api/requirements.txt
+RUN npm install
 
-expose 8080
+COPY . .
 
-cmd ["fastapi", "run", "main.py", "--host", "0.0.0.0", "--port", "8080"]
+RUN npm run build
+
+FROM node:22-alpine AS runner
+
+WORKDIR /app
+
+COPY --from=builder /app/.output ./
+
+EXPOSE 3000
+
+CMD ["node", "server/index.mjs"]

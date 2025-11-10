@@ -9,7 +9,7 @@
             </NuxtLink>
         </div>
 
-        <AppACtivityCard
+        <AppActivityCard
             v-for="activity in activities"
             :key="activity.id"
             :activity="activity"

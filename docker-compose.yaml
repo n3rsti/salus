@@ -20,6 +20,12 @@ services:
     depends_on:
       - postgres
 
+  salus-frontend:
+    image: salus-frontend
+    restart: unless-stopped
+    ports: 
+      - 3000:3000
+
 volumes:
   postgres-db-volume:   
 
