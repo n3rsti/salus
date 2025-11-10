@@ -30,8 +30,10 @@ import type { Activity } from "~/models/activity.model";
 import { faker } from "@faker-js/faker";
 import type { Program } from "~/models/program.model";
 
+const config = useRuntimeConfig();
+
 const { data: activities } = await useFetch<Activity[]>(
-    "http://localhost:8080/api/activities",
+    `${config.public.apiBase}/api/activities`,
 );
 
 faker.seed(1);

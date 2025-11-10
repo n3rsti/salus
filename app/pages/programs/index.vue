@@ -20,7 +20,9 @@
 <script setup lang="ts">
 import type { Program } from "~/models/program.model";
 
+const config = useRuntimeConfig();
+
 const { data: programs } = await useFetch<Program[]>(
-    "http://localhost:8080/api/programs",
+    `${config.public.apiBase}/api/programs`,
 );
 </script>

@@ -20,7 +20,9 @@
 <script setup lang="ts">
 import type { Activity } from "~/models/activity.model";
 
+const config = useRuntimeConfig();
+
 const { data: activities } = await useFetch<Activity[]>(
-    "http://localhost:8080/api/activities",
+    `${config.public.apiBase}/api/activities`,
 );
 </script>
