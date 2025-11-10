@@ -38,7 +38,7 @@
                             <AppVerticalCard
                                 v-if="link.name"
                                 :icon="link.icon || ''"
-                                :is-active="true"
+                                :is-active="isActive(link.url)"
                             >
                                 <p>{{ link.name }}</p>
                             </AppVerticalCard>
@@ -58,14 +58,17 @@ import { faker } from "@faker-js/faker";
 
 const route = useRoute();
 
+function isActive(path: string | undefined): boolean {
+    if (path == undefined) {
+        return false;
+    }
+    return route.path === path;
+}
+
 interface Link {
     name?: string;
     url?: string;
     icon?: string;
-}
-
-function isActive(path: string) {
-    return true;
 }
 
 const links: Link[] = [
@@ -76,23 +79,21 @@ const links: Link[] = [
     },
     {
         name: "In progress",
-        url: "/",
         icon: "ic:round-timeline",
     },
     {
         name: "Mood log",
-        url: "/",
         icon: "ic:round-tag-faces",
     },
     {},
     {
         name: "Programs",
-        url: "/programs",
+        url: "/programs/",
         icon: "ic:round-calendar-month",
     },
     {
         name: "Activities",
-        url: "/activities",
+        url: "/activities/",
         icon: "ic:round-sports-gymnastics",
     },
 ];
