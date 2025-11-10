@@ -2,9 +2,9 @@ from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 from sqlalchemy.orm import selectinload
 
-from database import SessionDep
-from models.tag_models import Tag, TagRead, Program, TagCreate, TagUpdate
-from models.programs_tags_link import ProgramTagLink
+from api.database import SessionDep
+from api.models.tag_models import Tag, TagRead, Program, TagCreate, TagUpdate
+from api.models.programs_tags_link import ProgramTagLink
 
 # This file contains API endpoints related to Tags
 

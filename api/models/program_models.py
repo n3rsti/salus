@@ -1,7 +1,7 @@
 from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship
-from models.program_day_activities_link import ProgramDayActivityLink
-from models.programs_tags_link import ProgramTagLink
+from api.models.program_day_activities_link import ProgramDayActivityLink
+from api.models.programs_tags_link import ProgramTagLink
 from pydantic import field_validator
 
 # This file contains models implementing: Programs and ProgramDays tables 
@@ -75,6 +75,6 @@ class ProgramDayRead(ProgramDayBase):
     activities: List["ActivityRead"] = []
 
 
-from models.activity_models import Activity, ActivityRead
-from models.tag_models import Tag, TagRead
+from api.models.activity_models import Activity, ActivityRead
+from api.models.tag_models import Tag, TagRead
 SQLModel.model_rebuild()

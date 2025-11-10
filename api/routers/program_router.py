@@ -2,9 +2,9 @@ from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 from sqlalchemy.orm import selectinload
 
-from database import SessionDep
-from models.program_models import Program, ProgramRead, ProgramDay, ProgramDayCreate,ProgramDayUpdate, Activity, ProgramCreate, ProgramUpdate
-from models.program_day_activities_link import ProgramDayActivityLink
+from api.database import SessionDep
+from api.models.program_models import Program, ProgramRead, ProgramDay, ProgramDayCreate,ProgramDayUpdate, Activity, ProgramCreate, ProgramUpdate
+from api.models.program_day_activities_link import ProgramDayActivityLink
 
 # This file contains API endpoints related to Programs
 

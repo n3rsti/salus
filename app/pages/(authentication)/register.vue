@@ -190,6 +190,25 @@ async function handleRegister() {
         passwordConfirm.value = "";
         return;
     }
-    //dodawanie usera
+    try {
+        const { data, error } = await useFetch(
+            "http://localhost:8080/api/users",
+            {
+                method: "POST",
+                body: {
+                    email: email.value,
+                    username: username.value,
+                    password: password.value,
+                    role_id: 1,
+                },
+            },
+        );
+        if (error.value) throw error;
+        console.log(data || "User registered!");
+
+        navigateTo("/");
+    } catch (error) {
+        alert(error);
+    }
 }
 </script>

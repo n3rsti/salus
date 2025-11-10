@@ -2,9 +2,9 @@ from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 from sqlalchemy.orm import selectinload
 
-from database import SessionDep
-from models.reviews_models import Review, ReviewRead, ReviewCreate, ReviewUpdate
-from models.program_models import Program, Activity
+from api.database import SessionDep
+from api.models.reviews_models import Review, ReviewRead, ReviewCreate, ReviewUpdate
+from api.models.program_models import Program, Activity
 
 # This file contains API endpoints related to Reviews
 

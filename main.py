@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from database import create_db_and_tables
-from routers import activity_router, program_router, tag_router, review_router,auth_router,user_router
+from api.database import create_db_and_tables
+from api.routers import activity_router, program_router, tag_router, review_router,auth_router,user_router
 
 app = FastAPI()
 
