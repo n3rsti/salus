@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 from dotenv import dotenv_values
-from jose import jwt
+from jose import JWTError, jwt
 
 # This file handles JWT token generation used for user authentication.
 # It loads configuration from .env and provides a helper to create signed access tokens with custom claims.
@@ -21,7 +21,7 @@ def create_access_token(
     expires_delta: Optional[timedelta] = None,
     extra_claims: Optional[Dict[str, Any]] = None,
 ) -> str:
-    # create a signed JWT access token.
+    # Create a signed JWT access token.
     to_encode: Dict[str, Any] = {"sub": subject}
     if extra_claims:
         to_encode.update(extra_claims)
@@ -32,3 +32,8 @@ def create_access_token(
     to_encode["exp"] = expire
 
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+def decode_access_token(token: str) -> Dict[str, Any]:
+    # Decode and validate a JWT access token.
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    return payload
