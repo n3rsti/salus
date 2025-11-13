@@ -1,7 +1,8 @@
 from typing import Annotated
 from fastapi import Depends
-from sqlmodel import Session, SQLModel, create_engine
+from sqlmodel import Session, SQLModel, create_engine, select
 from dotenv import dotenv_values
+from api.models.user_models import Role
 
 config = dotenv_values(".env")
 
@@ -17,6 +18,14 @@ engine = create_engine(postgresql_database_url, echo=True)
 def create_db_and_tables():
     # SQLModel.metadata.drop_all(engine)
     SQLModel.metadata.create_all(engine)
+
+    #vvvv to be removed later
+    with Session(engine) as session:
+        result = session.exec(select(Role).where(Role.name == "user")).first()
+        if not result:
+            default_role = Role(id=1, name="user")
+            session.add(default_role)
+            session.commit()
 
 def get_session():
     with Session(engine) as session:
