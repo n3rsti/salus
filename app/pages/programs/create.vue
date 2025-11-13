@@ -59,21 +59,23 @@
                             Day {{ day.num }}
                         </div>
                         <div class="px-2 collapse-content">
-                            <div class="flex gap-1">
-                                <AppFormInput
-                                    v-model="day.input"
-                                    type="number"
-                                    min="1"
-                                    placeholder="Enter activity id"
-                                    class="focus:border-text"
-                                />
-                                <AppButton
-                                    class="w-1/4 rounded-lg bg-text text-xs"
-                                    :color="'black'"
-                                    type="button"
-                                    @click="addActivity(day.input, day.num)"
-                                    >Add</AppButton
-                                >
+                            <div>
+                                <div class="flex gap-1">
+                                    <AppFormInput
+                                        v-model="day.input"
+                                        type="number"
+                                        min="1"
+                                        placeholder="Enter activity id"
+                                        class="focus:border-text"
+                                    />
+                                    <AppButton
+                                        class="w-1/4 rounded-lg bg-text text-xs"
+                                        :color="'black'"
+                                        type="button"
+                                        @click="addActivity(day.input, day.num)"
+                                        >Add</AppButton
+                                    >
+                                </div>
                             </div>
                             <div
                                 v-for="activity in day.activities"
@@ -128,6 +130,7 @@
 <script setup lang="ts">
 import type { Activity } from "~/models/activity.model";
 import type { Program } from "~/models/program.model";
+import type { ProgramDay } from "~/models/program_day.model";
 
 const name = ref("");
 const description = ref("");
@@ -198,6 +201,51 @@ function addDay() {
 
 const config = useRuntimeConfig();
 
+async function createDays(program_id: number) {
+    for (const day of days.value) {
+        const newDay: ProgramDay = {
+            description: "",
+            day_number: day.num - 1,
+            program_id,
+        };
+
+        await createDay(newDay);
+    }
+}
+
+async function createDay(day: ProgramDay) {
+    await $fetch(`${config.public.apiBase}/api/programs/days`, {
+        method: "POST",
+        body: day,
+        onResponse: async (response) => {
+            if (response.response.status == 200) {
+                const data: ProgramDay = response.response._data;
+                if (data.id) {
+                    await linkDays(day, data.id);
+                }
+            }
+        },
+    });
+}
+
+async function linkDays(day: ProgramDay, program_day_id: number) {
+    const dayObj = days.value[day.day_number];
+    for (const activity of dayObj?.activities || []) {
+        if (activity.id) {
+            await linkActivity(program_day_id, activity.id);
+        }
+    }
+}
+
+async function linkActivity(program_day_id: number, activity_id: number) {
+    await $fetch(
+        `${config.public.apiBase}/api/programs/days/${program_day_id}/activities/${activity_id}`,
+        {
+            method: "POST",
+        },
+    );
+}
+
 async function submitForm() {
     const program: Program = {
         name: name.value,
@@ -213,7 +261,10 @@ async function submitForm() {
         onResponse: async (response) => {
             if (response.response.status == 200) {
                 const data: Program = response.response._data;
-                await navigateTo(`/programs/${data.id}`);
+                if (data.id) {
+                    await createDays(data.id);
+                    await navigateTo(`/programs/${data.id}`);
+                }
             }
         },
     });
