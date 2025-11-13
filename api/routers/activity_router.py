@@ -18,6 +18,16 @@ def get_activities(session: SessionDep):
     else:
         return []
 
+@router.get("/{activity_id}", response_model=ActivityRead)
+def get_activity(session: SessionDep, activity_id: int):
+    activity = session.get(Activity, activity_id)
+
+    if not activity:
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    return activity
+
+
 @router.post("/", response_model=ActivityRead)
 def create_activity(activity_in: ActivityCreate, session: SessionDep):
     activity = Activity.model_validate(activity_in)
