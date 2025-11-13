@@ -3,22 +3,25 @@
         class="flex flex-col border rounded-xl p-3 sm:p-5 md:p-6 lg:p-7 bg-primary-light border-neutral-100 border-t border-t-transparent shadow grow"
     >
         <img
-            :src="faker.image.url({ width: 800, height: 500 })"
+            :src="activity?.image_url"
             alt=""
             class="object-cover w-full h-32 rounded-xl shadow border-primary-light border-t-transparent"
         />
         <div class="flex flex-col grow p-2 mt-3">
-            <div class="flex items-end">
+            <div>
                 <h1 class="font-bold text-3xl mt-1 text-text">
-                    Activity {{ route.params.id }}
+                    {{ activity?.name }}
                 </h1>
-                <p class="ml-3 text-muted flex items-center">
+                <p class="mt-1 text-muted flex items-center">
                     <Icon class="" name="ic:outline-access-time" />
-                    <span class="ml-1">15 minutes</span>
+                    <span class="ml-1"
+                        >{{ activity?.duration_minutes }} minutes</span
+                    >
                 </p>
             </div>
-            <p class="text-muted text-sm mt-2 mb-4">
-                {{ faker.commerce.productDescription() }}
+            <p class="text-text font-medium text-sm mt-3">Description</p>
+            <p class="text-muted text-sm mb-4 mt-1">
+                {{ activity?.description }}
             </p>
 
             <slot></slot>
@@ -26,9 +29,12 @@
     </article>
 </template>
 <script setup lang="ts">
-import { faker } from "@faker-js/faker";
-
-faker.seed(1);
+import type { Activity } from "~/models/activity.model";
 
 const route = useRoute();
+const config = useRuntimeConfig();
+
+const { data: activity } = await useFetch<Activity>(
+    `${config.public.apiBase}/api/activities/${route.params.id}`,
+);
 </script>

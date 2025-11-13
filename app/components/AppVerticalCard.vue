@@ -1,6 +1,6 @@
 <template>
     <div
-        class="px-3 py-3 rounded-xl flex items-center gap-4 cursor-pointer transition-colors"
+        class="px-3 py-2 rounded-lg flex items-center gap-3 cursor-pointer transition-colors"
         :class="
             props.isActive
                 ? 'bg-green-500 text-white font-bold'

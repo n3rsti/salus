@@ -9,11 +9,15 @@
             </NuxtLink>
         </div>
 
-        <AppActivityCard
-            v-for="activity in activities"
-            :key="activity.id"
-            :activity="activity"
-        />
+        <section
+            class="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3"
+        >
+            <AppActivityCard
+                v-for="activity in activities"
+                :key="activity.id"
+                :activity="activity"
+            />
+        </section>
     </div>
 </template>
 

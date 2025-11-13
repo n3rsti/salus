@@ -40,7 +40,7 @@
                                 :icon="link.icon || ''"
                                 :is-active="isActive(link.url)"
                             >
-                                <p>{{ link.name }}</p>
+                                <p class="text-sm">{{ link.name }}</p>
                             </AppVerticalCard>
                             <span
                                 v-else

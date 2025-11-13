@@ -2,16 +2,20 @@
     <nav
         class="p-4 bg-white shadow-sm flex w-full items-center justify-between"
     >
-        <AppButton
-            class="flex items-center border-green-400 shadow-none rounded-xl py-1 lg:p-2 lg:px-3 justify-center"
-            :color="'green'"
-        >
-            <Icon
-                class="text-2xl text-white"
-                name="material-symbols:local-fire-department-rounded"
-            />
-            <span class="shadow-sm font-bold text-white">{{ streak }}d</span>
-        </AppButton>
+        <NuxtLink to="/">
+            <AppButton
+                class="flex items-center border-green-400 shadow-none rounded-xl py-1 lg:p-2 lg:px-3 justify-center"
+                :color="'green'"
+            >
+                <Icon
+                    class="text-2xl text-white"
+                    name="material-symbols:local-fire-department-rounded"
+                />
+                <span class="shadow-sm font-bold text-white"
+                    >{{ streak }}d</span
+                >
+            </AppButton>
+        </NuxtLink>
         <label
             class="input bg-white mx-3 text-muted border-2 border-primary-dark rounded-xl focus-within:border-green-500 xl:w-2/5"
         >

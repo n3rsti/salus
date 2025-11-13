@@ -36,26 +36,11 @@ const { data: activities } = await useFetch<Activity[]>(
     `${config.public.apiBase}/api/activities`,
 );
 
+const { data: programs } = await useFetch<Program[]>(
+    `${config.public.apiBase}/api/programs`,
+);
+
 faker.seed(1);
 
 const name = faker.person.firstName();
-
-const programs: Program[] = [];
-
-for (let i = 0; i < 3; i++) {
-    const newProgram: Program = {
-        language: "en",
-        id: faker.number.int({ min: 1, max: 100 }),
-        name: faker.commerce.product(),
-        description: faker.commerce.productDescription(),
-        duration_days: faker.number.int({ min: 1, max: 10 }),
-        rating: faker.number.float({ min: 0.1, max: 5.0, fractionDigits: 1 }),
-        image_url: faker.image.url(),
-    };
-
-    if (faker.number.int({ min: 0, max: 1 }) == 1) {
-        newProgram.progress = faker.number.int({ min: 0, max: 100 });
-    }
-    programs.push(newProgram);
-}
 </script>
