@@ -23,3 +23,18 @@ Meeting 25.10.2025
 Participants: Malak Kacper, Witucki Krzysztof, Iliadis Theodoros
 During meeting we disscused OAuth 2.0 implementation
 
+Meeting 30.10.2025
+Participants: Špiljar Filip, Górka Wiktor, Malak Kacper, Witucki Krzysztof, Iliadis Theodoros
+Discussion about progress made in the project and  future work
+
+Meeting 02.11.2025
+Participants: Špiljar Filip, Górka Wiktor, Malak Kacper, Witucki Krzysztof, Iliadis Theodoros
+Assignment of tasks in the creation of documentation
+
+Meeting 05.11.2025
+Participants: Witucki Krzysztof, Iliadis Theodoros
+Dicussion about hashing method for storing users' passwords
+
+Meeting 12.11.2025
+Participants: Malak Kacper, Witucki Krzysztof, Iliadis Theodoros
+Discussion about way of deploying the app
