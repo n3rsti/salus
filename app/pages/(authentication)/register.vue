@@ -205,10 +205,11 @@ async function handleRegister() {
         );
         if (error.value) throw error;
         console.log(data || "User registered!");
-
-        navigateTo("/");
+        alert("Registration completed successfully");
+        navigateTo("/login");
     } catch (error) {
-        alert(error);
+        console.log(error);
+        alert("Invalid registration");
     }
 }
 </script>

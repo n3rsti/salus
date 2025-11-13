@@ -154,6 +154,24 @@ definePageMeta({
 const email = ref("");
 const password = ref("");
 async function handleLogin() {
-    alert("✅ Login successful!");
+    try {
+        const { data, error } = await useFetch(
+            "http://localhost:8080/api/auth/login",
+            {
+                method: "POST",
+                body: {
+                    username_or_email: email.value,
+                    password: password.value,
+                },
+            },
+        );
+        if (error.value) throw error;
+        navigateTo("/");
+    } catch (error) {
+        password.value = "";
+        email.value = "";
+        alert("Username or password is wrong!");
+        console.log(error);
+    }
 }
 </script>
