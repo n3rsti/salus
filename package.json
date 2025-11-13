@@ -15,6 +15,7 @@
         "@nuxt/icon": "^2.1.0",
         "@nuxt/ui": "^4.0.1",
         "@nuxtjs/tailwindcss": "^6.14.0",
+        "@tailwindcss/language-server": "^0.14.29",
         "@tailwindcss/vite": "^4.1.15",
         "eslint": "^9.37.0",
         "nuxt": "^4.1.3",
@@ -29,6 +30,7 @@
         "daisyui": "^5.3.8",
         "eslint-config-prettier": "^10.1.8",
         "prettier": "3.6.2",
+        "ts-node": "^10.9.2",
         "typescript": "^5.9.3"
     }
 }
