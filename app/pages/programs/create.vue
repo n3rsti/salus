@@ -30,7 +30,94 @@
                         required
                     ></AppFormTextArea>
                 </div>
-                <AppButton type="submit" :color="'green'" class="w-full"
+                <div class="flex flex-col gap-2">
+                    <AppFormLabel for="image"
+                        >Image
+                        <span class="text-muted/70 text-xs"
+                            >(url)</span
+                        ></AppFormLabel
+                    >
+                    <AppFormInput
+                        id="image"
+                        v-model="image"
+                        type="text"
+                        placeholder="https://example.com"
+                        required
+                    />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <AppFormLabel>Days</AppFormLabel>
+                    </div>
+                    <div
+                        v-for="day in days"
+                        :key="day.num"
+                        class="rounded-xl border-primary-dark border collapse collapse-arrow"
+                    >
+                        <input type="checkbox" checked />
+                        <div class="collapse-title font-semibold text-text">
+                            Day {{ day.num }}
+                        </div>
+                        <div class="px-2 collapse-content">
+                            <div class="flex gap-1">
+                                <AppFormInput
+                                    v-model="day.input"
+                                    type="number"
+                                    min="1"
+                                    placeholder="Enter activity id"
+                                    class="focus:border-text"
+                                />
+                                <AppButton
+                                    class="w-1/4 rounded-lg bg-text text-xs"
+                                    :color="'black'"
+                                    type="button"
+                                    @click="addActivity(day.input, day.num)"
+                                    >Add</AppButton
+                                >
+                            </div>
+                            <div
+                                v-for="activity in day.activities"
+                                :key="activity.id"
+                                class="flex flex-col w-full gap-2 p-3 border border-primary-dark rounded-xl mt-2"
+                            >
+                                <div class="flex items-center w-full">
+                                    <img
+                                        :src="activity.image_url"
+                                        alt=""
+                                        class="h-8 aspect-square rounded-lg"
+                                    />
+                                    <p
+                                        class="text-text font-medium text-sm ml-2"
+                                    >
+                                        {{ activity.name }}
+                                    </p>
+                                    <AppButton
+                                        :color="'red'"
+                                        class="ml-auto btn-xs text-xs"
+                                        @click="
+                                            removeActivity(activity.id, day.num)
+                                        "
+                                        >Remove</AppButton
+                                    >
+                                </div>
+                                <div class="w-full">
+                                    <p class="text-muted/80 text-xs">
+                                        {{ activity.description }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <AppButton
+                        class="text-xs"
+                        :color="'black'"
+                        type="button"
+                        @click="addDay"
+                        >Add day</AppButton
+                    >
+                </div>
+
+                <AppButton type="submit" :color="'green'" class="w-full mt-3"
                     >Create</AppButton
                 >
             </form>
@@ -39,10 +126,75 @@
 </template>
 
 <script setup lang="ts">
+import type { Activity } from "~/models/activity.model";
 import type { Program } from "~/models/program.model";
 
 const name = ref("");
 const description = ref("");
+const image = ref("");
+
+interface Day {
+    num: number;
+    input: Ref<number | undefined>;
+    activities: Array<Activity>;
+}
+
+const days = ref<Day[]>([
+    {
+        num: 1,
+        input: ref<number | undefined>(undefined),
+        activities: [],
+    },
+]);
+
+function removeActivity(activity_id: number | undefined, day: number) {
+    if (activity_id == undefined) return;
+    const dayObj = days.value[day - 1];
+
+    if (dayObj && dayObj.activities) {
+        dayObj.activities = dayObj?.activities.filter(
+            (a) => a.id != activity_id,
+        );
+    }
+}
+
+async function addActivity(activity_id: number | undefined, day: number) {
+    if (activity_id == undefined) return;
+
+    const dayObj = days.value[day - 1];
+    const isAlreadyAdded =
+        dayObj?.activities.find((a) => a.id == activity_id) != undefined;
+
+    if (isAlreadyAdded) {
+        dayObj.input = undefined;
+        return;
+    }
+
+    await $fetch(`${config.public.apiBase}/api/activities/${activity_id}`, {
+        method: "GET",
+        onResponse: async (response) => {
+            if (response.response.status === 200) {
+                const data: Activity = response.response._data;
+
+                if (dayObj) {
+                    dayObj.activities.push(data);
+
+                    dayObj.input = undefined;
+                }
+            }
+        },
+    });
+}
+
+function addDay() {
+    const newDay = {
+        num: days.value.length + 1,
+        input: ref<number | undefined>(undefined),
+        activities: [],
+    };
+
+    days.value.push(newDay);
+}
 
 const config = useRuntimeConfig();
 
