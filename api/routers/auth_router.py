@@ -2,16 +2,24 @@ import re
 import urllib.parse
 from typing import Any
 import httpx
-from fastapi import APIRouter, HTTPException, status
-from sqlmodel import select
+from fastapi import APIRouter, HTTPException, Response, status
+from sqlmodel import select, or_
 from api.database import SessionDep
 from dotenv import dotenv_values
 from api.models.user_models import Role, Users
 from api.security.jwt import create_access_token
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
+from pydantic import BaseModel
+
+class LoginRequest(BaseModel):
+    username_or_email: str
+    password: str
 
 # This file contains API endpoints related to authentication via Google OAuth2.0
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
+ph = PasswordHasher()
 
 _env = dotenv_values(".env")
 GOOGLE_CLIENT_ID = _env.get("GOOGLE_CLIENT_ID")
@@ -196,5 +204,52 @@ async def google_callback(code: str, session: SessionDep):
             "id": user.id,
             "username": user.username,
             "email": user.email,
+        },
+    }
+
+@router.post("/login", status_code=status.HTTP_200_OK)
+def classic_login(
+    payload: LoginRequest,
+    response: Response,
+    session: SessionDep,
+):
+    user = session.exec(
+        select(Users).where(
+            or_(
+                Users.username == payload.username_or_email,
+                Users.email == payload.username_or_email,
+            )
+        )
+    ).first()
+
+    if not user or not user.password:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+
+    try:
+        ph.verify(user.password, payload.password)
+    except VerifyMismatchError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+
+    token = create_access_token(
+        subject=str(user.id),
+        extra_claims={
+            "username": user.username,
+            "email": user.email or "",
+        },
+    )
+
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        secure=False, # set True in prod
+        samesite="lax",
+    )
+
+    return {
+        "message": "Login successful",
+        "user": {
+            "id": user.id,
+            "username": user.username,
         },
     }
