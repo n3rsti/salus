@@ -1,7 +1,7 @@
 <template>
     <div>
         <div
-            class="p-4 rounded-xl bg-primary-light mb-4 flex items-center justify-between"
+            class="p-4 rounded-xl bg-primary-light mb-4 flex items-center justify-between shadow-sm"
         >
             <h1 class="text-green-700 text-xl font-semibold">Programs</h1>
             <NuxtLink to="/programs/create">

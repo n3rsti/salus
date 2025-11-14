@@ -1,67 +1,91 @@
 <template>
     <div>
         <div
-            class="p-4 rounded-xl bg-primary-light mb-4 flex items-center justify-between"
+            class="p-4 rounded-xl bg-primary-light mb-4 flex items-center justify-between shadow-sm"
         >
             <h1 class="text-green-700 text-xl font-semibold">Create program</h1>
         </div>
 
-        <div class="p-4 rounded-xl bg-primary-light mb-4">
+        <div class="rounded-xl mb-4">
             <form
                 action=""
-                class="flex flex-col gap-4"
+                class="grid grid-cols-1 md:grid-cols-2 gap-4"
                 @submit.prevent="submitForm"
             >
-                <div class="flex flex-col gap-2">
-                    <AppFormLabel for="name">Name</AppFormLabel>
-                    <AppFormInput
-                        id="name"
-                        v-model="name"
-                        type="text"
-                        placeholder="Enter name"
-                        required
-                    />
-                </div>
-                <div class="flex flex-col gap-2">
-                    <AppFormLabel for="description">Description</AppFormLabel>
-                    <AppFormTextArea
-                        v-model="description"
-                        placeholder="Describe your program..."
-                        required
-                    ></AppFormTextArea>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <AppFormLabel for="image"
-                        >Image
-                        <span class="text-muted/70 text-xs"
-                            >(url)</span
-                        ></AppFormLabel
-                    >
-                    <AppFormInput
-                        id="image"
-                        v-model="image"
-                        type="text"
-                        placeholder="https://example.com"
-                        required
-                    />
-                </div>
-                <div class="flex flex-col gap-2">
-                    <div class="flex items-center justify-between">
-                        <AppFormLabel>Days</AppFormLabel>
+                <div
+                    class="flex flex-col gap-4 bg-primary-light p-4 rounded-xl shadow-sm"
+                >
+                    <div class="flex flex-col gap-2">
+                        <AppFormLabel for="name">Name</AppFormLabel>
+                        <AppFormInput
+                            id="name"
+                            v-model="name"
+                            type="text"
+                            placeholder="Enter name"
+                            required
+                        />
                     </div>
+                    <div class="flex flex-col gap-2">
+                        <AppFormLabel for="description"
+                            >Description</AppFormLabel
+                        >
+                        <AppFormTextArea
+                            id="description"
+                            v-model="description"
+                            name="description"
+                            placeholder="Describe your program..."
+                            required
+                        ></AppFormTextArea>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <AppFormLabel for="image"
+                            >Image
+                            <span class="text-muted/70 text-xs"
+                                >(url)</span
+                            ></AppFormLabel
+                        >
+                        <AppFormInput
+                            id="image"
+                            v-model="image"
+                            type="text"
+                            placeholder="https://example.com"
+                            required
+                        />
+                    </div>
+                </div>
+                <div
+                    class="flex flex-col gap-2 bg-primary-light shadow-sm p-4 rounded-xl"
+                >
                     <div
                         v-for="day in days"
                         :key="day.num"
-                        class="rounded-xl border-primary-dark border collapse collapse-arrow"
+                        class="rounded-xl border-primary-dark border collapse collapse-arrow shadow-inner"
                     >
                         <input type="checkbox" checked />
                         <div class="collapse-title font-semibold text-text">
                             Day {{ day.num }}
                         </div>
-                        <div class="px-2 collapse-content">
+                        <div class="px-4 collapse-content flex flex-col gap-2">
+                            <div class="flex flex-col gap-2">
+                                <AppFormLabel :for="day.num + '-description'"
+                                    >Description</AppFormLabel
+                                >
+                                <AppFormTextArea
+                                    :id="day.num + '-description'"
+                                    v-model="day.description"
+                                    class="focus:border-text"
+                                    placeholder="Describe the day..."
+                                    required
+                                ></AppFormTextArea>
+                            </div>
+
                             <div>
-                                <div class="flex gap-1">
+                                <AppFormLabel :for="day.num + '-activities'"
+                                    >Add activities</AppFormLabel
+                                >
+                                <div class="flex gap-2">
                                     <AppFormInput
+                                        :id="day.num + '-activities'"
                                         v-model="day.input"
                                         type="number"
                                         min="1"
@@ -119,7 +143,10 @@
                     >
                 </div>
 
-                <AppButton type="submit" :color="'green'" class="w-full mt-3"
+                <AppButton
+                    type="submit"
+                    :color="'green'"
+                    class="w-full mt-3 md:col-span-2"
                     >Create</AppButton
                 >
             </form>
@@ -140,6 +167,7 @@ interface Day {
     num: number;
     input: Ref<number | undefined>;
     activities: Array<Activity>;
+    description: string;
 }
 
 const days = ref<Day[]>([
@@ -147,6 +175,7 @@ const days = ref<Day[]>([
         num: 1,
         input: ref<number | undefined>(undefined),
         activities: [],
+        description: "",
     },
 ]);
 
@@ -190,10 +219,11 @@ async function addActivity(activity_id: number | undefined, day: number) {
 }
 
 function addDay() {
-    const newDay = {
+    const newDay: Day = {
         num: days.value.length + 1,
         input: ref<number | undefined>(undefined),
         activities: [],
+        description: "",
     };
 
     days.value.push(newDay);
@@ -204,7 +234,7 @@ const config = useRuntimeConfig();
 async function createDays(program_id: number) {
     for (const day of days.value) {
         const newDay: ProgramDay = {
-            description: "",
+            description: day.description,
             day_number: day.num - 1,
             program_id,
         };

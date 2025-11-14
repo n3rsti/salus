@@ -25,9 +25,7 @@ const styles: Record<string, string[]> = {
     black: [
         "bg-text border-text/90 shadow-text/90 hover:bg-text/90 hover:shadow-none",
     ],
-    red: [
-        "bg-red-500 border-red-300 shadow-red-300 hover:bg-red-600 hover:shadow-none",
-    ],
+    red: ["bg-red-600 border-transparent hover:bg-red-700 hover:shadow-none"],
     "": [],
 };
 
