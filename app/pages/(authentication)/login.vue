@@ -153,22 +153,31 @@ definePageMeta({
 
 const email = ref("");
 const password = ref("");
+
+interface Response {
+    message: string;
+    user: Record<string, string>;
+}
 async function handleLogin() {
-    try {
-        const { data, error } = await useFetch("/api/auth/login", {
-            method: "POST",
-            body: {
-                username_or_email: email.value,
-                password: password.value,
-            },
-        });
-        if (error.value) throw error;
-        navigateTo("/");
-    } catch (error) {
-        password.value = "";
-        email.value = "";
-        alert("Username or password is wrong!");
-        console.log(error);
-    }
+    await $fetch<Response>("/api/auth/login", {
+        method: "POST",
+        body: {
+            username_or_email: email.value,
+            password: password.value,
+        },
+        onResponse: async (response) => {
+            if (response.response.status == 200) {
+                const data: Response = response.response._data;
+                const userStore = useUserStore();
+
+                userStore.username = data.user.username || "";
+                navigateTo("/");
+            } else {
+                password.value = "";
+                email.value = "";
+                alert("Username or password is wrong!");
+            }
+        },
+    });
 }
 </script>

@@ -14,7 +14,7 @@
             >
                 <div>
                     <h3 class="font-bold text-xl">
-                        {{ faker.person.firstName() }}
+                        {{ store.username }}
                     </h3>
                     <p class="text-xs text-muted/80 mt-1">View profile</p>
                 </div>
@@ -54,8 +54,6 @@
     </div>
 </template>
 <script setup lang="ts">
-import { faker } from "@faker-js/faker";
-
 const route = useRoute();
 
 function isActive(path: string | undefined): boolean {
@@ -100,7 +98,8 @@ const links: Link[] = [
 
 const streak = 7;
 
-faker.seed(1);
+const store = useUserStore();
+
 const props = defineProps<{
     isOpen: boolean;
 }>();

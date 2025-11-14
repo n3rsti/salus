@@ -190,23 +190,23 @@ async function handleRegister() {
         passwordConfirm.value = "";
         return;
     }
-    try {
-        const { data, error } = await useFetch("/api/users", {
-            method: "POST",
-            body: {
-                email: email.value,
-                username: username.value,
-                password: password.value,
-                role_id: 1,
-            },
-        });
-        if (error.value) throw error;
-        console.log(data || "User registered!");
-        alert("Registration completed successfully");
-        navigateTo("/login");
-    } catch (error) {
-        console.log(error);
-        alert("Invalid registration");
-    }
+    await $fetch("/api/users/", {
+        method: "POST",
+        body: {
+            email: email.value,
+            username: username.value,
+            password: password.value,
+            role_id: 1,
+        },
+        onResponse: (response) => {
+            if (response.response.status == 201) {
+                alert("Registration completed successfully");
+                navigateTo("/login");
+            } else {
+                console.log(response.error);
+                alert("Invalid registration");
+            }
+        },
+    });
 }
 </script>
