@@ -43,6 +43,16 @@ def update_program(session: SessionDep, program_id: int, program_update: Program
     session.refresh(program)
     return program
 
+
+@router.get("/{program_id}", response_model=ProgramRead)
+def get_program(session: SessionDep, program_id: int):
+    program = session.get(Program, program_id)
+
+    if not program:
+        raise HTTPException(status_code=404, detail="Program not found")
+
+    return program
+
 @router.delete("/{program_id}")
 def delete_program(session: SessionDep, program_id: int):
     program = session.get(Program, program_id)
