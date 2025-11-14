@@ -9,7 +9,7 @@ config = dotenv_values(".env")
 user = config.get("POSTGRES_USER", "postgres")
 password = config.get("POSTGRES_PASSWORD", "admin")
 db = config.get("POSTGRES_DB", "salus")
-host = config.get("POSTGRES_HOST", "localhost")
+host = config.get("POSTGRES_HOST", "postgres")
 
 postgresql_database_url = f"postgresql://{user}:{password}@{host}:5432/{db}"
 engine = create_engine(postgresql_database_url, echo=True)

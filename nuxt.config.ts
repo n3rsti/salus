@@ -14,10 +14,16 @@ export default defineNuxtConfig({
             weights: [200, 300, 400, 500, 600, 700, 800, 900],
         },
     },
-
-    runtimeConfig: {
-        public: {
-            apiBase: process.env.API_BASE_URL || "http://localhost:8080",
+    icon: {
+        localApiEndpoint: "/icons/_nuxt_icon",
+    },
+    nitro: {
+        routeRules: {
+            "/api/**": {
+                proxy:
+                    process.env.API_BASE_URL + "/**" ||
+                    "http://salus-api:8080/api/**",
+            },
         },
     },
 });

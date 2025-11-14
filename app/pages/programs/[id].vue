@@ -86,8 +86,6 @@ import type { Program } from "~/models/program.model";
 const config = useRuntimeConfig();
 const route = useRoute();
 
-const { data: program } = useFetch<Program>(
-    `${config.public.apiBase}/api/programs/${route.params.id}`,
-);
+const { data: program } = useFetch<Program>(`/api/programs/${route.params.id}`);
 console.log(program);
 </script>

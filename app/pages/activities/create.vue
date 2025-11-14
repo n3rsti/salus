@@ -176,7 +176,7 @@ async function submitForm() {
         difficulty: selectedDifficulty.value,
     };
 
-    await $fetch(`${config.public.apiBase}/api/activities`, {
+    await $fetch(`/api/activities`, {
         method: "POST",
         body: activity,
         onResponse: async (response) => {

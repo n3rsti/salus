@@ -26,7 +26,5 @@ import type { Program } from "~/models/program.model";
 
 const config = useRuntimeConfig();
 
-const { data: programs } = await useFetch<Program[]>(
-    `${config.public.apiBase}/api/programs`,
-);
+const { data: programs } = await useFetch<Program[]>(`/api/programs`);
 </script>

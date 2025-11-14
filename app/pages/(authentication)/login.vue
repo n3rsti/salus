@@ -155,16 +155,13 @@ const email = ref("");
 const password = ref("");
 async function handleLogin() {
     try {
-        const { data, error } = await useFetch(
-            "http://localhost:8080/api/auth/login",
-            {
-                method: "POST",
-                body: {
-                    username_or_email: email.value,
-                    password: password.value,
-                },
+        const { data, error } = await useFetch("/api/auth/login", {
+            method: "POST",
+            body: {
+                username_or_email: email.value,
+                password: password.value,
             },
-        );
+        });
         if (error.value) throw error;
         navigateTo("/");
     } catch (error) {

@@ -202,7 +202,7 @@ async function addActivity(activity_id: number | undefined, day: number) {
         return;
     }
 
-    await $fetch(`${config.public.apiBase}/api/activities/${activity_id}`, {
+    await $fetch(`/api/activities/${activity_id}`, {
         method: "GET",
         onResponse: async (response) => {
             if (response.response.status === 200) {
@@ -244,7 +244,7 @@ async function createDays(program_id: number) {
 }
 
 async function createDay(day: ProgramDay) {
-    await $fetch(`${config.public.apiBase}/api/programs/days`, {
+    await $fetch(`/api/programs/days`, {
         method: "POST",
         body: day,
         onResponse: async (response) => {
@@ -269,7 +269,7 @@ async function linkDays(day: ProgramDay, program_day_id: number) {
 
 async function linkActivity(program_day_id: number, activity_id: number) {
     await $fetch(
-        `${config.public.apiBase}/api/programs/days/${program_day_id}/activities/${activity_id}`,
+        `/api/programs/days/${program_day_id}/activities/${activity_id}`,
         {
             method: "POST",
         },
@@ -285,7 +285,7 @@ async function submitForm() {
         language: "pl",
     };
 
-    await $fetch(`${config.public.apiBase}/api/programs`, {
+    await $fetch(`/api/programs`, {
         method: "POST",
         body: program,
         onResponse: async (response) => {

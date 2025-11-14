@@ -35,6 +35,6 @@ const route = useRoute();
 const config = useRuntimeConfig();
 
 const { data: activity } = await useFetch<Activity>(
-    `${config.public.apiBase}/api/activities/${route.params.id}`,
+    `/api/activities/${route.params.id}`,
 );
 </script>

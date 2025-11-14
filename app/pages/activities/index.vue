@@ -26,7 +26,5 @@ import type { Activity } from "~/models/activity.model";
 
 const config = useRuntimeConfig();
 
-const { data: activities } = await useFetch<Activity[]>(
-    `${config.public.apiBase}/api/activities`,
-);
+const { data: activities } = await useFetch<Activity[]>(`/api/activities`);
 </script>
