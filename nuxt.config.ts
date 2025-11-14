@@ -26,7 +26,9 @@ export default defineNuxtConfig({
     nitro: {
         routeRules: {
             "/api/**": {
-                proxy: "http://localhost:8080/api/**",
+                proxy: process.env.API_BASE_URL
+                    ? process.env.API_BASE_URL + "/**"
+                    : "http://salus-api:8080/api/**",
             },
         },
     },

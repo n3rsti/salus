@@ -171,7 +171,7 @@ async function handleLogin() {
                 const userStore = useUserStore();
 
                 userStore.username = data.user.username || "";
-                navigateTo("/");
+                await navigateTo("/");
             } else {
                 password.value = "";
                 email.value = "";
