@@ -1,3 +1,5 @@
+import type { ProgramDay } from "./program_day.model";
+
 export interface Program {
     id?: number;
     name: string;
@@ -7,4 +9,5 @@ export interface Program {
     image_url: string;
     progress?: number;
     rating?: number;
+    days?: ProgramDay[];
 }

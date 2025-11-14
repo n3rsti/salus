@@ -250,8 +250,8 @@ async function submitForm() {
     const program: Program = {
         name: name.value,
         description: description.value,
-        duration_days: 1,
-        image_url: "",
+        duration_days: days.value.length,
+        image_url: image.value,
         language: "pl",
     };
 
