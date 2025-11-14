@@ -32,11 +32,16 @@
                 days
             </p>
             <p class="text-sm flex items-center text-text gap-1">
-                {{ props.program.rating || 0 }}/5
-                <Icon
-                    name="material-symbols:star-rounded"
-                    class="text-yellow-400 text-2xl"
-                />
+                <template v-if="props.program.rating">
+                    {{ props.program.rating }}/5
+                    <Icon
+                        name="material-symbols:star-rounded"
+                        class="text-yellow-400 text-2xl"
+                    />
+                </template>
+                <template v-else>
+                    <span class="text-muted/80 text-xs">No rating</span>
+                </template>
             </p>
         </div>
 

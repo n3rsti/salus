@@ -1,103 +1,118 @@
 <template>
     <div>
         <div
-            class="p-4 rounded-xl bg-primary-light mb-4 flex items-center justify-between"
+            class="p-4 rounded-xl bg-primary-light mb-4 flex items-center justify-between shadow-sm"
         >
             <h1 class="text-green-700 text-xl font-semibold">
                 Create activity
             </h1>
         </div>
 
-        <div class="p-4 rounded-xl bg-primary-light mb-4">
+        <div class="mb-4">
             <form
                 action=""
-                class="flex flex-col gap-4"
+                class="grid grid-cols-1 md:grid-cols-2 gap-2 max-md:bg-primary-light rounded-xl max-md:shadow-sm"
                 @submit.prevent="submitForm"
             >
-                <div class="flex flex-col gap-2">
-                    <AppFormLabel for="name">Name</AppFormLabel>
-                    <AppFormInput
-                        id="name"
-                        v-model="name"
-                        type="text"
-                        placeholder="Enter name"
-                        required
-                    />
-                </div>
-                <div class="flex flex-col gap-2">
-                    <AppFormLabel for="description">Description</AppFormLabel>
-                    <AppFormTextArea
-                        id="description"
-                        v-model="description"
-                        name="description"
-                        placeholder="Describe your activity..."
-                        required
-                    ></AppFormTextArea>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <AppFormLabel for="duration"
-                        >Duration
-                        <span class="text-muted/70 text-xs"
-                            >(minutes)</span
-                        ></AppFormLabel
-                    >
-                    <AppFormInput
-                        id="duration"
-                        v-model="duration"
-                        type="number"
-                        min="0"
-                        required
-                    />
-                </div>
-                <div class="flex flex-col gap-2">
-                    <AppFormLabel for="image"
-                        >Image
-                        <span class="text-muted/70 text-xs"
-                            >(url)</span
-                        ></AppFormLabel
-                    >
-                    <AppFormInput
-                        id="image"
-                        v-model="image"
-                        type="text"
-                        placeholder="https://example.com"
-                        required
-                    />
-                </div>
-                <div class="flex flex-col gap-2">
-                    <AppFormLabel>Difficulty</AppFormLabel>
-
-                    <label
-                        v-for="difficulty in difficulties"
-                        :key="difficulty.name"
-                        :for="difficulty.name.toLowerCase()"
-                        class="cursor-pointer"
-                        :class="difficulty.classes.text"
-                    >
-                        <AppRadioButton
-                            class="border"
-                            :class="
-                                selectedDifficulty == difficulty.value
-                                    ? difficulty.classes.border
-                                    : 'border-primary-dark font-light'
-                            "
+                <div
+                    class="flex flex-col gap-4 rounded-xl bg-primary-light md:shadow-sm p-4"
+                >
+                    <div class="flex flex-col gap-2">
+                        <AppFormLabel for="name">Name</AppFormLabel>
+                        <AppFormInput
+                            id="name"
+                            v-model="name"
+                            type="text"
+                            placeholder="Enter name"
+                            required
+                        />
+                    </div>
+                    <div class="flex flex-col gap-2 flex-1 min-h-0">
+                        <AppFormLabel for="description"
+                            >Description</AppFormLabel
                         >
-                            <input
-                                :id="difficulty.name.toLowerCase()"
-                                v-model="selectedDifficulty"
-                                type="radio"
-                                name="difficulty"
-                                :value="difficulty.value"
-                                class="radio bg-white"
-                                :class="difficulty.classes.radio"
-                            />
-                            <p class="ml-3">
-                                {{ difficulty.name }}
-                            </p>
-                        </AppRadioButton>
-                    </label>
+
+                        <AppFormTextArea
+                            id="description"
+                            v-model="description"
+                            class="md:flex-1 md:min-h-0"
+                            name="description"
+                            placeholder="Describe your activity..."
+                            required
+                        />
+                    </div>
                 </div>
-                <AppButton type="submit" :color="'green'" class="w-full"
+                <div
+                    class="flex flex-col gap-4 rounded-xl bg-primary-light md:shadow-sm p-4"
+                >
+                    <div class="flex flex-col gap-2">
+                        <AppFormLabel for="duration"
+                            >Duration
+                            <span class="text-muted/70 text-xs"
+                                >(minutes)</span
+                            ></AppFormLabel
+                        >
+                        <AppFormInput
+                            id="duration"
+                            v-model="duration"
+                            type="number"
+                            min="0"
+                            required
+                        />
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <AppFormLabel for="image"
+                            >Image
+                            <span class="text-muted/70 text-xs"
+                                >(url)</span
+                            ></AppFormLabel
+                        >
+                        <AppFormInput
+                            id="image"
+                            v-model="image"
+                            type="text"
+                            placeholder="https://example.com"
+                            required
+                        />
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <AppFormLabel>Difficulty</AppFormLabel>
+
+                        <label
+                            v-for="difficulty in difficulties"
+                            :key="difficulty.name"
+                            :for="difficulty.name.toLowerCase()"
+                            class="cursor-pointer"
+                            :class="difficulty.classes.text"
+                        >
+                            <AppRadioButton
+                                class="border"
+                                :class="
+                                    selectedDifficulty == difficulty.value
+                                        ? difficulty.classes.border
+                                        : 'border-primary-dark font-light'
+                                "
+                            >
+                                <input
+                                    :id="difficulty.name.toLowerCase()"
+                                    v-model="selectedDifficulty"
+                                    type="radio"
+                                    name="difficulty"
+                                    :value="difficulty.value"
+                                    class="radio bg-white"
+                                    :class="difficulty.classes.radio"
+                                />
+                                <p class="ml-3">
+                                    {{ difficulty.name }}
+                                </p>
+                            </AppRadioButton>
+                        </label>
+                    </div>
+                </div>
+                <AppButton
+                    type="submit"
+                    :color="'green'"
+                    class="w-full md:col-span-2"
                     >Create</AppButton
                 >
             </form>
