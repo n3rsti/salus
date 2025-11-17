@@ -35,7 +35,7 @@ Throughout this project, we’re learning to:
 
 ## Deployment
 
-For a demonstration of the application's functionality, a demo version is available at our [website](https://pc.tail3ce7af.ts.net). This version allows users to explore key features and interact with the app in a limited scope.
+For a demonstration of the application's functionality, a demo version is available at our [website](https://server.tail3ce7af.ts.net). This version allows users to explore key features and interact with the app in a limited scope.
 
 ### Accessing the Test Application
 > - **Visit the Demo Link**: Navigate to the provided URL to access the live demo version of the application.
