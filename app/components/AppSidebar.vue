@@ -7,7 +7,9 @@
         ></section>
         <aside
             class="h-screen fixed z-30 lg:z-0 left-0 top-0 w-60 bg-white transition-transform duration-200 lg:mt-20 lg:shadow-sm"
-            :class="props.isOpen ? '' : '-translate-x-full lg:translate-0'"
+            :class="
+                props.isOpen ? '' : 'max-lg:-translate-x-full lg:translate-0'
+            "
         >
             <section
                 class="w-full p-3 lg:p-4 py-5 text-green-600 flex items-center justify-between border-b border-b-green-500 lg:hidden"
