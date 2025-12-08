@@ -26,7 +26,10 @@
                             <DialogClose as-child>
                                 <Button variant="outline"> Cancel </Button>
                             </DialogClose>
-                            <Button type="submit" variant="destructive"
+                            <Button
+                                type="submit"
+                                variant="destructive"
+                                @click="emits('delete')"
                                 >Delete</Button
                             >
                         </DialogFooter>
@@ -181,6 +184,7 @@ import { Input } from "@/components/ui/input";
 import { Label as Label } from "@/components/ui/label";
 import type { Activity } from "~/models/activity.model";
 import { Textarea } from "./ui/textarea";
+import { emit } from "process";
 
 const route = useRoute();
 
@@ -190,6 +194,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
     update: [activity: Activity];
+    delete: [];
 }>();
 
 const activity = ref(props.activity);

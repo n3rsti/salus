@@ -1,7 +1,8 @@
 <template>
     <AppActivityForm
         :activity="activity || emptyActivity"
-        @update="submitForm"
+        @update="updateActivity"
+        @delete="deleteActivity"
     ></AppActivityForm>
 </template>
 
@@ -29,7 +30,18 @@ const emptyActivity: Activity = {
     difficulty: 1,
 };
 
-async function submitForm(activity: Activity) {
+async function deleteActivity() {
+    await $fetch(`/api/activities/${activity.value?.id}`, {
+        method: "DELETE",
+        onResponse: async (response) => {
+            if (response.response.status == 200) {
+                await navigateTo(`/activities/`);
+            }
+        },
+    });
+}
+
+async function updateActivity(activity: Activity) {
     await $fetch(`/api/activities/`, {
         method: "PUT",
         body: activity,
