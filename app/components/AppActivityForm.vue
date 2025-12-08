@@ -10,39 +10,25 @@
             <Dialog v-if="route.params.id">
                 <form>
                     <DialogTrigger as-child>
-                        <Button variant="outline"> Open Dialog </Button>
+                        <Button variant="destructive">Delete</Button>
                     </DialogTrigger>
                     <DialogContent class="sm:max-w-[425px]">
                         <DialogHeader>
-                            <DialogTitle>Edit profile</DialogTitle>
+                            <DialogTitle>Delete activity</DialogTitle>
                             <DialogDescription>
-                                Make changes to your profile here. Click save
-                                when you're done.
+                                Are you sure you want to delete activity
+                                <span class="font-bold text-primary">
+                                    {{ activity.name }}
+                                </span>
                             </DialogDescription>
                         </DialogHeader>
-                        <div class="grid gap-4">
-                            <div class="grid gap-3">
-                                <Label for="name-1">Name</Label>
-                                <Input
-                                    id="name-1"
-                                    name="name"
-                                    default-value="Pedro Duarte"
-                                />
-                            </div>
-                            <div class="grid gap-3">
-                                <Label for="username-1">Username</Label>
-                                <Input
-                                    id="username-1"
-                                    name="username"
-                                    default-value="@peduarte"
-                                />
-                            </div>
-                        </div>
                         <DialogFooter>
                             <DialogClose as-child>
                                 <Button variant="outline"> Cancel </Button>
                             </DialogClose>
-                            <Button type="submit"> Save changes </Button>
+                            <Button type="submit" variant="destructive"
+                                >Delete</Button
+                            >
                         </DialogFooter>
                     </DialogContent>
                 </form>
@@ -59,8 +45,8 @@
                     class="flex flex-col gap-4 rounded-xl bg-primary-light md:shadow-sm p-4"
                 >
                     <div class="flex flex-col gap-2">
-                        <AppFormLabel for="name">Name</AppFormLabel>
-                        <AppFormInput
+                        <Label for="name">Name</Label>
+                        <Input
                             id="name"
                             v-model="activity.name"
                             type="text"
@@ -69,11 +55,9 @@
                         />
                     </div>
                     <div class="flex flex-col gap-2 flex-1 min-h-0">
-                        <AppFormLabel for="description"
-                            >Description</AppFormLabel
-                        >
+                        <Label for="description">Description</Label>
 
-                        <AppFormTextArea
+                        <Textarea
                             id="description"
                             v-model="activity.description"
                             class="md:flex-1 md:min-h-0"
@@ -87,28 +71,28 @@
                     class="flex flex-col gap-4 rounded-xl bg-primary-light md:shadow-sm p-4"
                 >
                     <div class="flex flex-col gap-2">
-                        <AppFormLabel for="duration"
+                        <Label for="duration"
                             >Duration
                             <span class="text-muted/70 text-xs"
                                 >(minutes)</span
-                            ></AppFormLabel
+                            ></Label
                         >
-                        <AppFormInput
+                        <Input
                             id="duration"
-                            v-model="activity.duration"
+                            v-model="activity.duration_minutes"
                             type="number"
                             min="0"
                             required
                         />
                     </div>
                     <div class="flex flex-col gap-2">
-                        <AppFormLabel for="image"
+                        <Label for="image"
                             >Image
                             <span class="text-muted/70 text-xs"
                                 >(url)</span
-                            ></AppFormLabel
+                            ></Label
                         >
-                        <AppFormInput
+                        <Input
                             id="image"
                             v-model="activity.image_url"
                             type="text"
@@ -116,45 +100,54 @@
                             required
                         />
                     </div>
-                    <div class="flex flex-col gap-2">
-                        <AppFormLabel>Difficulty</AppFormLabel>
 
-                        <label
-                            v-for="difficulty in difficulties"
-                            :key="difficulty.name"
-                            :for="difficulty.name.toLowerCase()"
-                            class="cursor-pointer"
-                            :class="difficulty.classes.text"
-                        >
-                            <AppRadioButton
-                                class="border"
-                                :class="
-                                    activity.difficulty == difficulty.value
-                                        ? difficulty.classes.border
-                                        : 'border-primary-dark font-light'
-                                "
-                            >
-                                <input
-                                    :id="difficulty.name.toLowerCase()"
-                                    v-model="activity.difficulty"
-                                    type="radio"
-                                    name="difficulty"
-                                    :value="difficulty.value"
-                                    class="radio bg-white"
-                                    :class="difficulty.classes.radio"
-                                />
-                                <p class="ml-3">
-                                    {{ difficulty.name }}
-                                </p>
-                            </AppRadioButton>
-                        </label>
+                    <div class="flex flex-col gap-2">
+                        <FieldGroup>
+                            <FieldSet>
+                                <FieldLabel for="compute-environment-p8w">
+                                    Difficulty
+                                </FieldLabel>
+                                <FieldDescription>
+                                    Select the compute environment for your
+                                    cluster.
+                                </FieldDescription>
+                                <RadioGroup
+                                    :default-value="difficulties[0]?.value"
+                                >
+                                    <FieldLabel
+                                        v-for="difficulty in difficulties"
+                                        :key="difficulty.name"
+                                        :for="difficulty.name.toLowerCase()"
+                                    >
+                                        <Field orientation="horizontal">
+                                            <FieldContent>
+                                                <FieldTitle>{{
+                                                    difficulty.name
+                                                }}</FieldTitle>
+                                                <FieldDescription>
+                                                    {{ difficulty.description }}
+                                                </FieldDescription>
+                                            </FieldContent>
+                                            <RadioGroupItem
+                                                :id="
+                                                    difficulty.name.toLowerCase()
+                                                "
+                                                v-model="activity.difficulty"
+                                                name="difficulty"
+                                                :value="difficulty.value"
+                                            />
+                                        </Field>
+                                    </FieldLabel>
+                                </RadioGroup>
+                            </FieldSet>
+                        </FieldGroup>
                     </div>
                 </div>
-                <AppButton
+                <Button
                     type="submit"
-                    :color="'green'"
+                    variant="success"
                     class="w-full md:col-span-2"
-                    >Submit</AppButton
+                    >Submit</Button
                 >
             </form>
         </div>
@@ -173,9 +166,21 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+
+import {
+    Field,
+    FieldContent,
+    FieldDescription,
+    FieldGroup,
+    FieldLabel,
+    FieldSet,
+    FieldTitle,
+} from "@/components/ui/field";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Label as Label } from "@/components/ui/label";
 import type { Activity } from "~/models/activity.model";
+import { Textarea } from "./ui/textarea";
 
 const route = useRoute();
 
@@ -192,6 +197,7 @@ const activity = ref(props.activity);
 interface Difficulty {
     name: string;
     value: number;
+    description?: string;
     classes: Record<string, string>;
 }
 
@@ -199,6 +205,7 @@ const difficulties: Difficulty[] = [
     {
         name: "Easy",
         value: 1,
+        description: "Doable for everyone",
         classes: {
             radio: "radio-success",
             text: "text-success",
@@ -208,6 +215,7 @@ const difficulties: Difficulty[] = [
     {
         name: "Moderate",
         value: 2,
+        description: "Harder, but doable for the majority",
         classes: {
             radio: "radio-info",
             text: "text-info",
@@ -217,6 +225,7 @@ const difficulties: Difficulty[] = [
     {
         name: "Hard",
         value: 3,
+        description: "Fitness level required",
         classes: {
             radio: "radio-error",
             text: "text-error",
