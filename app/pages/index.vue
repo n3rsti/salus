@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="p-4 rounded-xl bg-primary-light mb-4">
+        <Card class="p-4 mb-4">
             <h2 class="text-green-700 text-xl">
                 Good evening,
                 <span class="text-green-800 font-semibold">{{
@@ -8,7 +8,7 @@
                 }}</span
                 >! 👋
             </h2>
-        </div>
+        </Card>
         <section
             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3"
         >
@@ -28,6 +28,7 @@
     </div>
 </template>
 <script setup lang="ts">
+import { Card } from "~/components/ui/card";
 import type { Activity } from "~/models/activity.model";
 import type { Program } from "~/models/program.model";
 

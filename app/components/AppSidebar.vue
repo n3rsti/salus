@@ -1,105 +1,115 @@
 <template>
-    <div>
-        <section
-            class="w-screen h-screen bg-black/10 fixed z-20 top-0 left-0 transition-opacity lg:hidden"
-            :class="props.isOpen ? '' : 'scale-0 opacity-0'"
-            @click="toggleSidebar"
-        ></section>
-        <aside
-            class="h-screen fixed z-30 lg:z-0 left-0 top-0 w-60 bg-white transition-transform duration-200 lg:mt-20 lg:shadow-sm"
-            :class="
-                props.isOpen ? '' : 'max-lg:-translate-x-full lg:translate-0'
-            "
-        >
-            <section
-                class="w-full p-3 lg:p-4 py-5 text-green-600 flex items-center justify-between border-b border-b-green-500 lg:hidden"
-            >
-                <div>
-                    <h3 class="font-bold text-xl">
-                        {{ store.username }}
-                    </h3>
-                    <p class="text-xs text-muted/80 mt-1">View profile</p>
-                </div>
-                <AppButton
-                    class="flex items-center border-green-400 shadow-none rounded-xl py-1"
-                    :color="'green'"
-                >
-                    <Icon
-                        class="text-2xl text-white"
-                        name="material-symbols:local-fire-department-rounded"
-                    />
-                    <span class="shadow-sm font-bold text-white"
-                        >{{ streak }}d</span
-                    >
-                </AppButton>
-            </section>
-            <section class="p-3 lg:p-4 py-5">
-                <ul class="flex flex-col gap-2">
-                    <li v-for="link in links" :key="link.name">
-                        <NuxtLink :to="link.url" @click="toggleSidebar">
-                            <AppVerticalCard
-                                v-if="link.name"
-                                :icon="link.icon || ''"
-                                :is-active="isActive(link.url)"
-                            >
-                                <p class="text-sm">{{ link.name }}</p>
-                            </AppVerticalCard>
-                            <span
-                                v-else
-                                class="w-full flex bg-green-500 border-b border-green-400 my-2"
-                            ></span>
-                        </NuxtLink>
-                    </li>
-                </ul>
-            </section>
-        </aside>
-    </div>
+    <Sidebar class="mt-16 bg-white">
+        <SidebarHeader class="bg-white">
+            <SidebarMenu>
+                <SidebarMenuItem>
+                    <SidebarMenuButton size="lg">
+                        <div
+                            class="grid flex-1 text-left text-sm leading-tight"
+                        >
+                            <span class="truncate font-semibold">{{
+                                store.username
+                            }}</span>
+                            <span class="truncate text-xs">User</span>
+                        </div>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+        </SidebarHeader>
+        <SidebarContent class="bg-white">
+            <SidebarGroup v-for="section in menuSections" :key="section.label">
+                <SidebarGroupLabel>{{ section.label }}</SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                        <SidebarMenuItem
+                            v-for="item in section.items"
+                            :key="item.title"
+                        >
+                            <SidebarMenuButton as-child>
+                                <NuxtLink :to="item.url">
+                                    <component :is="item.icon" />
+                                    <span>{{ item.title }}</span>
+                                </NuxtLink>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
+        </SidebarContent>
+    </Sidebar>
 </template>
+
 <script setup lang="ts">
-const route = useRoute();
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarHeader,
+} from "@/components/ui/sidebar";
+import { Calendar, Home, Dumbbell, Smile, ListChecks } from "lucide-vue-next";
+import {
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+} from "@/components/ui/sidebar";
 
-function isActive(path: string | undefined): boolean {
-    if (path == undefined) {
-        return false;
-    }
-    return route.path === path;
+interface MenuItem {
+    title: string;
+    url: string;
+    icon: any;
 }
 
-interface Link {
-    name?: string;
-    url?: string;
-    icon?: string;
+interface MenuSection {
+    label: string;
+    items: MenuItem[];
 }
 
-const links: Link[] = [
+const menuSections: MenuSection[] = [
     {
-        name: "Home",
-        url: "/",
-        icon: "material-symbols:home-rounded",
+        label: "Application",
+        items: [
+            {
+                title: "Home",
+                url: "/",
+                icon: Home,
+            },
+        ],
     },
     {
-        name: "Activity log",
-        icon: "ic:round-timeline",
+        label: "Workouts",
+        items: [
+            {
+                title: "Programs",
+                url: "/programs",
+                icon: Calendar,
+            },
+            {
+                title: "Activities",
+                url: "/activities",
+                icon: Dumbbell,
+            },
+        ],
     },
     {
-        name: "Mood log",
-        icon: "ic:round-tag-faces",
-    },
-    {},
-    {
-        name: "Programs",
-        url: "/programs/",
-        icon: "ic:round-calendar-month",
-    },
-    {
-        name: "Activities",
-        url: "/activities/",
-        icon: "ic:round-sports-gymnastics",
+        label: "Progress",
+        items: [
+            {
+                title: "Mood Log",
+                url: "/mood-log",
+                icon: Smile,
+            },
+            {
+                title: "Activity Log",
+                url: "/activity-log",
+                icon: ListChecks,
+            },
+        ],
     },
 ];
 
 const streak = 7;
-
 const store = useUserStore();
 
 const props = defineProps<{
