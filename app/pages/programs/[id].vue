@@ -54,16 +54,16 @@
                                     :to="'/activities/' + activity.id"
                                     class="ml-auto"
                                 >
-                                    <AppButton
+                                    <Button
                                         class="w-full shadow-sm border-t-transparent text-white ml-auto"
-                                        :color="'green_dark'"
+                                        variant="success"
                                     >
                                         View info
                                         <Icon
                                             class="text-lg ml-2"
                                             name="ic:round-remove-red-eye"
                                         />
-                                    </AppButton>
+                                    </Button>
                                 </NuxtLink>
                             </div>
                             <div class="w-full">
@@ -81,6 +81,7 @@
     </article>
 </template>
 <script setup lang="ts">
+import { Button } from "~/components/ui/button";
 import type { Program } from "~/models/program.model";
 
 const config = useRuntimeConfig();

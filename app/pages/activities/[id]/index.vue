@@ -17,8 +17,8 @@
                         :to="'/activities/' + route.params.id + '/edit'"
                         class="ml-auto"
                     >
-                        <AppButton color="black" class="ml-auto px-4"
-                            >Edit</AppButton
+                        <Button variant="default" class="ml-auto px-4"
+                            >Edit</Button
                         >
                     </NuxtLink>
                 </div>
@@ -39,6 +39,7 @@
     </article>
 </template>
 <script setup lang="ts">
+import { Button } from "~/components/ui/button";
 import type { Activity } from "~/models/activity.model";
 
 const route = useRoute();

@@ -22,12 +22,13 @@
             required
             placeholder="Search"
         />
-        <AppButton
-            class="border-2 border-primary-dark rounded-xl lg:scale-0"
+        <Button
+            class="border-2 border-primary-dark lg:scale-0 p-2"
+            variant="outline"
             @click="toggleSidebar"
         >
             <Icon class="text-2xl text-green-500" name="ic:round-menu" />
-        </AppButton>
+        </Button>
     </nav>
 </template>
 <script setup>

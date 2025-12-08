@@ -92,12 +92,12 @@
                                         placeholder="Enter activity id"
                                         class="focus:border-text"
                                     />
-                                    <AppButton
+                                    <Button
                                         class="w-1/4 rounded-lg bg-text text-xs"
-                                        :color="'black'"
+                                        variant="default"
                                         type="button"
                                         @click="addActivity(day.input, day.num)"
-                                        >Add</AppButton
+                                        >Add</Button
                                     >
                                 </div>
                             </div>
@@ -117,13 +117,13 @@
                                     >
                                         {{ activity.name }}
                                     </p>
-                                    <AppButton
-                                        :color="'red'"
+                                    <Button
+                                        variant="destructive"
                                         class="ml-auto btn-xs text-xs"
                                         @click="
                                             removeActivity(activity.id, day.num)
                                         "
-                                        >Remove</AppButton
+                                        >Remove</Button
                                     >
                                 </div>
                                 <div class="w-full">
@@ -134,20 +134,20 @@
                             </div>
                         </div>
                     </div>
-                    <AppButton
+                    <Button
                         class="text-xs"
-                        :color="'black'"
+                        variant="default"
                         type="button"
                         @click="addDay"
-                        >Add day</AppButton
+                        >Add day</Button
                     >
                 </div>
 
-                <AppButton
+                <Button
                     type="submit"
-                    :color="'green'"
+                    variant="success"
                     class="w-full mt-3 md:col-span-2"
-                    >Create</AppButton
+                    >Create</Button
                 >
             </form>
         </div>
@@ -155,6 +155,7 @@
 </template>
 
 <script setup lang="ts">
+import { Button } from "~/components/ui/button";
 import type { Activity } from "~/models/activity.model";
 import type { Program } from "~/models/program.model";
 import type { ProgramDay } from "~/models/program_day.model";

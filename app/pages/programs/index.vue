@@ -5,7 +5,7 @@
         >
             <h1 class="text-green-700 text-xl font-semibold">Programs</h1>
             <NuxtLink to="/programs/create">
-                <AppButton :color="'green'">Create</AppButton>
+                <Button variant="success">Create</Button>
             </NuxtLink>
         </div>
 
@@ -22,9 +22,8 @@
 </template>
 
 <script setup lang="ts">
+import { Button } from "~/components/ui/button";
 import type { Program } from "~/models/program.model";
-
-const config = useRuntimeConfig();
 
 const { data: programs } = await useFetch<Program[]>(`/api/programs`);
 </script>

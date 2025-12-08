@@ -53,29 +53,26 @@
         ></progress>
 
         <NuxtLink :to="'/programs/' + props.program.id">
-            <AppButton
+            <Button
                 v-if="props.program.progress"
-                class="w-full shadow-sm border-t-transparent text-white mt-3"
-                :color="'green'"
+                class="w-full mt-3"
+                variant="success"
             >
                 Continue
 
                 <Icon class="text-lg ml-2" name="ic:round-play-arrow" />
-            </AppButton>
-            <AppButton
-                v-else
-                class="w-full shadow-sm border-t-transparent text-white mt-3"
-                :color="'green_dark'"
-            >
+            </Button>
+            <Button v-else class="w-full mt-3" variant="success_shadow">
                 View info
                 <Icon class="text-lg ml-2" name="ic:round-remove-red-eye" />
-            </AppButton>
+            </Button>
         </NuxtLink>
     </AppCard>
 </template>
 <script setup lang="ts">
 import { faker } from "@faker-js/faker";
 import type { Program } from "~/models/program.model";
+import { Button } from "./ui/button";
 
 const props = defineProps<{
     program: Program;
