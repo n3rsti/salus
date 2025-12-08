@@ -1,9 +1,12 @@
 <template>
     <Sidebar class="mt-16 bg-white">
-        <SidebarHeader class="bg-white">
+        <SidebarHeader class="bg-green-500 text-white">
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton size="lg">
+                    <SidebarMenuButton
+                        size="lg"
+                        class="hover:bg-green-600 hover:text-white"
+                    >
                         <div
                             class="grid flex-1 text-left text-sm leading-tight"
                         >
@@ -109,16 +112,5 @@ const menuSections: MenuSection[] = [
     },
 ];
 
-const streak = 7;
 const store = useUserStore();
-
-const props = defineProps<{
-    isOpen: boolean;
-}>();
-
-const emit = defineEmits(["toggleSidebar"]);
-
-function toggleSidebar() {
-    emit("toggleSidebar");
-}
 </script>
