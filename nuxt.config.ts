@@ -5,11 +5,12 @@ export default defineNuxtConfig({
     compatibilityDate: "2025-07-15",
     devtools: { enabled: true },
     modules: [
-        "@nuxt/eslint",
-        "@nuxt/icon",
-        "@nuxt/fonts",
-        "@pinia/nuxt",
-        "pinia-plugin-persistedstate/nuxt",
+      "@nuxt/eslint",
+      "@nuxt/icon",
+      "@nuxt/fonts",
+      "@pinia/nuxt",
+      "pinia-plugin-persistedstate/nuxt",
+      "shadcn-nuxt",
     ],
     css: ["./app/assets/css/main.css"],
     vite: {

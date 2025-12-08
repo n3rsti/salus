@@ -9,9 +9,19 @@
         />
         <div class="flex flex-col grow p-2 mt-3">
             <div>
-                <h1 class="font-bold text-3xl mt-1 text-text">
-                    {{ activity?.name }}
-                </h1>
+                <div class="flex">
+                    <h1 class="font-bold text-3xl mt-1 text-text">
+                        {{ activity?.name }}
+                    </h1>
+                    <NuxtLink
+                        :to="'/activities/' + route.params.id + '/edit'"
+                        class="ml-auto"
+                    >
+                        <AppButton color="black" class="ml-auto px-4"
+                            >Edit</AppButton
+                        >
+                    </NuxtLink>
+                </div>
                 <p class="mt-1 text-muted flex items-center">
                     <Icon class="" name="ic:outline-access-time" />
                     <span class="ml-1"
@@ -32,7 +42,6 @@
 import type { Activity } from "~/models/activity.model";
 
 const route = useRoute();
-const config = useRuntimeConfig();
 
 const { data: activity } = await useFetch<Activity>(
     `/api/activities/${route.params.id}`,

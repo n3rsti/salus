@@ -78,7 +78,7 @@ const links: Link[] = [
         icon: "material-symbols:home-rounded",
     },
     {
-        name: "In progress",
+        name: "Activity log",
         icon: "ic:round-timeline",
     },
     {

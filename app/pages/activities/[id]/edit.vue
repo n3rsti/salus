@@ -1,12 +1,25 @@
 <template>
     <AppActivityForm
-        :activity="emptyActivity"
+        :activity="activity || emptyActivity"
         @update="submitForm"
     ></AppActivityForm>
 </template>
 
 <script setup lang="ts">
 import type { Activity } from "~/models/activity.model";
+
+const route = useRoute();
+
+const { data: activity } = await useFetch<Activity>(
+    `/api/activities/${route.params.id}`,
+);
+
+if (!activity.value) {
+    throw createError({
+        statusCode: 404,
+        statusMessage: "Activity Not Found",
+    });
+}
 
 const emptyActivity: Activity = {
     name: "",
@@ -18,7 +31,7 @@ const emptyActivity: Activity = {
 
 async function submitForm(activity: Activity) {
     await $fetch(`/api/activities/`, {
-        method: "POST",
+        method: "PUT",
         body: activity,
         onResponse: async (response) => {
             if (response.response.status == 200) {
