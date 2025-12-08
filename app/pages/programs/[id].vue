@@ -12,12 +12,12 @@
                 <h1 class="font-bold text-3xl text-text mt-1">
                     {{ program?.name }}
                 </h1>
-                <p class="ml-3 text-muted flex items-center">
+                <p class="ml-3 text-muted-foreground flex items-center">
                     <Icon class="" name="ic:outline-access-time" />
                     <span class="ml-1">{{ program?.duration_days }} days</span>
                 </p>
             </div>
-            <p class="text-muted text-sm mt-2 mb-4">
+            <p class="text-muted-foreground text-sm mt-2 mb-4">
                 {{ program?.description }}
             </p>
 
@@ -32,7 +32,7 @@
                         Day {{ day.day_number + 1 }}
                     </div>
                     <div class="px-2 collapse-content">
-                        <p class="text-sm text-muted px-2 mb-3">
+                        <p class="text-sm text-muted-foreground px-2 mb-3">
                             {{ day.description }}
                         </p>
                         <div
@@ -67,7 +67,7 @@
                                 </NuxtLink>
                             </div>
                             <div class="w-full">
-                                <p class="text-muted/80 text-xs">
+                                <p class="text-muted-foreground text-xs">
                                     {{ activity.description }}
                                 </p>
                             </div>

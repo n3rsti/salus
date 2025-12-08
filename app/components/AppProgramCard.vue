@@ -9,7 +9,7 @@
             class="flex items-center justify-between mt-auto"
         >
             <p
-                class="font-medium text-muted/90 text-sm flex items-center gap-1"
+                class="font-medium text-muted-foreground text-sm flex items-center gap-1"
             >
                 <Icon name="ic:baseline-calendar-month" />
                 Day
@@ -26,7 +26,7 @@
         </div>
 
         <div v-else class="flex items-center justify-between mt-auto">
-            <p class="text-muted/90 text-sm flex items-center gap-1">
+            <p class="text-muted-foreground text-sm flex items-center gap-1">
                 <Icon name="ic:outline-access-time" />
                 {{ props.program.duration_days }}
                 days
@@ -40,7 +40,7 @@
                     />
                 </template>
                 <template v-else>
-                    <span class="text-muted/80 text-xs">No rating</span>
+                    <span class="text-muted-foreground text-xs">No rating</span>
                 </template>
             </p>
         </div>

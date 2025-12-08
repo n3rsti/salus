@@ -1,7 +1,7 @@
 <template>
     <SidebarProvider>
         <div
-            class="min-h-screen bg-primary-foreground font-display flex flex-col"
+            class="min-h-screen bg-primary-foreground font-display flex flex-col w-full"
         >
             <AppSidebar />
             <NavBar class="fixed h-16 z-10" @toggle_sidebar="toggleSidebar" />

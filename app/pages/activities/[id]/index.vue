@@ -22,7 +22,7 @@
                         >
                     </NuxtLink>
                 </div>
-                <p class="mt-1 text-muted flex items-center">
+                <p class="mt-1 text-muted-foreground flex items-center">
                     <Icon class="" name="ic:outline-access-time" />
                     <span class="ml-1"
                         >{{ activity?.duration_minutes }} minutes</span
@@ -30,7 +30,7 @@
                 </p>
             </div>
             <p class="text-text font-medium text-sm mt-3">Description</p>
-            <p class="text-muted text-sm mb-4 mt-1">
+            <p class="text-muted-foreground text-sm mb-4 mt-1">
                 {{ activity?.description }}
             </p>
 
