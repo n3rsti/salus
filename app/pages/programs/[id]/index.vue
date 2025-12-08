@@ -8,16 +8,27 @@
             class="object-cover w-full h-32 rounded-xl shadow border-primary-light border-t-transparent"
         />
         <div class="flex flex-col grow p-2 mt-3">
-            <div class="flex items-end">
-                <h1 class="font-bold text-3xl text-text mt-1">
-                    {{ program?.name }}
-                </h1>
-                <p class="ml-3 text-muted-foreground flex items-center">
+            <div>
+                <div class="flex">
+                    <h1 class="font-bold text-3xl mt-1 text-text">
+                        {{ program?.name }}
+                    </h1>
+                    <NuxtLink
+                        :to="'/programs/' + route.params.id + '/edit'"
+                        class="ml-auto"
+                    >
+                        <Button variant="default" class="ml-auto px-4"
+                            >Edit</Button
+                        >
+                    </NuxtLink>
+                </div>
+                <p class="mt-1 text-muted-foreground flex items-center">
                     <Icon class="" name="ic:outline-access-time" />
                     <span class="ml-1">{{ program?.duration_days }} days</span>
                 </p>
             </div>
-            <p class="text-muted-foreground text-sm mt-2 mb-4">
+            <p class="text-text font-medium text-sm mt-3">Description</p>
+            <p class="text-muted-foreground text-sm mb-4 mt-1">
                 {{ program?.description }}
             </p>
 
@@ -84,9 +95,9 @@
 import { Button } from "~/components/ui/button";
 import type { Program } from "~/models/program.model";
 
-const config = useRuntimeConfig();
 const route = useRoute();
 
-const { data: program } = useFetch<Program>(`/api/programs/${route.params.id}`);
-console.log(program);
+const { data: program } = await useFetch<Program>(
+    `/api/programs/${route.params.id}`,
+);
 </script>

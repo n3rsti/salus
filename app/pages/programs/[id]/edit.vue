@@ -1,10 +1,34 @@
 <template>
-    <AppProgramForm @submit="submitForm"></AppProgramForm>
+    <AppProgramForm
+        :initial-data="program"
+        @submit="submitForm"
+    ></AppProgramForm>
 </template>
 
 <script setup lang="ts">
 import type { Program } from "~/models/program.model";
 import type { ProgramDay } from "~/models/program_day.model";
+
+const route = useRoute();
+
+const emptyProgram: Program = {
+    name: "",
+    description: "",
+    duration_days: 1,
+    image_url: "",
+    language: "",
+};
+
+const { data: program } = await useFetch<Program>(
+    `/api/programs/${route.params.id}`,
+);
+
+if (!program.value) {
+    throw createError({
+        statusCode: 404,
+        statusMessage: "Program Not Found",
+    });
+}
 
 async function createDays(program: Program, program_id: number) {
     if (!program.days) return;
@@ -52,7 +76,7 @@ async function linkActivity(program_day_id: number, activity_id: number) {
 async function submitForm(program: Program) {
     try {
         const data = await $fetch<Program>("/api/programs/", {
-            method: "POST",
+            method: "PUT",
             body: program,
         });
 
