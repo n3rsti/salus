@@ -10,7 +10,7 @@ from api.models.programs_tags_link import ProgramTagLink
 
 router = APIRouter(prefix="/api/tags", tags=["Tags"])
 
-@router.get("/", response_model=list[TagRead])
+@router.get("", response_model=list[TagRead])
 def get_tags(session: SessionDep):
     tags = session.exec(select(Tag)).all()
 
@@ -19,7 +19,7 @@ def get_tags(session: SessionDep):
     else:
         return []
 
-@router.post("/", response_model=TagRead)
+@router.post("", response_model=TagRead)
 def create_tag(tag_in: TagCreate, session: SessionDep):
     tag = Tag.model_validate(tag_in)
 

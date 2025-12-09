@@ -10,7 +10,7 @@ from api.models.program_models import Program, Activity
 
 router = APIRouter(prefix="/api/reviews", tags=["Reviews"])
 
-@router.get("/", response_model=list[ReviewRead])
+@router.get("", response_model=list[ReviewRead])
 def get_reviews(session: SessionDep):
     reviews = session.exec(select(Review)).all()
 
@@ -19,7 +19,7 @@ def get_reviews(session: SessionDep):
     else:
         return []
 
-@router.post("/", response_model=ReviewRead)
+@router.post("", response_model=ReviewRead)
 def create_review(review_in: ReviewCreate, session: SessionDep):
     if review_in.content_type == "program":
         content = session.exec(select(Program).where(Program.id == review_in.content_id)).first()

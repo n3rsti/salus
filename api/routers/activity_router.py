@@ -9,7 +9,7 @@ from api.models.activity_models import Activity, ActivityMedia, ActivityRead, Ac
 
 router = APIRouter(prefix="/api/activities", tags=["Activities"])
 
-@router.get("/", response_model=list[ActivityRead])
+@router.get("", response_model=list[ActivityRead])
 def get_activities(session: SessionDep):
     activities = session.exec(select(Activity)).all()
 
@@ -28,7 +28,7 @@ def get_activity(session: SessionDep, activity_id: int):
     return activity
 
 
-@router.post("/", response_model=ActivityRead)
+@router.post("", response_model=ActivityRead)
 def create_activity(activity_in: ActivityCreate, session: SessionDep):
     activity = Activity.model_validate(activity_in)
 

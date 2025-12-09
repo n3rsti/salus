@@ -15,7 +15,7 @@ def hash_password(password: str) -> str:
 
 
 # Users:
-@router.post("/", response_model=UsersRead, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=UsersRead, status_code=status.HTTP_201_CREATED)
 def create_user(data: UsersCreate, session: SessionDep):
     # check username uniqueness
     existing = session.exec(select(Users).where(Users.username == data.username)).first()
@@ -56,7 +56,7 @@ def create_user(data: UsersCreate, session: SessionDep):
     return user
 
 
-@router.get("/", response_model=list[UsersRead])
+@router.get("", response_model=list[UsersRead])
 def list_users(session: SessionDep):
     users = session.exec(select(Users)).all()
     return users

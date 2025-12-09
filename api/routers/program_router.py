@@ -10,7 +10,7 @@ from api.models.program_day_activities_link import ProgramDayActivityLink
 
 router = APIRouter(prefix="/api/programs", tags=["Programs"])
 
-@router.get("/", response_model=list[ProgramRead])
+@router.get("", response_model=list[ProgramRead])
 def get_programs(session: SessionDep):
     programs = session.exec(select(Program)).all()
 
@@ -19,7 +19,7 @@ def get_programs(session: SessionDep):
     else:
         return []
 
-@router.post("/", response_model=ProgramRead)
+@router.post("", response_model=ProgramRead)
 def create_program(program_in: ProgramCreate, session: SessionDep):
     program = Program.model_validate(program_in)
     session.add(program)
