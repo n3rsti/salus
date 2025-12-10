@@ -12,9 +12,11 @@ from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from pydantic import BaseModel
 
+
 class LoginRequest(BaseModel):
     username_or_email: str
     password: str
+
 
 # This file contains API endpoints related to authentication via Google OAuth2.0
 
@@ -175,7 +177,9 @@ async def google_callback(code: str, session: SessionDep):
     _ensure_oauth_configured()
 
     if not code:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing code")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Missing code"
+        )
 
     tokens = await _exchange_code_for_tokens(code)
     access_token = tokens.get("access_token")
@@ -207,6 +211,7 @@ async def google_callback(code: str, session: SessionDep):
         },
     }
 
+
 @router.post("/login", status_code=status.HTTP_200_OK)
 def classic_login(
     payload: LoginRequest,
@@ -223,12 +228,16 @@ def classic_login(
     ).first()
 
     if not user or not user.password:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
+        )
 
     try:
         ph.verify(user.password, payload.password)
     except VerifyMismatchError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
+        )
 
     token = create_access_token(
         subject=str(user.id),
@@ -242,7 +251,7 @@ def classic_login(
         key="access_token",
         value=token,
         httponly=True,
-        secure=False, # set True in prod
+        secure=False,  # set True in prod
         samesite="lax",
     )
 
@@ -253,3 +262,10 @@ def classic_login(
             "username": user.username,
         },
     }
+
+
+@router.post("/logout", status_code=status.HTTP_200_OK)
+def logout(response: Response):
+    response.delete_cookie(key="access_token")
+    return {"message": "Logged out successfully"}
+
