@@ -94,16 +94,6 @@ class ProgramDay(ProgramDayBase, table=True):
     )
 
 
-class ProgramDayCreate(ProgramDayBase):
-    program_id: int
-
-
-class ProgramDayUpdate(SQLModel):
-    description: Optional[str] = None
-    day_number: Optional[int] = None
-    program_id: Optional[int] = None
-
-
 class ProgramDayRead(ProgramDayBase):
     id: int
     program_id: int
