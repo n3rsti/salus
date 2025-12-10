@@ -2,6 +2,7 @@
     <AppProgramForm
         :initial-data="program"
         @submit="submitForm"
+        @delete="deleteProgram"
     ></AppProgramForm>
 </template>
 
@@ -86,6 +87,17 @@ async function submitForm(program: Program) {
         }
     } catch (error) {
         console.error("Failed to create program:", error);
+    }
+}
+
+async function deleteProgram() {
+    try {
+        await $fetch(`/api/programs/${route.params.id}`, {
+            method: "DELETE",
+        });
+        await navigateTo("/programs");
+    } catch (error) {
+        console.error("Failed to delete program:", error);
     }
 }
 </script>

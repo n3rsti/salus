@@ -43,13 +43,11 @@
 </template>
 
 <script setup lang="ts">
+import { Calendar, Home, Dumbbell, Smile, ListChecks } from "lucide-vue-next";
 import {
     Sidebar,
     SidebarContent,
     SidebarHeader,
-} from "@/components/ui/sidebar";
-import { Calendar, Home, Dumbbell, Smile, ListChecks } from "lucide-vue-next";
-import {
     SidebarGroup,
     SidebarGroupContent,
     SidebarGroupLabel,
