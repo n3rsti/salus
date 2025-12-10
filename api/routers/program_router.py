@@ -1,10 +1,11 @@
 from typing import List
 from fastapi import APIRouter, HTTPException
-from sqlmodel import select
+from sqlmodel import select, delete
 
 from api.database import SessionDep
 from api.models.program_models import (
     Program,
+    ProgramDayInput,
     ProgramRead,
     ProgramDay,
     ProgramCreate,
@@ -27,6 +28,27 @@ def get_programs(session: SessionDep):
         return []
 
 
+def link_days(session: SessionDep, program_id: int, days_in: List[ProgramDayInput]):
+    days = []
+    for day_in in days_in:
+        day = ProgramDay(
+            description=day_in.description,
+            day_number=day_in.day_number,
+            program_id=program_id,
+        )
+        session.add(day)
+        days.append(day)
+
+    session.flush()
+
+    for day, day_in in zip(days, days_in):
+        for activity_id in day_in.activities_ids:
+            link = ProgramDayActivityLink(
+                program_day_id=day.id, activity_id=activity_id
+            )
+            session.add(link)
+
+
 @router.post("", response_model=ProgramRead)
 def create_program(program_in: ProgramCreate, session: SessionDep):
     program_data = program_in.model_dump(exclude={"days"})
@@ -34,25 +56,8 @@ def create_program(program_in: ProgramCreate, session: SessionDep):
     session.add(program)
     session.flush()
 
-    if program_in.days:
-        days: List[ProgramDay] = []
-        for day_in in program_in.days:
-            day = ProgramDay(
-                description=day_in.description,
-                day_number=day_in.day_number,
-                program_id=program.id,
-            )
-            session.add(day)
-            days.append(day)
-
-        session.flush()
-
-        for day, day_in in zip(days, program_in.days):
-            for activity_id in day_in.activities_ids:
-                link = ProgramDayActivityLink(
-                    program_day_id=day.id, activity_id=activity_id
-                )
-                session.add(link)
+    if program_in.days and program.id:
+        link_days(session, program.id, program_in.days)
 
     session.commit()
     session.refresh(program)
@@ -66,11 +71,17 @@ def update_program(session: SessionDep, program_id: int, program_update: Program
     if not program:
         raise HTTPException(status_code=404, detail="Program not found")
 
-    update_data = program_update.model_dump(exclude_unset=True)
+    update_data = program_update.model_dump(exclude_unset=True, exclude={"days"})
     for key, value in update_data.items():
         setattr(program, key, value)
 
     session.add(program)
+
+    if program_update.days:
+        session.exec(delete(ProgramDay).where(ProgramDay.program_id == program_id))
+        session.flush()
+        link_days(session, program_id, program_update.days)
+
     session.commit()
     session.refresh(program)
     return program

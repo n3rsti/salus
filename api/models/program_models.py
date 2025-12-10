@@ -55,6 +55,7 @@ class ProgramUpdate(SQLModel):
     description: Optional[str] = None
     language: Optional[str] = None
     image_url: Optional[str] = None
+    days: List[ProgramDayInput] = []
 
     @field_validator("language")
     def validate_language(cls, v):
