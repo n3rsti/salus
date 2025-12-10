@@ -189,7 +189,7 @@ async function handleRegister() {
         passwordConfirm.value = "";
         return;
     }
-    await $fetch("/api/users/", {
+    await $fetch("/api/users", {
         method: "POST",
         body: {
             email: email.value,
