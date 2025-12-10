@@ -1,13 +1,24 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
 from sqlalchemy.orm import selectinload
 
 from api.database import SessionDep
-from api.models.activity_models import Activity, ActivityMedia, ActivityRead, ActivityMediaRead, ActivityCreate, ActivityUpdate, ActivityMediaCreate, ActivityMediaUpdate
+from api.models.activity_models import (
+    Activity,
+    ActivityMedia,
+    ActivityRead,
+    ActivityMediaRead,
+    ActivityCreate,
+    ActivityUpdate,
+    ActivityMediaCreate,
+    ActivityMediaUpdate,
+)
+from api.security.auth import verify_jwt_token
 
 # This file contains API endpoints related to Activities
 
 router = APIRouter(prefix="/api/activities", tags=["Activities"])
+
 
 @router.get("", response_model=list[ActivityRead])
 def get_activities(session: SessionDep):
@@ -17,6 +28,7 @@ def get_activities(session: SessionDep):
         return activities
     else:
         return []
+
 
 @router.get("/{activity_id}", response_model=ActivityRead)
 def get_activity(session: SessionDep, activity_id: int):
@@ -29,7 +41,11 @@ def get_activity(session: SessionDep, activity_id: int):
 
 
 @router.post("", response_model=ActivityRead)
-def create_activity(activity_in: ActivityCreate, session: SessionDep):
+def create_activity(
+    activity_in: ActivityCreate,
+    session: SessionDep,
+    _: dict = Depends(verify_jwt_token),
+):
     activity = Activity.model_validate(activity_in)
 
     session.add(activity)
@@ -37,8 +53,11 @@ def create_activity(activity_in: ActivityCreate, session: SessionDep):
     session.refresh(activity)
     return activity
 
+
 @router.put("/{activity_id}", response_model=ActivityRead)
-def update_activity(session: SessionDep, activity_id: int, activity_update: ActivityUpdate):
+def update_activity(
+    session: SessionDep, activity_id: int, activity_update: ActivityUpdate
+):
     activity = session.get(Activity, activity_id)
 
     if not activity:
@@ -53,6 +72,7 @@ def update_activity(session: SessionDep, activity_id: int, activity_update: Acti
     session.refresh(activity)
     return activity
 
+
 @router.delete("/{activity_id}")
 def delete_activity(session: SessionDep, activity_id: int):
     activity = session.get(Activity, activity_id)
@@ -62,17 +82,21 @@ def delete_activity(session: SessionDep, activity_id: int):
     session.commit()
     return {"ok": True}
 
+
 @router.post("/media", response_model=ActivityMediaRead)
 def create_media(media_in: ActivityMediaCreate, session: SessionDep):
     activity = session.get(Activity, media_in.activity_id)
     if not activity:
-        raise HTTPException(status_code=404, detail=f"Activity with id={media_in.activity_id} not found")
+        raise HTTPException(
+            status_code=404, detail=f"Activity with id={media_in.activity_id} not found"
+        )
 
     media = ActivityMedia.model_validate(media_in)
     session.add(media)
     session.commit()
     session.refresh(media)
     return media
+
 
 @router.put("/media/{media_id}", response_model=ActivityMediaRead)
 def update_media(session: SessionDep, media_id: int, media_update: ActivityMediaUpdate):
@@ -84,7 +108,10 @@ def update_media(session: SessionDep, media_id: int, media_update: ActivityMedia
     if media_update.activity_id != None:
         activity = session.get(Activity, media_update.activity_id)
         if not activity:
-            raise HTTPException(status_code=404, detail=f"Activity with id={media_update.activity_id} not found")
+            raise HTTPException(
+                status_code=404,
+                detail=f"Activity with id={media_update.activity_id} not found",
+            )
 
     update_data = media_update.model_dump(exclude_unset=True)
     for key, value in update_data.items():
@@ -94,6 +121,7 @@ def update_media(session: SessionDep, media_id: int, media_update: ActivityMedia
     session.commit()
     session.refresh(media)
     return media
+
 
 @router.delete("/media/{media_id}")
 def delete_media(media: ActivityMedia, session: SessionDep, media_id: int):
