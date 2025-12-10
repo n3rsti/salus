@@ -8,6 +8,8 @@
 <script setup lang="ts">
 import type { Activity } from "~/models/activity.model";
 
+const { $api } = useNuxtApp();
+
 const emptyActivity: Activity = {
     name: "",
     description: "",
@@ -17,7 +19,7 @@ const emptyActivity: Activity = {
 };
 
 async function submitForm(activity: Activity) {
-    await $fetch(`/api/activities/`, {
+    await $api(`/api/activities`, {
         method: "POST",
         body: activity,
         onResponse: async (response) => {
