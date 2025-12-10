@@ -6,10 +6,5 @@ build-frontend:
 
 build: build-backend build-frontend
 
-run-backend:
-	docker compose -f docker-compose.yaml up salus-api postgres -d
-
-run-frontend:
-	docker compose -f docker-compose.yaml up salus-frontend -d
-
-run: run-backend run-frontend
+run:
+	docker compose -f docker-compose.yaml up -d
