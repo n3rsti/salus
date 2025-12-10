@@ -1,0 +1,21 @@
+{
+  "include": [
+    "api",
+    "main.py"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    ".nuxt",
+    "public"
+  ],
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "pythonVersion": "3.13",
+      "pythonPlatform": "Linux"
+    }
+  ],
+  "typeCheckingMode": "basic",
+  "reportMissingTypeStubs": false
+}
