@@ -1,24 +1,21 @@
 from fastapi import APIRouter, HTTPException, status
 from sqlmodel import select
 from api.database import SessionDep
-from api.models.user_models import (Users,UsersCreate,UsersRead,UsersUpdate,Role)
-from argon2 import PasswordHasher
+from api.models.user_models import Users, UsersCreate, UsersRead, UsersUpdate, Role
+from api.security.crypto import hash_password
 
 # This file contains API endpoints related to Users (CRUD and role assignment)
 
 router = APIRouter(prefix="/api/users", tags=["Users"])
-
-ph = PasswordHasher()
-
-def hash_password(password: str) -> str:
-    return ph.hash(password)
 
 
 # Users:
 @router.post("", response_model=UsersRead, status_code=status.HTTP_201_CREATED)
 def create_user(data: UsersCreate, session: SessionDep):
     # check username uniqueness
-    existing = session.exec(select(Users).where(Users.username == data.username)).first()
+    existing = session.exec(
+        select(Users).where(Users.username == data.username)
+    ).first()
     if existing:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -26,7 +23,9 @@ def create_user(data: UsersCreate, session: SessionDep):
         )
 
     if data.email is not None:
-        email_owner = session.exec(select(Users).where(Users.email == data.email)).first()
+        email_owner = session.exec(
+            select(Users).where(Users.email == data.email)
+        ).first()
         if email_owner:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -66,7 +65,9 @@ def list_users(session: SessionDep):
 def get_user(user_id: int, session: SessionDep):
     user = session.get(Users, user_id)
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
     return user
 
 
@@ -74,7 +75,9 @@ def get_user(user_id: int, session: SessionDep):
 def update_user(user_id: int, data: UsersUpdate, session: SessionDep):
     user = session.get(Users, user_id)
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     # username change
     if data.username is not None:
@@ -124,7 +127,9 @@ def update_user(user_id: int, data: UsersUpdate, session: SessionDep):
 def delete_user(user_id: int, session: SessionDep):
     user = session.get(Users, user_id)
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
     session.delete(user)
     session.commit()
     return None
