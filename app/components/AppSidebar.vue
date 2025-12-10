@@ -29,10 +29,11 @@
                             :key="item.title"
                         >
                             <SidebarMenuButton as-child>
-                                <NuxtLink :to="item.url">
+                                <NuxtLink v-if="item.url" :to="item.url">
                                     <component :is="item.icon" />
                                     <span>{{ item.title }}</span>
                                 </NuxtLink>
+                                <component :is="item.icon" v-else />
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     </SidebarMenu>
@@ -55,10 +56,11 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import AppLogoutModal from "./AppLogoutModal.vue";
 
 interface MenuItem {
     title: string;
-    url: string;
+    url?: string;
     icon: any;
 }
 
@@ -105,6 +107,15 @@ const menuSections: MenuSection[] = [
                 title: "Activity Log",
                 url: "/activity-log",
                 icon: ListChecks,
+            },
+        ],
+    },
+    {
+        label: "Settings",
+        items: [
+            {
+                title: "Log out",
+                icon: AppLogoutModal,
             },
         ],
     },

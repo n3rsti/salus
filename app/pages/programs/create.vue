@@ -51,7 +51,7 @@ async function linkActivity(program_day_id: number, activity_id: number) {
 
 async function submitForm(program: Program) {
     try {
-        const data = await $fetch<Program>("/api/programs/", {
+        const data = await $fetch<Program>("/api/programs", {
             method: "POST",
             body: program,
         });

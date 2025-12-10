@@ -42,7 +42,7 @@ async function deleteActivity() {
 }
 
 async function updateActivity(activity: Activity) {
-    await $fetch(`/api/activities/`, {
+    await $fetch(`/api/activities`, {
         method: "PUT",
         body: activity,
         onResponse: async (response) => {
