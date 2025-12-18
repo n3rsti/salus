@@ -53,8 +53,8 @@ def link_days(session: SessionDep, program_id: int, days_in: List[ProgramDayInpu
 @router.post("", response_model=ProgramRead)
 def create_program(program_in: ProgramCreate, session: SessionDep, current_user: Users = Depends(get_current_user)):
     program_data = program_in.model_dump(exclude={"days"})
+    program_data["owner_id"] = current_user.id
     program = Program.model_validate(program_data)
-    program.owner_id = current_user.id
 
     session.add(program)
     session.flush()
