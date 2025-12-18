@@ -21,6 +21,9 @@ class ActivityBase(SQLModel):
 class Activity(ActivityBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
+    owner_id: int = Field(foreign_key="users.id", nullable=False)
+    owner: Optional["Users"] = Relationship()
+
     media: List["ActivityMedia"] = Relationship(back_populates="activity",cascade_delete=True)
     program_days: List["ProgramDay"] = Relationship(back_populates="activities",link_model=ProgramDayActivityLink)
 
@@ -84,4 +87,5 @@ class ActivityMediaRead(ActivityMediaBase):
     activity_id: int
 
 from api.models.program_models import ProgramDay
+from api.models.user_models import Users
 SQLModel.model_rebuild()

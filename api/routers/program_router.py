@@ -12,8 +12,9 @@ from api.models.program_models import (
     ProgramUpdate,
 )
 from api.models.program_day_activities_link import ProgramDayActivityLink
-from api.security.auth import get_current_user # Importuj funkcję z Twojego pliku auth.py
+from api.security.auth import get_current_user
 from api.models.user_models import Users
+
 # This file contains API endpoints related to Programs
 
 router = APIRouter(prefix="/api/programs", tags=["Programs"])
