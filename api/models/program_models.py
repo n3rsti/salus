@@ -30,6 +30,9 @@ class ProgramBase(SQLModel):
 class Program(ProgramBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
+    owner_id: int = Field(foreign_key="users.id", nullable=False)
+    owner: Optional["Users"] = Relationship()
+
     days: List["ProgramDay"] = Relationship(
         back_populates="program", cascade_delete=True
     )
@@ -101,7 +104,16 @@ class ProgramDayRead(ProgramDayBase):
     activities: List["ActivityRead"] = []
 
 
+# from api.models.activity_models import Activity, ActivityRead
+# from api.models.tag_models import Tag, TagRead
+
+# SQLModel.model_rebuild()
 from api.models.activity_models import Activity, ActivityRead
 from api.models.tag_models import Tag, TagRead
+from api.models.user_models import Users # Dodaj to tutaj
 
-SQLModel.model_rebuild()
+# Wywołaj rebuild dla konkretnych klas, nie tylko ogólne SQLModel
+Program.model_rebuild()
+ProgramRead.model_rebuild()
+ProgramDay.model_rebuild()
+ProgramDayRead.model_rebuild()

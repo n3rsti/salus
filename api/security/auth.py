@@ -36,8 +36,8 @@ async def verify_jwt_token(
         )
 
 async def get_current_user(
+    session: SessionDep,
     payload: Dict[str, Any] = Depends(verify_jwt_token),
-    session: Session = Depends(),
 ) -> Users:
     user_id = payload.get("sub")
 
