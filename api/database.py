@@ -1,5 +1,6 @@
 from typing import Annotated
 from fastapi import Depends
+from sqlalchemy import text
 from sqlmodel import Session, SQLModel, create_engine, select
 from dotenv import dotenv_values
 from api.models.user_models import Role, Users
@@ -22,6 +23,10 @@ def create_db_and_tables():
 
     # vvvv to be removed later
     with Session(engine) as session:
+        # Add extension for fuzzy finder
+        session.connection().execute(text("CREATE EXTENSION IF NOT EXISTS pg_trgm;"))
+        session.commit()
+
         result = session.exec(select(Role).where(Role.name == "user")).first()
         if not result:
             default_role = Role(id=1, name="user")

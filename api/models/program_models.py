@@ -2,7 +2,8 @@ from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship
 from api.models.program_day_activities_link import ProgramDayActivityLink
 from api.models.programs_tags_link import ProgramTagLink
-from pydantic import field_validator
+from sqlalchemy import func, or_
+from pydantic import BaseModel, field_validator
 
 # This file contains models implementing: Programs and ProgramDays tables
 
@@ -80,6 +81,20 @@ class ProgramRead(ProgramBase):
     owner: "UsersRead"
     days: List["ProgramDayRead"] = []
     tags: List["TagRead"] = []
+
+
+class ProgramFilters(BaseModel):
+    search: Optional[str] = None
+
+    def apply(self, query):
+        if self.search:
+            search_vector = func.to_tsvector("simple", func.coalesce(Program.name, ""))
+            search_query = func.plainto_tsquery("simple", self.search)
+            fts_match = search_vector.op("@@")(search_query)
+            fuzzy_match = func.similarity(Program.name, self.search) > 0.3
+            query = query.where(or_(fts_match, fuzzy_match))
+            query = query.order_by(func.ts_rank(search_vector, search_query).desc())
+        return query
 
 
 class ProgramDayBase(SQLModel):

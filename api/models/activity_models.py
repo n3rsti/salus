@@ -1,6 +1,7 @@
 from typing import List, Optional
-from sqlmodel import SQLModel, Field, Relationship
-from pydantic import field_validator
+from sqlalchemy import func, or_
+from sqlmodel import SQLModel, Field, Relationship, col
+from pydantic import BaseModel, field_validator
 from api.models.program_day_activities_link import ProgramDayActivityLink
 
 # This file contains models implementing: Activities and ActivitesMedia tables
@@ -102,6 +103,29 @@ class ActivityMediaUpdate(SQLModel):
 class ActivityMediaRead(ActivityMediaBase):
     id: int
     activity_id: int
+
+
+class ActivityFilters(BaseModel):
+    search: Optional[str] = None
+
+    def apply(self, query):
+        if self.search:
+            search_vector = func.to_tsvector(
+                "simple",
+                func.coalesce(Activity.name, "")
+                + " "
+                + func.coalesce(Activity.description, ""),
+            )
+            search_query = func.plainto_tsquery("simple", self.search)
+            fts_match = search_vector.op("@@")(search_query)
+
+            fuzzy_match = func.similarity(Activity.name, self.search) > 0.3
+
+            query = query.where(or_(fts_match, fuzzy_match))
+
+            query = query.order_by(func.ts_rank(search_vector, search_query).desc())
+
+        return query
 
 
 from api.models.program_models import ProgramDay

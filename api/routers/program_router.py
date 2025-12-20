@@ -6,6 +6,7 @@ from api.database import SessionDep
 from api.models.program_models import (
     Program,
     ProgramDayInput,
+    ProgramFilters,
     ProgramRead,
     ProgramDay,
     ProgramCreate,
@@ -21,8 +22,10 @@ router = APIRouter(prefix="/api/programs", tags=["Programs"])
 
 
 @router.get("", response_model=list[ProgramRead])
-def get_programs(session: SessionDep):
-    programs = session.exec(select(Program)).all()
+def get_programs(session: SessionDep, filters: ProgramFilters = Depends()):
+    query = select(Program)
+    query = filters.apply(query)
+    programs = session.exec(query).all()
 
     if programs:
         return programs

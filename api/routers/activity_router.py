@@ -5,6 +5,7 @@ from sqlalchemy.orm import selectinload
 from api.database import SessionDep
 from api.models.activity_models import (
     Activity,
+    ActivityFilters,
     ActivityMedia,
     ActivityRead,
     ActivityMediaRead,
@@ -23,8 +24,10 @@ router = APIRouter(prefix="/api/activities", tags=["Activities"])
 
 
 @router.get("", response_model=list[ActivityRead])
-def get_activities(session: SessionDep):
-    activities = session.exec(select(Activity)).all()
+def get_activities(session: SessionDep, filters: ActivityFilters = Depends()):
+    query = select(Activity)
+    query = filters.apply(query)
+    activities = session.exec(query).all()
 
     if activities:
         return activities
