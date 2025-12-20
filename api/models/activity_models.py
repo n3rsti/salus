@@ -56,7 +56,7 @@ class ActivityUpdate(SQLModel):
 
 class ActivityRead(ActivityBase):
     id: int
-    owner_id: int
+    owner: "UsersRead"
     media: List["ActivityMediaRead"] = []
 
 
@@ -105,6 +105,6 @@ class ActivityMediaRead(ActivityMediaBase):
 
 
 from api.models.program_models import ProgramDay
-from api.models.user_models import Users
+from api.models.user_models import Users, UsersRead
 
 SQLModel.model_rebuild()

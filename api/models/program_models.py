@@ -77,6 +77,7 @@ class ProgramUpdate(SQLModel):
 
 class ProgramRead(ProgramBase):
     id: int
+    owner: "UsersRead"
     days: List["ProgramDayRead"] = []
     tags: List["TagRead"] = []
 
@@ -106,6 +107,6 @@ class ProgramDayRead(ProgramDayBase):
 
 from api.models.activity_models import Activity, ActivityRead
 from api.models.tag_models import Tag, TagRead
-from api.models.user_models import Users
+from api.models.user_models import Users, UsersRead
 
 SQLModel.model_rebuild()
