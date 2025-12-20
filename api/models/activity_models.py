@@ -3,7 +3,8 @@ from sqlmodel import SQLModel, Field, Relationship
 from pydantic import field_validator
 from api.models.program_day_activities_link import ProgramDayActivityLink
 
-# This file contains models implementing: Activities and ActivitesMedia tables 
+# This file contains models implementing: Activities and ActivitesMedia tables
+
 
 class ActivityBase(SQLModel):
     name: str
@@ -18,17 +19,24 @@ class ActivityBase(SQLModel):
             raise ValueError("difficulty must be between 1 and 5")
         return v
 
+
 class Activity(ActivityBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
     owner_id: int = Field(foreign_key="users.id", nullable=False)
     owner: Optional["Users"] = Relationship()
 
-    media: List["ActivityMedia"] = Relationship(back_populates="activity",cascade_delete=True)
-    program_days: List["ProgramDay"] = Relationship(back_populates="activities",link_model=ProgramDayActivityLink)
+    media: List["ActivityMedia"] = Relationship(
+        back_populates="activity", cascade_delete=True
+    )
+    program_days: List["ProgramDay"] = Relationship(
+        back_populates="activities", link_model=ProgramDayActivityLink
+    )
+
 
 class ActivityCreate(ActivityBase):
     pass
+
 
 class ActivityUpdate(SQLModel):
     name: Optional[str] = None
@@ -45,9 +53,12 @@ class ActivityUpdate(SQLModel):
             raise ValueError("difficulty must be between 1 and 5")
         return v
 
+
 class ActivityRead(ActivityBase):
     id: int
+    owner_id: int
     media: List["ActivityMediaRead"] = []
+
 
 class ActivityMediaBase(SQLModel):
     url: str
@@ -60,13 +71,18 @@ class ActivityMediaBase(SQLModel):
             raise ValueError(f"type must be one of {allowed_types}")
         return v
 
+
 class ActivityMedia(ActivityMediaBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    activity_id: Optional[int] = Field(default=None, foreign_key="activity.id", ondelete="CASCADE")
+    activity_id: Optional[int] = Field(
+        default=None, foreign_key="activity.id", ondelete="CASCADE"
+    )
     activity: Optional["Activity"] = Relationship(back_populates="media")
+
 
 class ActivityMediaCreate(ActivityMediaBase):
     activity_id: int
+
 
 class ActivityMediaUpdate(SQLModel):
     url: Optional[str] = None
@@ -82,10 +98,13 @@ class ActivityMediaUpdate(SQLModel):
             raise ValueError(f"type must be one of {allowed_types}")
         return v
 
+
 class ActivityMediaRead(ActivityMediaBase):
     id: int
     activity_id: int
 
+
 from api.models.program_models import ProgramDay
 from api.models.user_models import Users
+
 SQLModel.model_rebuild()

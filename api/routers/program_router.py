@@ -52,9 +52,13 @@ def link_days(session: SessionDep, program_id: int, days_in: List[ProgramDayInpu
 
 
 @router.post("", response_model=ProgramRead)
-def create_program(program_in: ProgramCreate, session: SessionDep, current_user: Users = Depends(get_current_user)):
+def create_program(
+    program_in: ProgramCreate,
+    session: SessionDep,
+    current_user: int = Depends(get_current_user),
+):
     program_data = program_in.model_dump(exclude={"days"})
-    program_data["owner_id"] = current_user.id
+    program_data["owner_id"] = current_user
     program = Program.model_validate(program_data)
 
     session.add(program)
@@ -69,14 +73,21 @@ def create_program(program_in: ProgramCreate, session: SessionDep, current_user:
 
 
 @router.put("/{program_id}", response_model=ProgramRead)
-def update_program(session: SessionDep, program_id: int, program_update: ProgramUpdate, current_user: Users = Depends(get_current_user)):
+def update_program(
+    session: SessionDep,
+    program_id: int,
+    program_update: ProgramUpdate,
+    current_user: int = Depends(get_current_user),
+):
     program = session.get(Program, program_id)
 
     if not program:
         raise HTTPException(status_code=404, detail="Program not found")
 
-    if program.owner_id != current_user.id:
-            raise HTTPException(status_code=403, detail="Not enough permissions to edit this program")
+    if program.owner_id != current_user:
+        raise HTTPException(
+            status_code=403, detail="Not enough permissions to edit this program"
+        )
 
     update_data = program_update.model_dump(exclude_unset=True, exclude={"days"})
     for key, value in update_data.items():
@@ -105,13 +116,19 @@ def get_program(session: SessionDep, program_id: int):
 
 
 @router.delete("/{program_id}")
-def delete_program(session: SessionDep, program_id: int, current_user: Users = Depends(get_current_user)):
+def delete_program(
+    session: SessionDep,
+    program_id: int,
+    current_user: int = Depends(get_current_user),
+):
     program = session.get(Program, program_id)
     if not program:
         raise HTTPException(status_code=404, detail="Program not found")
-    
-    if program.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not enough permissions to delete this program")
+
+    if program.owner_id != current_user:
+        raise HTTPException(
+            status_code=403, detail="Not enough permissions to delete this program"
+        )
 
     session.delete(program)
     session.commit()

@@ -46,11 +46,11 @@ def get_activity(session: SessionDep, activity_id: int):
 def create_activity(
     activity_in: ActivityCreate,
     session: SessionDep,
-    current_user: Users = Depends(get_current_user),
+    current_user: int = Depends(get_current_user),
 ):
     activity_data = activity_in.model_dump()
-    activity_data["owner_id"] = current_user.id
-    activity = Activity.model_validate(activity_in)
+    activity_data["owner_id"] = current_user
+    activity = Activity.model_validate(activity_data)
 
     session.add(activity)
     session.commit()
@@ -60,15 +60,20 @@ def create_activity(
 
 @router.put("/{activity_id}", response_model=ActivityRead)
 def update_activity(
-    session: SessionDep, activity_id: int, activity_update: ActivityUpdate, current_user: Users = Depends(get_current_user),
+    session: SessionDep,
+    activity_id: int,
+    activity_update: ActivityUpdate,
+    current_user: int = Depends(get_current_user),
 ):
     activity = session.get(Activity, activity_id)
 
     if not activity:
         raise HTTPException(status_code=404, detail="Activity not found")
 
-    if activity.owner_id != current_user.id:
-            raise HTTPException(status_code=403, detail="Not enough permissions to edit this program")
+    if activity.owner_id != current_user:
+        raise HTTPException(
+            status_code=403, detail="Not enough permissions to edit this program"
+        )
 
     update_data = activity_update.model_dump(exclude_unset=True)
     for key, value in update_data.items():
@@ -81,13 +86,19 @@ def update_activity(
 
 
 @router.delete("/{activity_id}")
-def delete_activity(session: SessionDep, activity_id: int, current_user: Users = Depends(get_current_user),):
+def delete_activity(
+    session: SessionDep,
+    activity_id: int,
+    current_user: int = Depends(get_current_user),
+):
     activity = session.get(Activity, activity_id)
     if not activity:
         raise HTTPException(status_code=404, detail="Activity not found")
-    
-    if activity.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not enough permissions to delete this program")
+
+    if activity.owner_id != current_user:
+        raise HTTPException(
+            status_code=403, detail="Not enough permissions to delete this program"
+        )
 
     session.delete(activity)
     session.commit()

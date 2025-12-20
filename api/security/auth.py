@@ -35,20 +35,22 @@ async def verify_jwt_token(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         )
 
+
 async def get_current_user(
-    session: SessionDep,
     payload: Dict[str, Any] = Depends(verify_jwt_token),
-) -> Users:
+) -> int:
     user_id = payload.get("sub")
 
-    user = session.exec(
-        select(Users).where(Users.id == int(user_id))
-    ).first()
-
-    if not user:
+    if user_id is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
+            detail="Invalid token: missing user ID",
         )
 
-    return user
+    try:
+        return int(user_id)
+    except (ValueError, TypeError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token: user ID must be a valid integer",
+        )
