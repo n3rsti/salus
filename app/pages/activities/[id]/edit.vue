@@ -11,6 +11,8 @@ import type { Activity } from "~/models/activity.model";
 
 const route = useRoute();
 
+const { $api } = useNuxtApp();
+
 const { data: activity } = await useFetch<Activity>(
     `/api/activities/${route.params.id}`,
 );
@@ -31,7 +33,7 @@ const emptyActivity: Activity = {
 };
 
 async function deleteActivity() {
-    await $fetch(`/api/activities/${activity.value?.id}`, {
+    await $api(`/api/activities/${route.params.id}`, {
         method: "DELETE",
         onResponse: async (response) => {
             if (response.response.status == 200) {
@@ -42,7 +44,7 @@ async function deleteActivity() {
 }
 
 async function updateActivity(activity: Activity) {
-    await $fetch(`/api/activities`, {
+    await $api(`/api/activities/${route.params.id}`, {
         method: "PUT",
         body: activity,
         onResponse: async (response) => {

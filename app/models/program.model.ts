@@ -10,4 +10,5 @@ export interface Program {
     progress?: number;
     rating?: number;
     days?: ProgramDay[];
+    owner_id?: number;
 }

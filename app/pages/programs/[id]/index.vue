@@ -40,7 +40,7 @@
                 >
                     <input type="checkbox" checked />
                     <div class="collapse-title font-semibold text-text">
-                        Day {{ day.day_number + 1 }}
+                        Day {{ day.day_number }}
                     </div>
                     <div class="px-2 collapse-content">
                         <p class="text-sm text-muted-foreground px-2 mb-3">

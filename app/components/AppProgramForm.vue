@@ -293,6 +293,13 @@ function addDay() {
 }
 
 async function submitForm() {
+    formData.value.days?.forEach((day) => {
+        day.activities_ids =
+            day.activities
+                ?.map((a) => a.id)
+                .filter((id): id is number => id !== undefined) || [];
+    });
+
     const programToSubmit: Program = {
         ...formData.value,
         duration_days: formData.value.days?.length || 0,

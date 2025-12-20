@@ -6,6 +6,8 @@
 import type { Program } from "~/models/program.model";
 import type { ProgramDay } from "~/models/program_day.model";
 
+const { $api } = useNuxtApp();
+
 async function createDays(program: Program, program_id: number) {
     if (!program.days) return;
 
@@ -51,13 +53,12 @@ async function linkActivity(program_day_id: number, activity_id: number) {
 
 async function submitForm(program: Program) {
     try {
-        const data = await $fetch<Program>("/api/programs", {
+        const data = await $api<Program>("/api/programs", {
             method: "POST",
             body: program,
         });
 
         if (data?.id) {
-            await createDays(program, data.id);
             await navigateTo(`/programs/${data.id}`);
         }
     } catch (error) {

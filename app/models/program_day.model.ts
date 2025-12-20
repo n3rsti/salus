@@ -6,4 +6,5 @@ export interface ProgramDay {
     day_number: number;
     program_id: number;
     activities?: Activity[];
+    activities_ids?: number[];
 }
