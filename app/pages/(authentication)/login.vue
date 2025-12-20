@@ -142,7 +142,7 @@ const password = ref("");
 
 interface Response {
     message: string;
-    user: Record<string, string>;
+    user: Record<string, string | number>;
 }
 async function handleLogin() {
     await $fetch<Response>("/api/auth/login", {
@@ -156,7 +156,8 @@ async function handleLogin() {
                 const data: Response = response.response._data;
                 const userStore = useUserStore();
 
-                userStore.username = data.user.username || "";
+                userStore.username = (data.user.username as string) || "";
+                userStore.id = (data.user.id as number) || 0;
                 await navigateTo("/");
             } else {
                 password.value = "";

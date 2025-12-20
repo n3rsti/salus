@@ -1,3 +1,5 @@
+import type { User } from "./user.model";
+
 export interface Activity {
     id?: number;
     name: string;
@@ -6,5 +8,5 @@ export interface Activity {
     difficulty: number;
     rating?: number;
     image_url: string;
-    owner_id?: number;
+    owner: User;
 }

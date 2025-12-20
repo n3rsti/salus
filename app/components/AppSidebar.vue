@@ -29,7 +29,11 @@
                             :key="item.title"
                         >
                             <SidebarMenuButton as-child>
-                                <NuxtLink v-if="item.url" :to="item.url">
+                                <NuxtLink
+                                    v-if="item.url"
+                                    :to="item.url"
+                                    @click="toggleSidebar"
+                                >
                                     <component :is="item.icon" />
                                     <span>{{ item.title }}</span>
                                 </NuxtLink>
@@ -55,8 +59,11 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    useSidebar,
 } from "@/components/ui/sidebar";
 import AppLogoutModal from "./AppLogoutModal.vue";
+
+const { toggleSidebar } = useSidebar();
 
 interface MenuItem {
     title: string;

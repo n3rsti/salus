@@ -9,11 +9,12 @@
         />
         <div class="flex flex-col grow p-2 mt-3">
             <div>
-                <div class="flex">
-                    <h1 class="font-bold text-3xl mt-1 text-text">
+                <div class="flex mt-1">
+                    <h1 class="font-bold text-3xl text-text">
                         {{ program?.name }}
                     </h1>
                     <NuxtLink
+                        v-if="userStore.id == program?.owner.id"
                         :to="'/programs/' + route.params.id + '/edit'"
                         class="ml-auto"
                     >
@@ -22,10 +23,23 @@
                         >
                     </NuxtLink>
                 </div>
-                <p class="mt-1 text-muted-foreground flex items-center">
-                    <Icon class="" name="ic:outline-access-time" />
-                    <span class="ml-1">{{ program?.duration_days }} days</span>
-                </p>
+                <div class="flex mt-1">
+                    <p class="text-muted-foreground flex items-center">
+                        <Icon class="" name="ic:outline-access-time" />
+                        <span class="ml-1"
+                            >{{ program?.duration_days }} days</span
+                        >
+                    </p>
+                    <p class="ml-auto">
+                        by
+                        <NuxtLink
+                            class="font-semibold"
+                            :to="'/users/' + program?.owner.username"
+                        >
+                            {{ program?.owner.username }}
+                        </NuxtLink>
+                    </p>
+                </div>
             </div>
             <p class="text-text font-medium text-sm mt-3">Description</p>
             <p class="text-muted-foreground text-sm mb-4 mt-1">
@@ -96,6 +110,7 @@ import { Button } from "~/components/ui/button";
 import type { Program } from "~/models/program.model";
 
 const route = useRoute();
+const userStore = useUserStore();
 
 const { data: program } = await useFetch<Program>(
     `/api/programs/${route.params.id}`,

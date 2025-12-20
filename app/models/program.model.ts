@@ -1,4 +1,5 @@
 import type { ProgramDay } from "./program_day.model";
+import type { User } from "./user.model";
 
 export interface Program {
     id?: number;
@@ -10,5 +11,5 @@ export interface Program {
     progress?: number;
     rating?: number;
     days?: ProgramDay[];
-    owner_id?: number;
+    owner: User;
 }
