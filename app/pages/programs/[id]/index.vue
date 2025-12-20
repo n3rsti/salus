@@ -102,6 +102,7 @@
             </div>
 
             <slot></slot>
+            <Button variant="success" class="mt-auto">Start</Button>
         </div>
     </article>
 </template>
