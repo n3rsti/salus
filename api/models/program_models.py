@@ -107,4 +107,5 @@ class ProgramDayRead(ProgramDayBase):
 from api.models.activity_models import Activity, ActivityRead
 from api.models.tag_models import Tag, TagRead
 from api.models.user_models import Users
+
 SQLModel.model_rebuild()

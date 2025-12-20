@@ -268,4 +268,3 @@ def classic_login(
 def logout(response: Response):
     response.delete_cookie(key="access_token")
     return {"message": "Logged out successfully"}
-

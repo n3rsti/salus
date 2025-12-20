@@ -10,6 +10,7 @@ from api.models.programs_tags_link import ProgramTagLink
 
 router = APIRouter(prefix="/api/tags", tags=["Tags"])
 
+
 @router.get("", response_model=list[TagRead])
 def get_tags(session: SessionDep):
     tags = session.exec(select(Tag)).all()
@@ -19,6 +20,7 @@ def get_tags(session: SessionDep):
     else:
         return []
 
+
 @router.post("", response_model=TagRead)
 def create_tag(tag_in: TagCreate, session: SessionDep):
     tag = Tag.model_validate(tag_in)
@@ -27,6 +29,7 @@ def create_tag(tag_in: TagCreate, session: SessionDep):
     session.commit()
     session.refresh(tag)
     return tag
+
 
 @router.put("/{tag_id}", response_model=TagRead)
 def update_tag(session: SessionDep, tag_id: int, tag_update: TagUpdate):
@@ -44,6 +47,7 @@ def update_tag(session: SessionDep, tag_id: int, tag_update: TagUpdate):
     session.refresh(tag)
     return tag
 
+
 @router.delete("/{tag_id}")
 def delete_tag(session: SessionDep, tag_id: int):
     tag = session.get(Tag, tag_id)
@@ -52,6 +56,7 @@ def delete_tag(session: SessionDep, tag_id: int):
     session.delete(tag)
     session.commit()
     return {"ok": True}
+
 
 @router.post("/{tag_id}/programs/{program_id}")
 def link_tag_to_program(tag_id: int, program_id: int, session: SessionDep):

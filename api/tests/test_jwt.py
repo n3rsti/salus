@@ -6,6 +6,7 @@ from api.security.jwt import create_access_token, decode_access_token
 TEST_SUBJECT = "12345"
 TEST_CLAIMS = {"email": "test@example.com", "role": "user"}
 
+
 def test_jwt_creation_and_decoding():
     # Create token
     token = create_access_token(
@@ -45,6 +46,7 @@ def test_jwt_expiration(monkeypatch):
 
     # Reset datetime to real now
     from api.security import jwt as jwt_module
+
     monkeypatch.setattr(jwt_module, "datetime", datetime)
 
     # Try decoding, expect ExpiredSignatureError

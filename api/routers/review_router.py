@@ -10,6 +10,7 @@ from api.models.program_models import Program, Activity
 
 router = APIRouter(prefix="/api/reviews", tags=["Reviews"])
 
+
 @router.get("", response_model=list[ReviewRead])
 def get_reviews(session: SessionDep):
     reviews = session.exec(select(Review)).all()
@@ -19,19 +20,24 @@ def get_reviews(session: SessionDep):
     else:
         return []
 
+
 @router.post("", response_model=ReviewRead)
 def create_review(review_in: ReviewCreate, session: SessionDep):
     if review_in.content_type == "program":
-        content = session.exec(select(Program).where(Program.id == review_in.content_id)).first()
+        content = session.exec(
+            select(Program).where(Program.id == review_in.content_id)
+        ).first()
     elif review_in.content_type == "activity":
-        content = session.exec(select(Activity).where(Activity.id == review_in.content_id)).first()
+        content = session.exec(
+            select(Activity).where(Activity.id == review_in.content_id)
+        ).first()
     else:
         raise HTTPException(status_code=400, detail="Invalid content_type")
 
     if not content:
         raise HTTPException(
             status_code=404,
-            detail=f"{review_in.content_type.capitalize()} with id={review_in.content_id} not found"
+            detail=f"{review_in.content_type.capitalize()} with id={review_in.content_id} not found",
         )
 
     review = Review.model_validate(review_in)
@@ -39,6 +45,7 @@ def create_review(review_in: ReviewCreate, session: SessionDep):
     session.commit()
     session.refresh(review)
     return review
+
 
 @router.put("/{review_id}", response_model=ReviewRead)
 def update_review(review_id: int, review_update: ReviewUpdate, session: SessionDep):
@@ -56,6 +63,7 @@ def update_review(review_id: int, review_update: ReviewUpdate, session: SessionD
 
     return review
 
+
 @router.delete("/{review_id}")
 def delete_review(session: SessionDep, review_id: int):
     review = session.get(Review, review_id)
@@ -64,4 +72,3 @@ def delete_review(session: SessionDep, review_id: int):
     session.delete(review)
     session.commit()
     return {"ok": True}
-
