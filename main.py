@@ -8,6 +8,8 @@ from api.routers import (
     review_router,
     auth_router,
     user_router,
+    emotion_router,
+    daily_log_router
 )
 
 app = FastAPI()
@@ -29,6 +31,8 @@ app.include_router(tag_router.router)
 app.include_router(review_router.router)
 app.include_router(user_router.router)
 app.include_router(auth_router.router)
+app.include_router(emotion_router.router)
+app.include_router(daily_log_router.router)
 
 app.add_middleware(
     CORSMiddleware,

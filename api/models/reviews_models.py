@@ -5,7 +5,7 @@ from pydantic import field_validator
 
 
 class ReviewBase(SQLModel):
-    # user_id: int | None = Field(default=None, foreign_key="user.id", ondelete="CASCADE") commented out for now, we dont have user table yet
+    # user_id: int | None = Field(default=None, foreign_key="users.id", ondelete="CASCADE")
     content_type: str = Field(description="Either 'program' or 'activity'")
     content_id: int
     rating: int
