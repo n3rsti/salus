@@ -57,7 +57,7 @@ class Users(UsersBase, table=True):
     )
     role: Optional[Role] = Relationship(back_populates="users")
     # TODO: uncomment when fixed
-    # reviews: list["Review"] = Relationship(back_populates="user")
+    # reviews: list["Review"] = Relationship(back_populates="users")
 
 
 class UsersCreate(UsersBase):

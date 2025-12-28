@@ -1,36 +1,41 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import select
-from sqlalchemy.orm import selectinload
+from typing import List
 
 from api.database import SessionDep
 from api.models.reviews_models import Review, ReviewRead, ReviewCreate, ReviewUpdate
 from api.models.program_models import Program, Activity
+from api.models.user_models import Users
+from api.security.auth import get_current_user
 
-# This file contains API endpoints related to Reviews
+# This file contains API endpoints related to Reviews with user validation
 
 router = APIRouter(prefix="/api/reviews", tags=["Reviews"])
 
+def get_current_active_user(
+    session: SessionDep, 
+    user_id: int = Depends(get_current_user)
+) -> Users:
+    user = session.get(Users, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
 
-@router.get("", response_model=list[ReviewRead])
+@router.get("", response_model=List[ReviewRead])
 def get_reviews(session: SessionDep):
     reviews = session.exec(select(Review)).all()
-
-    if reviews:
-        return reviews
-    else:
-        return []
-
+    return reviews if reviews else []
 
 @router.post("", response_model=ReviewRead)
-def create_review(review_in: ReviewCreate, session: SessionDep):
+def create_review(
+    review_in: ReviewCreate, 
+    session: SessionDep,
+    current_user: int = Depends(get_current_user)
+):
     if review_in.content_type == "program":
-        content = session.exec(
-            select(Program).where(Program.id == review_in.content_id)
-        ).first()
+        content = session.get(Program, review_in.content_id)
     elif review_in.content_type == "activity":
-        content = session.exec(
-            select(Activity).where(Activity.id == review_in.content_id)
-        ).first()
+        content = session.get(Activity, review_in.content_id)
     else:
         raise HTTPException(status_code=400, detail="Invalid content_type")
 
@@ -40,7 +45,10 @@ def create_review(review_in: ReviewCreate, session: SessionDep):
             detail=f"{review_in.content_type.capitalize()} with id={review_in.content_id} not found",
         )
 
-    review = Review.model_validate(review_in)
+    review_data = review_in.model_dump()
+    review_data["user_id"] = current_user
+    
+    review = Review.model_validate(review_data)
     session.add(review)
     session.commit()
     session.refresh(review)
@@ -48,10 +56,21 @@ def create_review(review_in: ReviewCreate, session: SessionDep):
 
 
 @router.put("/{review_id}", response_model=ReviewRead)
-def update_review(review_id: int, review_update: ReviewUpdate, session: SessionDep):
+def update_review(
+    review_id: int, 
+    review_update: ReviewUpdate, 
+    session: SessionDep,
+    current_user: int = Depends(get_current_user)
+):
     review = session.get(Review, review_id)
     if not review:
         raise HTTPException(status_code=404, detail="Review not found")
+
+    if review.user_id != current_user:
+        raise HTTPException(
+            status_code=403, 
+            detail="Not enough permissions to edit this review"
+        )
 
     update_data = review_update.model_dump(exclude_unset=True)
     for key, value in update_data.items():
@@ -60,15 +79,28 @@ def update_review(review_id: int, review_update: ReviewUpdate, session: SessionD
     session.add(review)
     session.commit()
     session.refresh(review)
-
     return review
 
 
 @router.delete("/{review_id}")
-def delete_review(session: SessionDep, review_id: int):
+def delete_review(
+    session: SessionDep, 
+    review_id: int,
+    current_user: Users = Depends(get_current_active_user) 
+):
     review = session.get(Review, review_id)
     if not review:
         raise HTTPException(status_code=404, detail="Review not found")
+
+    is_owner = review.user_id == current_user.id
+    is_privileged_user = current_user.role in ["admin"]
+
+    if not (is_owner or is_privileged_user):
+        raise HTTPException(
+            status_code=403, 
+            detail="Not enough permissions to delete this review. Only owner or admin can do this."
+        )
+
     session.delete(review)
     session.commit()
     return {"ok": True}
