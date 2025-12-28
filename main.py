@@ -9,7 +9,9 @@ from api.routers import (
     auth_router,
     user_router,
     emotion_router,
-    daily_log_router
+    daily_log_router,
+    user_preference_router,
+    activity_plan_router
 )
 
 app = FastAPI()
@@ -33,6 +35,8 @@ app.include_router(user_router.router)
 app.include_router(auth_router.router)
 app.include_router(emotion_router.router)
 app.include_router(daily_log_router.router)
+app.include_router(user_preference_router.router)
+app.include_router(activity_plan_router.router)
 
 app.add_middleware(
     CORSMiddleware,

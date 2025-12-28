@@ -2,10 +2,6 @@ from typing import List, Optional, TYPE_CHECKING
 from sqlalchemy import Column, String
 from sqlmodel import Field, Relationship, SQLModel
 
-# avoid circular import using TYPE_CHECKING:
-if TYPE_CHECKING:
-    from models.reviews_models import Review
-
 
 class RoleBase(SQLModel):
     name: str = Field(sa_column=Column("name", String, unique=True, nullable=False))
@@ -58,6 +54,7 @@ class Users(UsersBase, table=True):
     role: Optional[Role] = Relationship(back_populates="users")
     # TODO: uncomment when fixed
     # reviews: list["Review"] = Relationship(back_populates="users")
+    activity_plans: list["ActivityPlan"] = Relationship()
 
 
 class UsersCreate(UsersBase):
@@ -66,10 +63,13 @@ class UsersCreate(UsersBase):
 
 class UsersRead(UsersBase):
     id: int
-
+    activity_plans: list["ActivityPlanRead"]
 
 class UsersUpdate(SQLModel):
     username: Optional[str] = None
     password: Optional[str] = None
     email: Optional[str] = None
     role_id: Optional[int] = None
+
+from api.models.activity_plan_models import ActivityPlan, ActivityPlanRead
+SQLModel.model_rebuild()

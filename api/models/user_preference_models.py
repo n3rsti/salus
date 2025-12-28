@@ -1,0 +1,37 @@
+from typing import Optional
+from sqlmodel import SQLModel, Field, Relationship
+
+# This file contains models implementing: UserPreferences table
+
+class UserPreferenceBase(SQLModel):
+    mood: Optional[int] = Field(default=None)
+    sleep_score: Optional[int] = Field(default=None)
+    stress: Optional[int] = Field(default=None)
+    focus: Optional[int] = Field(default=None)
+    physical_activity: Optional[int] = Field(default=None)
+
+
+class UserPreference(UserPreferenceBase, table=True):
+    
+    user_id: int = Field(primary_key=True, foreign_key="users.id")
+    user: Optional["Users"] = Relationship()
+
+
+class UserPreferenceCreate(UserPreferenceBase):
+    user_id: int
+
+
+class UserPreferenceUpdate(SQLModel):
+    mood: Optional[int] = None
+    sleep_score: Optional[int] = None
+    stress: Optional[int] = None
+    focus: Optional[int] = None
+    physical_activity: Optional[int] = None
+
+
+class UserPreferenceRead(UserPreferenceBase):
+    user_id: int
+
+
+from api.models.user_models import Users
+SQLModel.model_rebuild()
