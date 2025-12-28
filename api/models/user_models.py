@@ -55,7 +55,7 @@ class Users(UsersBase, table=True):
     # TODO: uncomment when fixed
     # reviews: list["Review"] = Relationship(back_populates="users")
     activity_plans: list["ActivityPlan"] = Relationship()
-
+    user_activities: list["UserActivity"] = Relationship()
 
 class UsersCreate(UsersBase):
     password: str
@@ -63,7 +63,6 @@ class UsersCreate(UsersBase):
 
 class UsersRead(UsersBase):
     id: int
-    activity_plans: list["ActivityPlanRead"]
 
 class UsersUpdate(SQLModel):
     username: Optional[str] = None
@@ -71,5 +70,6 @@ class UsersUpdate(SQLModel):
     email: Optional[str] = None
     role_id: Optional[int] = None
 
-from api.models.activity_plan_models import ActivityPlan, ActivityPlanRead
+from api.models.activity_plan_models import ActivityPlan
+from api.models.user_activity_models import UserActivity
 SQLModel.model_rebuild()
