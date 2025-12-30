@@ -14,7 +14,7 @@ from api.models.activity_models import (
     ActivityMediaCreate,
     ActivityMediaUpdate,
 )
-from api.security.auth import verify_jwt_token
+from api.security.auth import JwtPayload, verify_jwt_token
 from api.security.auth import get_current_user
 from api.models.user_models import Users
 
@@ -49,10 +49,10 @@ def get_activity(session: SessionDep, activity_id: int):
 def create_activity(
     activity_in: ActivityCreate,
     session: SessionDep,
-    current_user: int = Depends(get_current_user),
+    current_user: JwtPayload = Depends(get_current_user),
 ):
     activity_data = activity_in.model_dump()
-    activity_data["owner_id"] = current_user
+    activity_data["owner_id"] = current_user.id
     activity = Activity.model_validate(activity_data)
 
     session.add(activity)
@@ -66,14 +66,14 @@ def update_activity(
     session: SessionDep,
     activity_id: int,
     activity_update: ActivityUpdate,
-    current_user: int = Depends(get_current_user),
+    current_user: JwtPayload = Depends(get_current_user),
 ):
     activity = session.get(Activity, activity_id)
 
     if not activity:
         raise HTTPException(status_code=404, detail="Activity not found")
 
-    if activity.owner_id != current_user:
+    if activity.owner_id != current_user.id:
         raise HTTPException(
             status_code=403, detail="Not enough permissions to edit this program"
         )
@@ -92,13 +92,13 @@ def update_activity(
 def delete_activity(
     session: SessionDep,
     activity_id: int,
-    current_user: int = Depends(get_current_user),
+    current_user: JwtPayload = Depends(get_current_user),
 ):
     activity = session.get(Activity, activity_id)
     if not activity:
         raise HTTPException(status_code=404, detail="Activity not found")
 
-    if activity.owner_id != current_user:
+    if activity.owner_id != current_user.id:
         raise HTTPException(
             status_code=403, detail="Not enough permissions to delete this program"
         )

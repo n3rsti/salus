@@ -6,31 +6,24 @@ from api.database import SessionDep
 from api.models.reviews_models import Review, ReviewRead, ReviewCreate, ReviewUpdate
 from api.models.program_models import Program, Activity
 from api.models.user_models import Users
-from api.security.auth import get_current_user
+from api.security.auth import JwtPayload, get_current_user
 
 # This file contains API endpoints related to Reviews with user validation
 
 router = APIRouter(prefix="/api/reviews", tags=["Reviews"])
 
-def get_current_active_user(
-    session: SessionDep, 
-    user_id: int = Depends(get_current_user)
-) -> Users:
-    user = session.get(Users, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
 
 @router.get("", response_model=List[ReviewRead])
 def get_reviews(session: SessionDep):
     reviews = session.exec(select(Review)).all()
     return reviews if reviews else []
 
+
 @router.post("", response_model=ReviewRead)
 def create_review(
-    review_in: ReviewCreate, 
+    review_in: ReviewCreate,
     session: SessionDep,
-    current_user: int = Depends(get_current_user)
+    current_user: JwtPayload = Depends(get_current_user),
 ):
     if review_in.content_type == "program":
         content = session.get(Program, review_in.content_id)
@@ -46,8 +39,8 @@ def create_review(
         )
 
     review_data = review_in.model_dump()
-    review_data["user_id"] = current_user
-    
+    review_data["user_id"] = current_user.id
+
     review = Review.model_validate(review_data)
     session.add(review)
     session.commit()
@@ -57,19 +50,18 @@ def create_review(
 
 @router.put("/{review_id}", response_model=ReviewRead)
 def update_review(
-    review_id: int, 
-    review_update: ReviewUpdate, 
+    review_id: int,
+    review_update: ReviewUpdate,
     session: SessionDep,
-    current_user: int = Depends(get_current_user)
+    current_user: JwtPayload = Depends(get_current_user),
 ):
     review = session.get(Review, review_id)
     if not review:
         raise HTTPException(status_code=404, detail="Review not found")
 
-    if review.user_id != current_user:
+    if review.user_id != current_user.id:
         raise HTTPException(
-            status_code=403, 
-            detail="Not enough permissions to edit this review"
+            status_code=403, detail="Not enough permissions to edit this review"
         )
 
     update_data = review_update.model_dump(exclude_unset=True)
@@ -84,9 +76,9 @@ def update_review(
 
 @router.delete("/{review_id}")
 def delete_review(
-    session: SessionDep, 
+    session: SessionDep,
     review_id: int,
-    current_user: Users = Depends(get_current_active_user) 
+    current_user: Users = Depends(get_current_active_user),
 ):
     review = session.get(Review, review_id)
     if not review:
@@ -97,8 +89,8 @@ def delete_review(
 
     if not (is_owner or is_privileged_user):
         raise HTTPException(
-            status_code=403, 
-            detail="Not enough permissions to delete this review. Only owner or admin can do this."
+            status_code=403,
+            detail="Not enough permissions to delete this review. Only owner or admin can do this.",
         )
 
     session.delete(review)

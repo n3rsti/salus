@@ -36,21 +36,25 @@ async def verify_jwt_token(
         )
 
 
+class JwtPayload:
+    def __init__(self, username: str, email: str, role: int, id: int) -> None:
+        self.username: str = username
+        self.email: str = email
+        self.role: int = role
+        self.id: int = id
+        pass
+
+
 async def get_current_user(
     payload: Dict[str, Any] = Depends(verify_jwt_token),
-) -> int:
-    user_id = payload.get("sub")
+) -> JwtPayload:
+    username: str = str(payload.get("username"))
+    email: str = str(payload.get("email"))
 
-    if user_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token: missing user ID",
-        )
+    raw_role: str = str(payload.get("role"))
+    role = int(raw_role)
 
-    try:
-        return int(user_id)
-    except (ValueError, TypeError):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token: user ID must be a valid integer",
-        )
+    raw_id: str = str(payload.get("sub"))
+    id = int(raw_id)
+
+    return JwtPayload(username, email, role, id)

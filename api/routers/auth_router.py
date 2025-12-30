@@ -244,6 +244,7 @@ def classic_login(
         extra_claims={
             "username": user.username,
             "email": user.email or "",
+            "role": user.role_id,
         },
     )
 
@@ -257,10 +258,7 @@ def classic_login(
 
     return {
         "message": "Login successful",
-        "user": {
-            "id": user.id,
-            "username": user.username,
-        },
+        "user": {"id": user.id, "username": user.username, "role": user.role_id},
     }
 
 
