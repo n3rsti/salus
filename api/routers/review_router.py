@@ -1,14 +1,11 @@
-from fastapi import APIRouter, HTTPException, Depends
-from sqlmodel import select
 from typing import List
 
-from api.database import SessionDep
-from api.models.reviews_models import Review, ReviewRead, ReviewCreate, ReviewUpdate
-from api.models.program_models import Program, Activity
-from api.models.user_models import Users
-from api.security.auth import JwtPayload, get_current_user
+from fastapi import APIRouter, Depends, HTTPException
+from sqlmodel import delete, select, update
 
-# This file contains API endpoints related to Reviews with user validation
+from api.database import SessionDep
+from api.models.reviews_models import Review, ReviewCreate, ReviewRead, ReviewUpdate
+from api.security.auth import JwtPayload, get_current_user
 
 router = APIRouter(prefix="/api/reviews", tags=["Reviews"])
 
@@ -25,22 +22,8 @@ def create_review(
     session: SessionDep,
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    if review_in.content_type == "program":
-        content = session.get(Program, review_in.content_id)
-    elif review_in.content_type == "activity":
-        content = session.get(Activity, review_in.content_id)
-    else:
-        raise HTTPException(status_code=400, detail="Invalid content_type")
-
-    if not content:
-        raise HTTPException(
-            status_code=404,
-            detail=f"{review_in.content_type.capitalize()} with id={review_in.content_id} not found",
-        )
-
     review_data = review_in.model_dump()
     review_data["user_id"] = current_user.id
-
     review = Review.model_validate(review_data)
     session.add(review)
     session.commit()
@@ -55,22 +38,19 @@ def update_review(
     session: SessionDep,
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    review = session.get(Review, review_id)
-    if not review:
+    update_data = review_update.model_dump(exclude_unset=True)
+    statement = (
+        update(Review)
+        .where((Review.id == review_id) & (Review.user_id == current_user.id))
+        .values(**update_data)
+    )
+    result = session.exec(statement)
+    session.commit()
+
+    if result.rowcount == 0:
         raise HTTPException(status_code=404, detail="Review not found")
 
-    if review.user_id != current_user.id:
-        raise HTTPException(
-            status_code=403, detail="Not enough permissions to edit this review"
-        )
-
-    update_data = review_update.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(review, key, value)
-
-    session.add(review)
-    session.commit()
-    session.refresh(review)
+    review = session.get(Review, review_id)
     return review
 
 
@@ -78,21 +58,15 @@ def update_review(
 def delete_review(
     session: SessionDep,
     review_id: int,
-    current_user: Users = Depends(get_current_active_user),
+    current_user: JwtPayload = Depends(get_current_user),
 ):
-    review = session.get(Review, review_id)
-    if not review:
+    statement = delete(Review).where(
+        (Review.id == review_id) & (Review.user_id == current_user.id)
+    )
+    result = session.exec(statement)
+    session.commit()
+
+    if result.rowcount == 0:
         raise HTTPException(status_code=404, detail="Review not found")
 
-    is_owner = review.user_id == current_user.id
-    is_privileged_user = current_user.role in ["admin"]
-
-    if not (is_owner or is_privileged_user):
-        raise HTTPException(
-            status_code=403,
-            detail="Not enough permissions to delete this review. Only owner or admin can do this.",
-        )
-
-    session.delete(review)
-    session.commit()
     return {"ok": True}

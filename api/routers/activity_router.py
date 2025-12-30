@@ -1,24 +1,21 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import select
 from sqlalchemy.orm import selectinload
+from sqlmodel import delete, select, update
 
 from api.database import SessionDep
 from api.models.activity_models import (
     Activity,
+    ActivityCreate,
     ActivityFilters,
     ActivityMedia,
-    ActivityRead,
-    ActivityMediaRead,
-    ActivityCreate,
-    ActivityUpdate,
     ActivityMediaCreate,
+    ActivityMediaRead,
     ActivityMediaUpdate,
+    ActivityRead,
+    ActivityUpdate,
 )
-from api.security.auth import JwtPayload, verify_jwt_token
-from api.security.auth import get_current_user
 from api.models.user_models import Users
-
-# This file contains API endpoints related to Activities
+from api.security.auth import JwtPayload, get_current_user, verify_jwt_token
 
 router = APIRouter(prefix="/api/activities", tags=["Activities"])
 
@@ -68,23 +65,19 @@ def update_activity(
     activity_update: ActivityUpdate,
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    activity = session.get(Activity, activity_id)
+    update_data = activity_update.model_dump(exclude_unset=True)
+    statement = (
+        update(Activity)
+        .where((Activity.id == activity_id) & (Activity.owner_id == current_user.id))
+        .values(**update_data)
+    )
+    result = session.exec(statement)
+    session.commit()
 
-    if not activity:
+    if result.rowcount == 0:
         raise HTTPException(status_code=404, detail="Activity not found")
 
-    if activity.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=403, detail="Not enough permissions to edit this program"
-        )
-
-    update_data = activity_update.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(activity, key, value)
-
-    session.add(activity)
-    session.commit()
-    session.refresh(activity)
+    activity = session.get(Activity, activity_id)
     return activity
 
 
@@ -94,28 +87,20 @@ def delete_activity(
     activity_id: int,
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    activity = session.get(Activity, activity_id)
-    if not activity:
+    statement = delete(Activity).where(
+        (Activity.id == activity_id) & (Activity.owner_id == current_user.id)
+    )
+    result = session.exec(statement)
+    session.commit()
+
+    if result.rowcount == 0:
         raise HTTPException(status_code=404, detail="Activity not found")
 
-    if activity.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=403, detail="Not enough permissions to delete this program"
-        )
-
-    session.delete(activity)
-    session.commit()
     return {"ok": True}
 
 
 @router.post("/media", response_model=ActivityMediaRead)
 def create_media(media_in: ActivityMediaCreate, session: SessionDep):
-    activity = session.get(Activity, media_in.activity_id)
-    if not activity:
-        raise HTTPException(
-            status_code=404, detail=f"Activity with id={media_in.activity_id} not found"
-        )
-
     media = ActivityMedia.model_validate(media_in)
     session.add(media)
     session.commit()
@@ -125,34 +110,27 @@ def create_media(media_in: ActivityMediaCreate, session: SessionDep):
 
 @router.put("/media/{media_id}", response_model=ActivityMediaRead)
 def update_media(session: SessionDep, media_id: int, media_update: ActivityMediaUpdate):
-    media = session.get(ActivityMedia, media_id)
+    update_data = media_update.model_dump(exclude_unset=True)
+    statement = (
+        update(ActivityMedia).where(ActivityMedia.id == media_id).values(**update_data)
+    )
+    result = session.exec(statement)
+    session.commit()
 
-    if not media:
+    if result.rowcount == 0:
         raise HTTPException(status_code=404, detail="Media not found")
 
-    if media_update.activity_id != None:
-        activity = session.get(Activity, media_update.activity_id)
-        if not activity:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Activity with id={media_update.activity_id} not found",
-            )
-
-    update_data = media_update.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(media, key, value)
-
-    session.add(media)
-    session.commit()
-    session.refresh(media)
+    media = session.get(ActivityMedia, media_id)
     return media
 
 
 @router.delete("/media/{media_id}")
-def delete_media(media: ActivityMedia, session: SessionDep, media_id: int):
-    media = session.get(ActivityMedia, media_id)
-    if not media:
-        raise HTTPException(status_code=404, detail="Media not found")
-    session.delete(media)
+def delete_media(session: SessionDep, media_id: int):
+    statement = delete(ActivityMedia).where(ActivityMedia.id == media_id)
+    result = session.exec(statement)
     session.commit()
+
+    if result.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Media not found")
+
     return {"ok": True}

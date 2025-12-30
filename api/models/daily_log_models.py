@@ -1,9 +1,13 @@
-from typing import Optional, List
 from datetime import date
-from sqlmodel import SQLModel, Field, Relationship
+from typing import List, Optional
+
 from pydantic import field_validator
+from sqlmodel import Field, Relationship, SQLModel
+
 from api.models.daily_log_emotions_link import DailyLogEmotionLink
+
 # This file contains models implementing: DailyLogs table
+
 
 class DailyLogBase(SQLModel):
     date: date
@@ -29,8 +33,8 @@ class DailyLog(DailyLogBase, table=True):
 class DailyLogCreate(DailyLogBase):
     pass
 
+
 class DailyLogUpdate(SQLModel):
-    user_id: Optional[int] = None
     date: Optional[date] = None
     mood: Optional[int] = None
     sleep_score: Optional[int] = None
@@ -40,11 +44,14 @@ class DailyLogUpdate(SQLModel):
     alcohol_intake: Optional[int] = None
     notes: Optional[str] = None
 
+
 class DailyLogRead(DailyLogBase):
     id: int
     emotions: List["EmotionRead"] = []
     user: "UsersRead"
 
+
 from api.models.emotion_models import Emotion, EmotionRead
 from api.models.user_models import Users, UsersRead
+
 SQLModel.model_rebuild()

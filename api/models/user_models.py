@@ -1,4 +1,5 @@
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
+
 from sqlalchemy import Column, String
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -52,10 +53,9 @@ class Users(UsersBase, table=True):
         description="Subject identifier returned by the OAuth provider",
     )
     role: Optional[Role] = Relationship(back_populates="users")
-    # TODO: uncomment when fixed
-    # reviews: list["Review"] = Relationship(back_populates="users")
-    activity_plans: list["ActivityPlan"] = Relationship()
-    user_activities: list["UserActivity"] = Relationship()
+    activity_plans: list["ActivityPlan"] = Relationship(back_populates="user")
+    user_activities: list["UserActivity"] = Relationship(back_populates="user")
+
 
 class UsersCreate(UsersBase):
     password: str
@@ -64,12 +64,15 @@ class UsersCreate(UsersBase):
 class UsersRead(UsersBase):
     id: int
 
+
 class UsersUpdate(SQLModel):
     username: Optional[str] = None
     password: Optional[str] = None
     email: Optional[str] = None
     role_id: Optional[int] = None
 
+
 from api.models.activity_plan_models import ActivityPlan
 from api.models.user_activity_models import UserActivity
+
 SQLModel.model_rebuild()

@@ -1,48 +1,55 @@
-from fastapi import APIRouter, HTTPException
-from sqlmodel import select
 from typing import List
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlmodel import delete, select, update
 
 from api.database import SessionDep
 from api.models.user_activity_models import (
-    UserActivity, 
-    UserActivityRead, 
-    UserActivityCreate, 
-    UserActivityUpdate
+    UserActivity,
+    UserActivityCreate,
+    UserActivityRead,
+    UserActivityUpdate,
 )
-from api.models.user_models import Users
-from api.models.program_models import Program, Activity
-
-# This file contains API endpoints related to User Activities
+from api.security.auth import JwtPayload, get_current_user
 
 router = APIRouter(prefix="/api/user-activities", tags=["UserActivities"])
 
 
 @router.get("", response_model=List[UserActivityRead])
-def get_user_activities(session: SessionDep):
-    activities = session.exec(select(UserActivity)).all()
+def get_user_activities(
+    session: SessionDep, current_user: JwtPayload = Depends(get_current_user)
+):
+    statement = select(UserActivity).where(UserActivity.user_id == current_user.id)
+    activities = session.exec(statement).all()
     return activities if activities else []
 
 
 @router.get("/{ua_id}", response_model=UserActivityRead)
-def get_user_activity(ua_id: int, session: SessionDep):
-    user_activity = session.get(UserActivity, ua_id)
+def get_user_activity(
+    ua_id: int,
+    session: SessionDep,
+    current_user: JwtPayload = Depends(get_current_user),
+):
+    statement = select(UserActivity).where(
+        (UserActivity.id == ua_id) & (UserActivity.user_id == current_user.id)
+    )
+    user_activity = session.exec(statement).first()
     if not user_activity:
-        raise HTTPException(status_code=404, detail="User activity assignment not found")
+        raise HTTPException(
+            status_code=404, detail="User activity assignment not found"
+        )
     return user_activity
 
 
 @router.post("", response_model=UserActivityRead)
-def create_user_activity(ua_in: UserActivityCreate, session: SessionDep):
-    if not session.get(Users, ua_in.user_id):
-        raise HTTPException(status_code=404, detail="User not found")
-    if ua_in.program_id:
-        if not session.get(Program, ua_in.program_id):
-            raise HTTPException(status_code=404, detail="Program not found")
-    elif ua_in.activity_id:
-        if not session.get(Activity, ua_in.activity_id):
-            raise HTTPException(status_code=404, detail="Activity not found")
-
-    user_activity = UserActivity.model_validate(ua_in)
+def create_user_activity(
+    ua_in: UserActivityCreate,
+    session: SessionDep,
+    current_user: JwtPayload = Depends(get_current_user),
+):
+    user_activity_data = ua_in.model_dump()
+    user_activity_data["user_id"] = current_user.id
+    user_activity = UserActivity.model_validate(user_activity_data)
     session.add(user_activity)
     session.commit()
     session.refresh(user_activity)
@@ -51,43 +58,44 @@ def create_user_activity(ua_in: UserActivityCreate, session: SessionDep):
 
 @router.put("/{ua_id}", response_model=UserActivityRead)
 def update_user_activity(
-    ua_id: int, 
-    ua_update: UserActivityUpdate, 
-    session: SessionDep
+    ua_id: int,
+    ua_update: UserActivityUpdate,
+    session: SessionDep,
+    current_user: JwtPayload = Depends(get_current_user),
 ):
-    user_activity = session.get(UserActivity, ua_id)
-    if not user_activity:
-        raise HTTPException(status_code=404, detail="User activity assignment not found")
-
     update_data = ua_update.model_dump(exclude_unset=True)
-
-    if "user_id" in update_data:
-        if not session.get(Users, update_data["user_id"]):
-            raise HTTPException(status_code=404, detail="New user not found")
-    
-    if "program_id" in update_data and update_data["program_id"] is not None:
-        if not session.get(Program, update_data["program_id"]):
-            raise HTTPException(status_code=404, detail="New program not found")
-            
-    if "activity_id" in update_data and update_data["activity_id"] is not None:
-        if not session.get(Activity, update_data["activity_id"]):
-            raise HTTPException(status_code=404, detail="New activity not found")
-
-    for key, value in update_data.items():
-        setattr(user_activity, key, value)
-
-    session.add(user_activity)
+    statement = (
+        update(UserActivity)
+        .where((UserActivity.id == ua_id) & (UserActivity.user_id == current_user.id))
+        .values(**update_data)
+    )
+    result = session.exec(statement)
     session.commit()
-    session.refresh(user_activity)
+
+    if result.rowcount == 0:
+        raise HTTPException(
+            status_code=404, detail="User activity assignment not found"
+        )
+
+    user_activity = session.get(UserActivity, ua_id)
     return user_activity
 
 
 @router.delete("/{ua_id}")
-def delete_user_activity(ua_id: int, session: SessionDep):
-    user_activity = session.get(UserActivity, ua_id)
-    if not user_activity:
-        raise HTTPException(status_code=404, detail="User activity assignment not found")
-    
-    session.delete(user_activity)
+def delete_user_activity(
+    ua_id: int,
+    session: SessionDep,
+    current_user: JwtPayload = Depends(get_current_user),
+):
+    statement = delete(UserActivity).where(
+        (UserActivity.id == ua_id) & (UserActivity.user_id == current_user.id)
+    )
+    result = session.exec(statement)
     session.commit()
+
+    if result.rowcount == 0:
+        raise HTTPException(
+            status_code=404, detail="User activity assignment not found"
+        )
+
     return {"ok": True}

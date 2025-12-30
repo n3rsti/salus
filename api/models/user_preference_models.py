@@ -1,7 +1,9 @@
 from typing import Optional
-from sqlmodel import SQLModel, Field, Relationship
+
+from sqlmodel import Field, Relationship, SQLModel
 
 # This file contains models implementing: UserPreferences table
+
 
 class UserPreferenceBase(SQLModel):
     mood: Optional[int] = Field(default=None)
@@ -12,13 +14,12 @@ class UserPreferenceBase(SQLModel):
 
 
 class UserPreference(UserPreferenceBase, table=True):
-    
     user_id: int = Field(primary_key=True, foreign_key="users.id")
     user: Optional["Users"] = Relationship()
 
 
 class UserPreferenceCreate(UserPreferenceBase):
-    user_id: int
+    pass
 
 
 class UserPreferenceUpdate(SQLModel):
@@ -34,4 +35,5 @@ class UserPreferenceRead(UserPreferenceBase):
 
 
 from api.models.user_models import Users
+
 SQLModel.model_rebuild()

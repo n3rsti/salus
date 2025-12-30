@@ -1,13 +1,12 @@
-from fastapi import APIRouter, HTTPException
-from sqlmodel import select
 from typing import List
 
-from api.database import SessionDep
-from api.models.emotion_models import Emotion, EmotionRead, EmotionCreate, EmotionUpdate
-from api.models.daily_log_models import DailyLog
-from api.models.daily_log_emotions_link import DailyLogEmotionLink
+from fastapi import APIRouter, Depends, HTTPException
+from sqlmodel import delete, select, update
 
-# This file contains API endpoints related to Emotions
+from api.database import SessionDep
+from api.models.daily_log_emotions_link import DailyLogEmotionLink
+from api.models.emotion_models import Emotion, EmotionCreate, EmotionRead, EmotionUpdate
+from api.security.auth import JwtPayload, get_current_user
 
 router = APIRouter(prefix="/api/emotions", tags=["Emotions"])
 
@@ -34,46 +33,38 @@ def create_emotion(emotion_in: EmotionCreate, session: SessionDep):
 
 @router.put("/{emotion_id}", response_model=EmotionRead)
 def update_emotion(session: SessionDep, emotion_id: int, emotion_update: EmotionUpdate):
-    emotion = session.get(Emotion, emotion_id)
+    update_data = emotion_update.model_dump(exclude_unset=True)
+    statement = update(Emotion).where(Emotion.id == emotion_id).values(**update_data)
+    result = session.exec(statement)
+    session.commit()
 
-    if not emotion:
+    if result.rowcount == 0:
         raise HTTPException(status_code=404, detail="Emotion not found")
 
-    update_data = emotion_update.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(emotion, key, value)
-
-    session.add(emotion)
-    session.commit()
-    session.refresh(emotion)
+    emotion = session.get(Emotion, emotion_id)
     return emotion
 
 
 @router.delete("/{emotion_id}")
 def delete_emotion(session: SessionDep, emotion_id: int):
-    emotion = session.get(Emotion, emotion_id)
-    if not emotion:
-        raise HTTPException(status_code=404, detail="Emotion not found")
-    
-    session.delete(emotion)
+    statement = delete(Emotion).where(Emotion.id == emotion_id)
+    result = session.exec(statement)
     session.commit()
+
+    if result.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Emotion not found")
+
     return {"ok": True}
 
 
 @router.post("/{emotion_id}/daily-logs/{log_id}")
-def link_emotion_to_daily_log(emotion_id: int, log_id: int, session: SessionDep):
-    emotion = session.get(Emotion, emotion_id)
-    daily_log = session.get(DailyLog, log_id)
-
-    if not emotion or not daily_log:
-        raise HTTPException(status_code=404, detail="Emotion or DailyLog not found")
-
-    # Sprawdzenie, czy link już istnieje, aby uniknąć duplikatów
+def link_emotion_to_daily_log(
+    emotion_id: int,
+    log_id: int,
+    session: SessionDep,
+    current_user: JwtPayload = Depends(get_current_user),
+):
     link = DailyLogEmotionLink(daily_log_id=log_id, emotion_id=emotion_id)
     session.add(link)
     session.commit()
-    
-    return {
-        "ok": True, 
-        "message": f"Emotion {emotion_id} linked to DailyLog {log_id}"
-    }
+    return {"ok": True, "message": f"Emotion {emotion_id} linked to DailyLog {log_id}"}

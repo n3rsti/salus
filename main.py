@@ -12,7 +12,7 @@ from api.routers import (
     daily_log_router,
     user_preference_router,
     activity_plan_router,
-    user_activity_router
+    user_activity_router,
 )
 
 app = FastAPI()

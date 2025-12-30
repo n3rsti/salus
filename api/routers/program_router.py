@@ -1,22 +1,20 @@
 from typing import List
-from fastapi import APIRouter, HTTPException, Depends
-from sqlmodel import select, delete
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlmodel import delete, select, update
 
 from api.database import SessionDep
+from api.models.program_day_activities_link import ProgramDayActivityLink
 from api.models.program_models import (
     Program,
+    ProgramCreate,
+    ProgramDay,
     ProgramDayInput,
     ProgramFilters,
     ProgramRead,
-    ProgramDay,
-    ProgramCreate,
     ProgramUpdate,
 )
-from api.models.program_day_activities_link import ProgramDayActivityLink
 from api.security.auth import JwtPayload, get_current_user
-from api.models.user_models import Users
-
-# This file contains API endpoints related to Programs
 
 router = APIRouter(prefix="/api/programs", tags=["Programs"])
 
@@ -82,29 +80,34 @@ def update_program(
     program_update: ProgramUpdate,
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    program = session.get(Program, program_id)
-
-    if not program:
-        raise HTTPException(status_code=404, detail="Program not found")
-
-    if program.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=403, detail="Not enough permissions to edit this program"
-        )
-
     update_data = program_update.model_dump(exclude_unset=True, exclude={"days"})
-    for key, value in update_data.items():
-        setattr(program, key, value)
 
-    session.add(program)
+    if update_data:
+        statement = (
+            update(Program)
+            .where((Program.id == program_id) & (Program.owner_id == current_user.id))
+            .values(**update_data)
+        )
+        result = session.exec(statement)
+
+        if result.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Program not found")
 
     if program_update.days:
+        statement = select(Program).where(
+            (Program.id == program_id) & (Program.owner_id == current_user.id)
+        )
+        program = session.exec(statement).first()
+
+        if not program:
+            raise HTTPException(status_code=404, detail="Program not found")
+
         session.exec(delete(ProgramDay).where(ProgramDay.program_id == program_id))
         session.flush()
         link_days(session, program_id, program_update.days)
 
     session.commit()
-    session.refresh(program)
+    program = session.get(Program, program_id)
     return program
 
 
@@ -124,15 +127,13 @@ def delete_program(
     program_id: int,
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    program = session.get(Program, program_id)
-    if not program:
+    statement = delete(Program).where(
+        (Program.id == program_id) & (Program.owner_id == current_user.id)
+    )
+    result = session.exec(statement)
+    session.commit()
+
+    if result.rowcount == 0:
         raise HTTPException(status_code=404, detail="Program not found")
 
-    if program.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=403, detail="Not enough permissions to delete this program"
-        )
-
-    session.delete(program)
-    session.commit()
     return {"ok": True}

@@ -1,12 +1,13 @@
-from typing import Optional
 from datetime import date
-from sqlmodel import SQLModel, Field, Relationship
+from typing import Optional
+
 from pydantic import model_validator
+from sqlmodel import Field, Relationship, SQLModel
 
 # This file contains models implementing: UserActivities table
 
+
 class UserActivityBase(SQLModel):
-    user_id: int = Field(foreign_key="users.id")
     program_id: Optional[int] = Field(default=None, foreign_key="program.id")
     activity_id: Optional[int] = Field(default=None, foreign_key="activity.id")
     start_date: Optional[date] = None
@@ -15,12 +16,15 @@ class UserActivityBase(SQLModel):
     @model_validator(mode="after")
     def check_either_program_or_activity(self) -> "UserActivityBase":
         if (self.program_id is not None) == (self.activity_id is not None):
-            raise ValueError("Exactly one of program_id or activity_id must be provided")
+            raise ValueError(
+                "Exactly one of program_id or activity_id must be provided"
+            )
         return self
 
 
 class UserActivity(UserActivityBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="users.id")
 
     user: Optional["Users"] = Relationship(back_populates="user_activities")
     program: Optional["Program"] = Relationship()
@@ -40,14 +44,18 @@ class UserActivityUpdate(SQLModel):
     @model_validator(mode="after")
     def check_xor_update(self) -> "UserActivityUpdate":
         if self.program_id is not None and self.activity_id is not None:
-            raise ValueError("Cannot set both program_id and activity_id simultaneously")
+            raise ValueError(
+                "Cannot set both program_id and activity_id simultaneously"
+            )
         return self
 
 
 class UserActivityRead(UserActivityBase):
     id: int
+    user_id: int
 
+
+from api.models.program_models import Activity, Program
 from api.models.user_models import Users
-from api.models.program_models import Program, Activity
 
 SQLModel.model_rebuild()

@@ -1,18 +1,16 @@
-from fastapi import APIRouter, HTTPException, status
-from sqlmodel import select
-from api.database import SessionDep
-from api.models.user_models import Users, UsersCreate, UsersRead, UsersUpdate, Role
-from api.security.crypto import hash_password
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlmodel import delete, select
 
-# This file contains API endpoints related to Users (CRUD and role assignment)
+from api.database import SessionDep
+from api.models.user_models import Role, Users, UsersCreate, UsersRead, UsersUpdate
+from api.security.auth import JwtPayload, get_current_user
+from api.security.crypto import hash_password
 
 router = APIRouter(prefix="/api/users", tags=["Users"])
 
 
-# Users:
 @router.post("", response_model=UsersRead, status_code=status.HTTP_201_CREATED)
 def create_user(data: UsersCreate, session: SessionDep):
-    # check username uniqueness
     existing = session.exec(
         select(Users).where(Users.username == data.username)
     ).first()
@@ -32,15 +30,6 @@ def create_user(data: UsersCreate, session: SessionDep):
                 detail="Email already registered",
             )
 
-    # validate role_id
-    role = session.get(Role, data.role_id)
-    if not role:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid role_id",
-        )
-
-    # hash password
     password_hash = hash_password(data.password)
 
     user = Users(
@@ -56,13 +45,19 @@ def create_user(data: UsersCreate, session: SessionDep):
 
 
 @router.get("", response_model=list[UsersRead])
-def list_users(session: SessionDep):
+def list_users(
+    session: SessionDep, current_user: JwtPayload = Depends(get_current_user)
+):
     users = session.exec(select(Users)).all()
     return users
 
 
 @router.get("/{user_id}", response_model=UsersRead)
-def get_user(user_id: int, session: SessionDep):
+def get_user(
+    user_id: int,
+    session: SessionDep,
+    current_user: JwtPayload = Depends(get_current_user),
+):
     user = session.get(Users, user_id)
     if not user:
         raise HTTPException(
@@ -72,16 +67,19 @@ def get_user(user_id: int, session: SessionDep):
 
 
 @router.put("/{user_id}", response_model=UsersRead)
-def update_user(user_id: int, data: UsersUpdate, session: SessionDep):
+def update_user(
+    user_id: int,
+    data: UsersUpdate,
+    session: SessionDep,
+    current_user: JwtPayload = Depends(get_current_user),
+):
     user = session.get(Users, user_id)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
 
-    # username change
     if data.username is not None:
-        # check if username already used by another user
         existing = session.exec(
             select(Users).where(Users.username == data.username, Users.id != user_id)
         ).first()
@@ -92,7 +90,6 @@ def update_user(user_id: int, data: UsersUpdate, session: SessionDep):
             )
         user.username = data.username
 
-    # password change
     if data.password is not None:
         user.password = hash_password(data.password)
 
@@ -107,14 +104,7 @@ def update_user(user_id: int, data: UsersUpdate, session: SessionDep):
             )
         user.email = data.email
 
-    # role change
     if data.role_id is not None:
-        role = session.get(Role, data.role_id)
-        if not role:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid role_id",
-            )
         user.role_id = data.role_id
 
     session.add(user)
@@ -124,12 +114,18 @@ def update_user(user_id: int, data: UsersUpdate, session: SessionDep):
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(user_id: int, session: SessionDep):
-    user = session.get(Users, user_id)
-    if not user:
+def delete_user(
+    user_id: int,
+    session: SessionDep,
+    current_user: JwtPayload = Depends(get_current_user),
+):
+    statement = delete(Users).where(Users.id == user_id)
+    result = session.exec(statement)
+    session.commit()
+
+    if result.rowcount == 0:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
-    session.delete(user)
-    session.commit()
+
     return None

@@ -1,17 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import select
 from typing import List
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlmodel import delete, select, update
 
 from api.database import SessionDep
 from api.models.daily_log_models import (
     DailyLog,
-    DailyLogRead,
     DailyLogCreate,
+    DailyLogRead,
     DailyLogUpdate,
 )
 from api.security.auth import JwtPayload, get_current_user
-
-# This file contains API endpoints related to DailyLogs with User Ownership
 
 router = APIRouter(prefix="/api/daily-logs", tags=["DailyLogs"])
 
@@ -31,15 +30,13 @@ def get_daily_log(
     session: SessionDep,
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    log = session.get(DailyLog, log_id)
+    statement = select(DailyLog).where(
+        (DailyLog.id == log_id) & (DailyLog.user_id == current_user.id)
+    )
+    log = session.exec(statement).first()
 
     if not log:
         raise HTTPException(status_code=404, detail="Daily log not found")
-
-    if log.user_id != current_user.id:
-        raise HTTPException(
-            status_code=403, detail="Not enough permissions to view this log"
-        )
 
     return log
 
@@ -67,23 +64,19 @@ def update_daily_log(
     log_update: DailyLogUpdate,
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    log = session.get(DailyLog, log_id)
+    update_data = log_update.model_dump(exclude_unset=True)
+    statement = (
+        update(DailyLog)
+        .where((DailyLog.id == log_id) & (DailyLog.user_id == current_user.id))
+        .values(**update_data)
+    )
+    result = session.exec(statement)
+    session.commit()
 
-    if not log:
+    if result.rowcount == 0:
         raise HTTPException(status_code=404, detail="Daily log not found")
 
-    if log.user_id != current_user.id:
-        raise HTTPException(
-            status_code=403, detail="Not enough permissions to edit this log"
-        )
-
-    update_data = log_update.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(log, key, value)
-
-    session.add(log)
-    session.commit()
-    session.refresh(log)
+    log = session.get(DailyLog, log_id)
     return log
 
 
@@ -93,16 +86,13 @@ def delete_daily_log(
     log_id: int,
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    log = session.get(DailyLog, log_id)
+    statement = delete(DailyLog).where(
+        (DailyLog.id == log_id) & (DailyLog.user_id == current_user.id)
+    )
+    result = session.exec(statement)
+    session.commit()
 
-    if not log:
+    if result.rowcount == 0:
         raise HTTPException(status_code=404, detail="Daily log not found")
 
-    if log.user_id != current_user.id:
-        raise HTTPException(
-            status_code=403, detail="Not enough permissions to delete this log"
-        )
-
-    session.delete(log)
-    session.commit()
     return {"ok": True}

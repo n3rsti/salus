@@ -54,6 +54,7 @@ class ReviewRead(ReviewBase):
     created_at: datetime
     user: "UsersRead"
 
+
 from api.models.user_models import Users, UsersRead
 
 SQLModel.model_rebuild()
