@@ -32,7 +32,7 @@
                                 <NuxtLink
                                     v-if="item.url"
                                     :to="item.url"
-                                    @click="toggleSidebar"
+                                    @click="toggle"
                                 >
                                     <component :is="item.icon" />
                                     <span>{{ item.title }}</span>
@@ -62,8 +62,17 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar";
 import AppLogoutModal from "./AppLogoutModal.vue";
+import { useMediaQuery } from "@vueuse/core";
 
 const { toggleSidebar } = useSidebar();
+
+const isMobile = useMediaQuery("(max-width: 1024px)");
+
+function toggle() {
+    if (isMobile.value == true) {
+        toggleSidebar();
+    }
+}
 
 interface MenuItem {
     title: string;
