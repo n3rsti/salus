@@ -17,6 +17,7 @@
             </Button>
         </NuxtLink>
         <Input
+            v-model="searchInput"
             type="search"
             class="bg-white mx-3 text-muted-foreground xl:w-2/5 border-2"
             required
@@ -31,12 +32,32 @@
         </Button>
     </nav>
 </template>
-<script setup>
+<script setup lang="ts">
 import { useSidebar } from "@/components/ui/sidebar";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 
 const { toggleSidebar } = useSidebar();
+
+const searchInput = ref("");
+
+const { $api } = useNuxtApp();
+
+watch(searchInput, (_, newValue) => {
+    if (newValue == "") return;
+    getSearchResults(newValue);
+});
+
+const getSearchResults = async (input: string) => {
+    await $api(`/api/activities?search=${input}`, {
+        method: "GET",
+        onResponse: async (response) => {
+            if (response.response.status == 200) {
+                console.log(response.response._data);
+            }
+        },
+    });
+};
 
 const streak = 7;
 </script>
