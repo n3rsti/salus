@@ -16,17 +16,22 @@
                 >
             </Button>
         </NuxtLink>
-        <Input
-            v-model="searchInput"
-            type="search"
-            class="bg-white mx-3 text-muted-foreground xl:w-2/5 border-2"
-            required
-            placeholder="Search"
-        />
+        <div
+            class="flex items-center h-9 w-full min-w-0 rounded-md px-3 xl:px-6 py-1 text-base shadow-xs md:text-sm bg-white max-xl:mx-3 text-muted-foreground xl:w-2/5 border-input border-2 cursor-text"
+            @click="searchStore.open"
+        >
+            Search...
+            <KbdGroup class="ml-auto max-xl:hidden">
+                <Kbd>Ctrl</Kbd>
+                <span>+</span>
+                <Kbd>/</Kbd>
+            </KbdGroup>
+        </div>
         <Button
             class="border-2 border-primary-dark lg:scale-0 p-2"
             variant="outline"
-            @click="toggleSidebar"
+            lg:disabled
+            @click="toggle"
         >
             <Icon class="text-2xl text-green-500" name="ic:round-menu" />
         </Button>
@@ -34,30 +39,21 @@
 </template>
 <script setup lang="ts">
 import { useSidebar } from "@/components/ui/sidebar";
-import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { Kbd, KbdGroup } from "./ui/kbd";
+import { useMediaQuery } from "@vueuse/core";
+
+const isMobile = useMediaQuery("(max-width: 1024px)");
+
+function toggle() {
+    if (isMobile.value == true) {
+        toggleSidebar();
+    }
+}
+
+const searchStore = useSearchStore();
 
 const { toggleSidebar } = useSidebar();
-
-const searchInput = ref("");
-
-const { $api } = useNuxtApp();
-
-watch(searchInput, (_, newValue) => {
-    if (newValue == "") return;
-    getSearchResults(newValue);
-});
-
-const getSearchResults = async (input: string) => {
-    await $api(`/api/activities?search=${input}`, {
-        method: "GET",
-        onResponse: async (response) => {
-            if (response.response.status == 200) {
-                console.log(response.response._data);
-            }
-        },
-    });
-};
 
 const streak = 7;
 </script>

@@ -5,6 +5,7 @@
         >
             <AppSidebar />
             <NavBar class="fixed h-16 z-10" />
+            <AppSearch />
             <main class="p-4 sm:p-8 flex flex-col grow mt-16 lg:ml-60">
                 <slot />
             </main>
