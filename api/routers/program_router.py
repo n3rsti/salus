@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlmodel import delete, select, update
 
 from api.database import SessionDep
@@ -81,13 +81,20 @@ async def create_program(
 
 
 @router.put("/{program_id}", response_model=ProgramRead)
-def update_program(
-    session: SessionDep,
+async def update_program(
     program_id: int,
-    program_update: ProgramUpdate,
+    session: SessionDep,
+    program_update: str = Form(...),
+    image: UploadFile | None = None,
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    update_data = program_update.model_dump(exclude_unset=True, exclude={"days"})
+    program_update_obj = ProgramUpdate.model_validate_json(program_update)
+
+    update_data = program_update_obj.model_dump(exclude_unset=True, exclude={"days"})
+
+    if image is not None:
+        image_url = await save_file(image)
+        update_data["image_url"] = image_url
 
     if update_data:
         statement = (
@@ -96,25 +103,27 @@ def update_program(
             .values(**update_data)
         )
         result = session.exec(statement)
-
         if result.rowcount == 0:
             raise HTTPException(status_code=404, detail="Program not found")
 
-    if program_update.days:
-        statement = select(Program).where(
-            (Program.id == program_id) & (Program.owner_id == current_user.id)
-        )
-        program = session.exec(statement).first()
-
+    if program_update_obj.days is not None:
+        program = session.exec(
+            select(Program).where(
+                (Program.id == program_id) & (Program.owner_id == current_user.id)
+            )
+        ).first()
         if not program:
             raise HTTPException(status_code=404, detail="Program not found")
 
         session.exec(delete(ProgramDay).where(ProgramDay.program_id == program_id))
         session.flush()
-        link_days(session, program_id, program_update.days)
+        link_days(session, program_id, program_update_obj.days)
 
     session.commit()
+
     program = session.get(Program, program_id)
+    if not program:
+        raise HTTPException(status_code=404, detail="Program not found")
     return program
 
 

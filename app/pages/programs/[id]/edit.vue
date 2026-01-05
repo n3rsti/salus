@@ -24,19 +24,22 @@ if (!program.value) {
 
 const { $api } = useNuxtApp();
 
-async function submitForm(program: Program) {
-    try {
-        const data = await $api<Program>(`/api/programs/${route.params.id}`, {
-            method: "PUT",
-            body: program,
-        });
+async function submitForm(program: Program, file: File | undefined) {
+    const formData = new FormData();
+    formData.append("program_update", JSON.stringify(program));
 
-        if (data?.id) {
-            await navigateTo(`/programs/${data.id}`);
-        }
-    } catch (error) {
-        console.error("Failed to create program:", error);
-    }
+    if (file) formData.append("image", file);
+
+    await $api(`/api/programs/${route.params.id}`, {
+        method: "PUT",
+        body: formData,
+        onResponse: async (response) => {
+            if (response.response.status == 200) {
+                const data: Program = response.response._data;
+                await navigateTo(`/programs/${data.id}`);
+            }
+        },
+    });
 }
 
 async function deleteProgram() {

@@ -43,10 +43,15 @@ async function deleteActivity() {
     });
 }
 
-async function updateActivity(activity: Activity) {
+async function updateActivity(activity: Activity, file: File | undefined) {
+    const formData = new FormData();
+    formData.append("activity_update", JSON.stringify(activity));
+
+    if (file) formData.append("image", file);
+
     await $api(`/api/activities/${route.params.id}`, {
         method: "PUT",
-        body: activity,
+        body: formData,
         onResponse: async (response) => {
             if (response.response.status == 200) {
                 const data: Activity = response.response._data;

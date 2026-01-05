@@ -70,13 +70,21 @@ async def create_activity(
 
 
 @router.put("/{activity_id}", response_model=ActivityRead)
-def update_activity(
+async def update_activity(
     session: SessionDep,
     activity_id: int,
-    activity_update: ActivityUpdate,
+    activity_update: str = Form(...),
     current_user: JwtPayload = Depends(get_current_user),
+    image: UploadFile | None = None,
 ):
-    update_data = activity_update.model_dump(exclude_unset=True)
+
+    update_data_obj = ActivityUpdate.model_validate_json(activity_update)
+    update_data = update_data_obj.model_dump(exclude_unset=True)
+    if image:
+        filename = await save_file(image)
+        update_data["image_url"] = filename
+        # TODO: delete old image file
+
     statement = (
         update(Activity)
         .where((Activity.id == activity_id) & (Activity.owner_id == current_user.id))
