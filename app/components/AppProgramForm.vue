@@ -71,7 +71,7 @@
                         <Label for="image"
                             >Image
                             <span class="text-muted-foreground text-xs"
-                                >(url)</span
+                                >(file)</span
                             ></Label
                         >
                         <input
@@ -80,12 +80,13 @@
                             type="file"
                             name="image"
                             accept="image/*"
+                            class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
                             :required="route.params.id == undefined"
                         />
                     </div>
                 </div>
                 <div
-                    class="flex flex-col gap-2 bg-primary-light shadow-sm p-4 rounded-xl"
+                    class="flex flex-col gap-3 bg-primary-light shadow-sm p-4 rounded-xl"
                 >
                     <div
                         v-for="day in formData.days"
@@ -96,7 +97,7 @@
                         <div class="collapse-title font-semibold text-text">
                             Day {{ day.day_number }}
                         </div>
-                        <div class="px-4 collapse-content flex flex-col gap-2">
+                        <div class="px-4 collapse-content flex flex-col gap-3">
                             <div class="flex flex-col gap-2">
                                 <Label :for="day.day_number + '-description'"
                                     >Description</Label
@@ -110,7 +111,7 @@
                                 ></Textarea>
                             </div>
 
-                            <div>
+                            <div class="flex flex-col gap-2">
                                 <Label :for="day.day_number + '-activities'"
                                     >Add activities</Label
                                 >
@@ -174,7 +175,7 @@
                         </div>
                     </div>
                     <Button
-                        class="text-xs"
+                        class="text-xs mt-auto"
                         variant="default"
                         type="button"
                         @click="addDay"
