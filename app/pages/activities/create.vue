@@ -1,7 +1,7 @@
 <template>
     <AppActivityForm
         :activity="emptyActivity"
-        @update="submitForm"
+        @submit="submitForm"
     ></AppActivityForm>
 </template>
 
@@ -18,11 +18,12 @@ const emptyActivity: Activity = {
     difficulty: 1,
 };
 
-async function submitForm(activity: Activity, file: File) {
+async function submitForm(activity: Activity, file: File | undefined) {
     const formData = new FormData();
     formData.append("activity_in", JSON.stringify(activity));
 
-    formData.append("image", file);
+    if (file) formData.append("image", file);
+
     await $api(`/api/activities`, {
         method: "POST",
         body: formData,

@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile
 from sqlmodel import delete, select, update
 
 from api.database import SessionDep
@@ -15,6 +15,7 @@ from api.models.program_models import (
     ProgramUpdate,
 )
 from api.security.auth import JwtPayload, get_current_user
+from api.utils.files import save_file
 
 router = APIRouter(prefix="/api/programs", tags=["Programs"])
 
@@ -53,20 +54,26 @@ def link_days(session: SessionDep, program_id: int, days_in: List[ProgramDayInpu
 
 
 @router.post("", response_model=ProgramRead)
-def create_program(
-    program_in: ProgramCreate,
+async def create_program(
+    image: UploadFile,
     session: SessionDep,
+    program_in: str = Form(...),
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    program_data = program_in.model_dump(exclude={"days"})
-    program_data["owner_id"] = current_user.id
-    program = Program.model_validate(program_data)
+    program_create = ProgramCreate.model_validate_json(program_in)
 
+    program_data = program_create.model_dump(exclude={"days"})
+    program_data["owner_id"] = current_user.id
+
+    image_url = await save_file(image)
+    program_data["image_url"] = image_url
+
+    program = Program.model_validate(program_data)
     session.add(program)
     session.flush()
 
-    if program_in.days and program.id:
-        link_days(session, program.id, program_in.days)
+    if program.id and program_create.days:
+        link_days(session, program.id, program_create.days)
 
     session.commit()
     session.refresh(program)

@@ -74,12 +74,13 @@
                                 >(url)</span
                             ></Label
                         >
-                        <Input
+                        <input
                             id="image"
-                            v-model="formData.image_url"
-                            type="text"
-                            placeholder="https://example.com"
-                            required
+                            ref="fileInput"
+                            type="file"
+                            name="image"
+                            accept="image/*"
+                            :required="route.params.id == undefined"
                         />
                     </div>
                 </div>
@@ -220,9 +221,11 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    submit: [program: Program];
+    submit: [program: Program, file: File | undefined];
     delete: [];
 }>();
+
+const fileInput = ref<HTMLInputElement | null>(null);
 
 const formData = ref<Program>({
     name: props.initialData?.name || "",
@@ -305,6 +308,8 @@ async function submitForm() {
         duration_days: formData.value.days?.length || 0,
     };
 
-    emit("submit", programToSubmit);
+    const file = fileInput.value?.files?.[0];
+
+    emit("submit", programToSubmit, file);
 }
 </script>

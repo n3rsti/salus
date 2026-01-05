@@ -8,5 +8,5 @@ export interface Activity {
     difficulty: number;
     rating?: number;
     image_url: string;
-    owner: User;
+    owner?: User;
 }

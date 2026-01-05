@@ -101,7 +101,7 @@
                             type="file"
                             name="image"
                             accept="image/*"
-                            required
+                            :required="route.params.id == undefined"
                         />
                     </div>
 
@@ -193,7 +193,7 @@ const props = defineProps<{
 }>();
 
 const emits = defineEmits<{
-    update: [activity: Activity, file: File];
+    submit: [activity: Activity, file: File | undefined];
     delete: [];
 }>();
 
@@ -243,7 +243,6 @@ const difficulties: Difficulty[] = [
 
 async function submitForm() {
     const file = fileInput.value?.files?.[0];
-    console.log(fileInput.value);
-    if (file) emits("update", activity.value, file);
+    emits("submit", activity.value, file);
 }
 </script>

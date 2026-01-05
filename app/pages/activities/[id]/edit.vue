@@ -1,7 +1,7 @@
 <template>
     <AppActivityForm
         :activity="activity || emptyActivity"
-        @update="updateActivity"
+        @submit="updateActivity"
         @delete="deleteActivity"
     ></AppActivityForm>
 </template>

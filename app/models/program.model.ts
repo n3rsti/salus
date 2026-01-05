@@ -11,5 +11,5 @@ export interface Program {
     progress?: number;
     rating?: number;
     days?: ProgramDay[];
-    owner: User;
+    owner?: User;
 }
