@@ -1,5 +1,6 @@
 from typing import List, Optional
-from sqlalchemy import func, or_
+from fastapi import Query
+from sqlalchemy import Select, func, or_
 from sqlmodel import SQLModel, Field, Relationship, col
 from pydantic import BaseModel, field_validator
 from api.models.program_day_activities_link import ProgramDayActivityLink
@@ -108,8 +109,9 @@ class ActivityMediaRead(ActivityMediaBase):
 
 class ActivityFilters(BaseModel):
     search: Optional[str] = None
+    limit: Optional[int] = None
 
-    def apply(self, query):
+    def apply(self, query: Select) -> Select:
         if self.search:
             search_vector = func.to_tsvector(
                 "simple",
@@ -125,6 +127,9 @@ class ActivityFilters(BaseModel):
             query = query.where(or_(fts_match, fuzzy_match))
 
             query = query.order_by(func.ts_rank(search_vector, search_query).desc())
+
+        if self.limit:
+            query = query.limit(self.limit)
 
         return query
 

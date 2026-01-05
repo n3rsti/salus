@@ -42,6 +42,9 @@
                 <p class="text-sm">Search for program, activity or user.</p>
             </div>
             <div v-else class="flex flex-col gap-2 py-1">
+                <h2 v-if="activities.length > 0" class="text-sm font-semibold">
+                    Activities
+                </h2>
                 <NuxtLink
                     v-for="activity in activities"
                     :key="activity.id"
@@ -75,6 +78,9 @@
                     </p>
                 </NuxtLink>
 
+                <h2 v-if="programs.length > 0" class="text-sm font-semibold">
+                    Programs
+                </h2>
                 <NuxtLink
                     v-for="program in programs"
                     :key="program.id"
@@ -141,7 +147,7 @@ watch(
         if (!isOpen) return;
 
         await nextTick();
-        console.log(searchInputRef.value?.$el.focus());
+        searchInputRef.value?.$el.focus();
     },
 );
 
@@ -176,11 +182,11 @@ watchDebounced(
         try {
             const [a, p] = await Promise.all([
                 $api<Activity[]>(
-                    `/api/activities/?search=${encodeURIComponent(newValue)}`,
+                    `/api/activities/?search=${encodeURIComponent(newValue)}&limit=3`,
                     { signal: controller.signal },
                 ),
                 $api<Program[]>(
-                    `/api/programs/?search=${encodeURIComponent(newValue)}`,
+                    `/api/programs/?search=${encodeURIComponent(newValue)}&limit=3`,
                     { signal: controller.signal },
                 ),
             ]);
