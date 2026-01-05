@@ -5,7 +5,7 @@
             @click="searchStore.close"
         ></div>
         <Card
-            class="fixed top-20 left-1/2 -translate-x-1/2 z-20 px-2 pt-2 gap-3"
+            class="max-h-screen fixed top-5 left-1/2 -translate-x-1/2 z-20 px-2 pt-2 gap-3"
         >
             <Input
                 ref="searchInputRef"
@@ -27,17 +27,21 @@
                     <Skeleton class="w-full h-5 rounded-md" />
                 </div>
             </div>
-            <div v-else-if="notFound" class="text-green-500 text-center">
-                <Icon
-                    class="text-6xl"
-                    name="material-symbols:sports-gymnastics"
-                />
-                <h2 class="text-sm font-semibold">Not found...</h2>
+            <div v-else-if="notFound" class="text-center py-2">
+                <h2 class="font-semibold">Not found...</h2>
+                <p class="text-sm">
+                    Unfortunately no program, activity or user was found based
+                    on your search.
+                </p>
             </div>
-            <div v-else-if="activities.length == 0">
-                <h2 class="text-sm text-center">Search for stuff</h2>
+            <div
+                v-else-if="activities.length + programs.length == 0"
+                class="text-center py-2"
+            >
+                <h2 class="font-semibold">Search here...</h2>
+                <p class="text-sm">Search for program, activity or user.</p>
             </div>
-            <div v-else class="flex flex-col gap-2">
+            <div v-else class="flex flex-col gap-2 py-1">
                 <NuxtLink
                     v-for="activity in activities"
                     :key="activity.id"
