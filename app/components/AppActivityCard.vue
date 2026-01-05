@@ -1,6 +1,6 @@
 <template>
     <AppCard
-        :image="props.activity.image_url"
+        :image="'/media/' + props.activity.image_url"
         :title="props.activity.name"
         :description="props.activity.description"
     >

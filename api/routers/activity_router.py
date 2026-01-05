@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Form, HTTPException, File, UploadFile
 from sqlalchemy.orm import selectinload
 from sqlmodel import delete, select, update
 
@@ -16,6 +16,7 @@ from api.models.activity_models import (
 )
 from api.models.user_models import Users
 from api.security.auth import JwtPayload, get_current_user, verify_jwt_token
+from api.utils.files import save_file
 
 router = APIRouter(prefix="/api/activities", tags=["Activities"])
 
@@ -43,13 +44,23 @@ def get_activity(session: SessionDep, activity_id: int):
 
 
 @router.post("", response_model=ActivityRead)
-def create_activity(
-    activity_in: ActivityCreate,
+async def create_activity(
+    image: UploadFile,
     session: SessionDep,
+    activity_in: str = Form(...),
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    activity_data = activity_in.model_dump()
+
+    activity_in_obj = ActivityCreate.model_validate_json(activity_in)
+
+    activity_data = activity_in_obj.model_dump()
     activity_data["owner_id"] = current_user.id
+
+    filename = await save_file(image)
+
+    print("FILE:", filename)
+
+    activity_data["image_url"] = filename
     activity = Activity.model_validate(activity_data)
 
     session.add(activity)

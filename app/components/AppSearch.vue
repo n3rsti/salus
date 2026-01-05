@@ -51,7 +51,7 @@
                 >
                     <div class="flex items-center gap-2">
                         <img
-                            :src="activity.image_url"
+                            :src="'/media/' + activity.image_url"
                             alt=""
                             class="h-8 aspect-square rounded-lg"
                         />
@@ -84,7 +84,7 @@
                 >
                     <div class="flex items-center gap-2">
                         <img
-                            :src="program.image_url"
+                            :src="'/media/' + program.image_url"
                             alt=""
                             class="h-8 aspect-square rounded-lg"
                         />

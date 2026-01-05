@@ -33,10 +33,14 @@ export default defineNuxtConfig({
         routeRules: {
             "/api/**": {
                 proxy: process.env.API_BASE_URL
-                    ? process.env.API_BASE_URL + "/**"
+                    ? `${process.env.API_BASE_URL}/api/**`
                     : "http://salus-api:8080/api/**",
+            },
+            "/media/**": {
+                proxy: process.env.API_BASE_URL
+                    ? `${process.env.API_BASE_URL}/media/**`
+                    : "http://salus-api:8080/media/**",
             },
         },
     },
 });
-

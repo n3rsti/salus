@@ -3,7 +3,7 @@
         class="flex flex-col border rounded-xl p-3 sm:p-5 md:p-6 lg:p-7 bg-primary-light border-neutral-100 border-t border-t-transparent shadow grow"
     >
         <img
-            :src="program?.image_url"
+            :src="'/media/' + program?.image_url"
             alt=""
             class="object-cover w-full h-32 rounded-xl shadow border-primary-light border-t-transparent"
         />
@@ -67,7 +67,7 @@
                         >
                             <div class="flex items-center w-full">
                                 <img
-                                    :src="activity.image_url"
+                                    :src="'/media/' + activity.image_url"
                                     alt=""
                                     class="h-8 aspect-square rounded-lg"
                                 />

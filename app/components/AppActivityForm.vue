@@ -95,11 +95,12 @@
                                 >(url)</span
                             ></Label
                         >
-                        <Input
+                        <input
                             id="image"
-                            v-model="activity.image_url"
-                            type="text"
-                            placeholder="https://example.com"
+                            ref="fileInput"
+                            type="file"
+                            name="image"
+                            accept="image/*"
                             required
                         />
                     </div>
@@ -192,11 +193,13 @@ const props = defineProps<{
 }>();
 
 const emits = defineEmits<{
-    update: [activity: Activity];
+    update: [activity: Activity, file: File];
     delete: [];
 }>();
 
 const activity = ref(props.activity);
+
+const fileInput = ref<HTMLInputElement | null>(null);
 
 interface Difficulty {
     name: string;
@@ -239,6 +242,8 @@ const difficulties: Difficulty[] = [
 ];
 
 async function submitForm() {
-    emits("update", activity.value);
+    const file = fileInput.value?.files?.[0];
+    console.log(fileInput.value);
+    if (file) emits("update", activity.value, file);
 }
 </script>

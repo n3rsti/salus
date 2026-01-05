@@ -12,7 +12,6 @@ class ActivityBase(SQLModel):
     duration_minutes: int
     description: str
     difficulty: int
-    image_url: str
 
     @field_validator("difficulty")
     def validate_difficulty(cls, v):
@@ -26,6 +25,8 @@ class Activity(ActivityBase, table=True):
 
     owner_id: int = Field(foreign_key="users.id", nullable=False)
     owner: Optional["Users"] = Relationship()
+
+    image_url: str
 
     media: List["ActivityMedia"] = Relationship(
         back_populates="activity", cascade_delete=True
@@ -44,7 +45,6 @@ class ActivityUpdate(SQLModel):
     duration_minutes: Optional[int] = None
     description: Optional[str] = None
     difficulty: Optional[int] = None
-    image_url: Optional[str] = None
 
     @field_validator("difficulty")
     def validate_difficulty(cls, v):
@@ -59,6 +59,7 @@ class ActivityRead(ActivityBase):
     id: int
     owner: "UsersRead"
     media: List["ActivityMediaRead"] = []
+    image_url: str
 
 
 class ActivityMediaBase(SQLModel):

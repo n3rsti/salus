@@ -32,5 +32,5 @@ devenv.local.yaml
 
 # direnv
 .direnv
+uploads/*
 
-venv

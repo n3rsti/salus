@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from api.database import create_db_and_tables
 from api.routers import (
     activity_router,
@@ -14,6 +15,7 @@ from api.routers import (
     activity_plan_router,
     user_activity_router,
 )
+from api.utils.files import UPLOAD_DIR
 
 app = FastAPI()
 
@@ -26,6 +28,9 @@ def on_startup():
 @app.get("/")
 async def root():
     return "Bok!"
+
+
+app.mount("/media", StaticFiles(directory=UPLOAD_DIR), name="media")
 
 
 app.include_router(activity_router.router)
