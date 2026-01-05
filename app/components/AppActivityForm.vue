@@ -115,9 +115,7 @@
                                     Select the compute environment for your
                                     cluster.
                                 </FieldDescription>
-                                <RadioGroup
-                                    :default-value="difficulties[0]?.value"
-                                >
+                                <RadioGroup v-model="activity.difficulty">
                                     <FieldLabel
                                         v-for="difficulty in difficulties"
                                         :key="difficulty.name"
@@ -136,7 +134,6 @@
                                                 :id="
                                                     difficulty.name.toLowerCase()
                                                 "
-                                                v-model="activity.difficulty"
                                                 name="difficulty"
                                                 :value="difficulty.value"
                                             />

@@ -11,9 +11,15 @@
             <div class="flex">
                 <h1 class="font-bold text-3xl mt-1 text-text">
                     {{ activity?.name }}
+                    <Badge
+                        v-if="activity"
+                        class="text-xs rounded-md"
+                        :class="DifficultiesColors[activity?.difficulty]"
+                        >{{ Difficulties[activity.difficulty] }}</Badge
+                    >
                 </h1>
                 <NuxtLink
-                    v-if="userStore.id == activity?.owner.id"
+                    v-if="userStore.id == activity?.owner?.id"
                     :to="'/activities/' + route.params.id + '/edit'"
                     class="ml-auto"
                 >
@@ -31,9 +37,9 @@
                     by
                     <NuxtLink
                         class="font-semibold"
-                        :to="'/users/' + activity?.owner.username"
+                        :to="'/users/' + activity?.owner?.username"
                     >
-                        {{ activity?.owner.username }}
+                        {{ activity?.owner?.username }}
                     </NuxtLink>
                 </p>
             </div>
@@ -49,7 +55,9 @@
     </article>
 </template>
 <script setup lang="ts">
+import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import { Difficulties, DifficultiesColors } from "~/constants/difficulty";
 import type { Activity } from "~/models/activity.model";
 
 const route = useRoute();

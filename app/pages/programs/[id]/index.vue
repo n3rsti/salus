@@ -14,7 +14,7 @@
                         {{ program?.name }}
                     </h1>
                     <NuxtLink
-                        v-if="userStore.id == program?.owner.id"
+                        v-if="userStore.id == program?.owner?.id"
                         :to="'/programs/' + route.params.id + '/edit'"
                         class="ml-auto"
                     >
@@ -34,9 +34,9 @@
                         by
                         <NuxtLink
                             class="font-semibold"
-                            :to="'/users/' + program?.owner.username"
+                            :to="'/users/' + program?.owner?.username"
                         >
-                            {{ program?.owner.username }}
+                            {{ program?.owner?.username }}
                         </NuxtLink>
                     </p>
                 </div>
