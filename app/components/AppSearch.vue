@@ -127,12 +127,19 @@ import { onKeyStroke, watchDebounced } from "@vueuse/core";
 const { $api } = useNuxtApp();
 const searchStore = useSearchStore();
 
-const activities = ref<Activity[]>([]);
-const programs = ref<Program[]>([]);
-const isLoading = ref(false);
-const searchInput = ref("");
+const props = defineProps<{
+    activities: Activity[];
+    programs: Program[];
+    notFound: boolean;
+    isLoading: boolean;
+}>();
 
-const notFound = ref(false);
+const emit = defineEmits<{
+    clear: [];
+    fetch: [input: string, controller: AbortController];
+}>();
+
+const searchInput = ref("");
 
 const searchInputRef = ref<typeof HTMLInputElement | null>(null);
 
@@ -167,39 +174,16 @@ onKeyStroke("/", (e) => {
 watchDebounced(
     searchInput,
     async (newValue, _oldValue, onCleanup) => {
-        notFound.value = false;
         newValue = newValue.trim();
         if (!newValue) {
-            activities.value = [];
-            programs.value = [];
+            emit("clear");
             return;
         }
 
         const controller = new AbortController();
         onCleanup(() => controller.abort());
 
-        isLoading.value = true;
-        try {
-            const [a, p] = await Promise.all([
-                $api<Activity[]>(
-                    `/api/activities/?search=${encodeURIComponent(newValue)}&limit=3`,
-                    { signal: controller.signal },
-                ),
-                $api<Program[]>(
-                    `/api/programs/?search=${encodeURIComponent(newValue)}&limit=3`,
-                    { signal: controller.signal },
-                ),
-            ]);
-
-            activities.value = a;
-            programs.value = p;
-
-            if (a.length + p.length == 0) notFound.value = true;
-        } catch (err: any) {
-            if (err?.name !== "AbortError") console.error(err);
-        } finally {
-            isLoading.value = false;
-        }
+        emit("fetch", newValue, controller);
     },
     { debounce: 250, maxWait: 3000 },
 );
