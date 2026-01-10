@@ -17,97 +17,20 @@
             />
 
             <div v-if="isLoading" class="flex flex-col gap-2">
-                <div class="flex flex-col rounded-md py-2 px-2 gap-2">
-                    <div class="flex items-center gap-2">
-                        <Skeleton class="h-8 aspect-square rounded-lg" />
-                        <Skeleton class="w-20 h-4 rounded-md" />
-                        <Skeleton class="w-12 h-5 rounded-md" />
-                        <Skeleton class="ml-auto w-20 h-5 rounded-md" />
-                    </div>
-                    <Skeleton class="w-full h-5 rounded-md" />
-                </div>
+                <slot name="loading">
+                    <Skeleton v-for="n in 3" :key="n" class="h-10 w-full" />
+                </slot>
             </div>
             <div v-else-if="notFound" class="text-center py-2">
                 <h2 class="font-semibold">Not found...</h2>
                 <p class="text-sm">
-                    Unfortunately no program, activity or user was found based
-                    on your search.
+                    <slot name="not-found" />
                 </p>
             </div>
-            <div
-                v-else-if="activities.length + programs.length == 0"
-                class="text-center py-2"
-            >
-                <h2 class="font-semibold">Search here...</h2>
-                <p class="text-sm">Search for program, activity or user.</p>
-            </div>
             <div v-else class="flex flex-col gap-2 py-1">
-                <h2 v-if="activities.length > 0" class="text-sm font-semibold">
-                    Activities
-                </h2>
-                <NuxtLink
-                    v-for="activity in activities"
-                    :key="activity.id"
-                    :to="'/activities/' + activity.id"
-                    class="py-2 px-2 rounded-md border flex flex-col gap-2 hover:bg-accent transition-colors shadow-xs"
-                    @click="close"
-                >
-                    <div class="flex items-center gap-2">
-                        <img
-                            :src="'/media/' + activity.image_url"
-                            alt=""
-                            class="h-8 aspect-square rounded-lg"
-                        />
-                        <h3
-                            class="font-semibold text-sm hover:underline cursor-pointer"
-                        >
-                            {{ activity.name }}
-                        </h3>
-                        <Badge
-                            class="text-xs rounded-md"
-                            :class="DifficultiesColors[activity.difficulty]"
-                            >{{ Difficulties[activity.difficulty] }}</Badge
-                        >
-                        <span class="flex items-center ml-auto text-xs gap-1">
-                            <Icon name="ic:outline-access-time" />
-                            {{ activity.duration_minutes }} minutes
-                        </span>
-                    </div>
-                    <p class="text-sm text-accent-content">
-                        {{ activity.description }}
-                    </p>
-                </NuxtLink>
-
-                <h2 v-if="programs.length > 0" class="text-sm font-semibold">
-                    Programs
-                </h2>
-                <NuxtLink
-                    v-for="program in programs"
-                    :key="program.id"
-                    :to="'/programs/' + program.id"
-                    class="py-2 px-2 rounded-md border flex flex-col gap-2 hover:bg-accent transition-colors shadow-xs"
-                    @click="close"
-                >
-                    <div class="flex items-center gap-2">
-                        <img
-                            :src="'/media/' + program.image_url"
-                            alt=""
-                            class="h-8 aspect-square rounded-lg"
-                        />
-                        <h3
-                            class="font-semibold text-sm hover:underline cursor-pointer"
-                        >
-                            {{ program.name }}
-                        </h3>
-                        <span class="flex items-center ml-auto text-xs gap-1">
-                            <Icon name="ic:outline-access-time" />
-                            {{ program.duration_days }} days
-                        </span>
-                    </div>
-                    <p class="text-sm text-accent-content">
-                        {{ program.description }}
-                    </p>
-                </NuxtLink>
+                <slot name="results">
+                    <slot name="default" />
+                </slot>
             </div>
         </Card>
     </div>
@@ -117,14 +40,11 @@
 import type { Activity } from "~/models/activity.model";
 import { Card } from "./ui/card";
 import { Input } from "./ui/input";
-import { Badge } from "./ui/badge";
-import { Difficulties, DifficultiesColors } from "~/constants/difficulty";
 import type { Program } from "~/models/program.model";
 import { Skeleton } from "./ui/skeleton";
 
 import { onKeyStroke, watchDebounced } from "@vueuse/core";
 
-const { $api } = useNuxtApp();
 const searchStore = useSearchStore();
 
 const props = defineProps<{
@@ -132,6 +52,7 @@ const props = defineProps<{
     programs: Program[];
     notFound: boolean;
     isLoading: boolean;
+    resetKey: number;
 }>();
 
 const emit = defineEmits<{
@@ -143,11 +64,6 @@ const searchInput = ref("");
 
 const searchInputRef = ref<typeof HTMLInputElement | null>(null);
 
-function close() {
-    searchStore.close();
-    searchInput.value = "";
-}
-
 watch(
     () => searchStore.isOpen,
     async (isOpen) => {
@@ -155,6 +71,13 @@ watch(
 
         await nextTick();
         searchInputRef.value?.$el.focus();
+    },
+);
+
+watch(
+    () => props.resetKey,
+    () => {
+        searchInput.value = "";
     },
 );
 

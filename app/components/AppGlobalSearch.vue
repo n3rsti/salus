@@ -4,15 +4,108 @@
         :programs="programs"
         :not-found="notFound"
         :is-loading="isLoading"
+        :reset-key="resetKey"
         @fetch="fetchSearchResults"
         @clear="clearData"
     >
+        <template #not-found>
+            Unfortunately no program, activity or user was found based on your
+            search.
+        </template>
+        <template #loading>
+            <div class="flex flex-col rounded-md py-2 px-2 gap-2">
+                <div class="flex items-center gap-2">
+                    <Skeleton class="h-8 aspect-square rounded-lg" />
+                    <Skeleton class="w-20 h-4 rounded-md" />
+                    <Skeleton class="w-12 h-5 rounded-md" />
+                    <Skeleton class="ml-auto w-20 h-5 rounded-md" />
+                </div>
+                <Skeleton class="w-full h-5 rounded-md" />
+            </div>
+        </template>
+        <template #default>
+            <div class="text-center py-2">
+                <h2 class="font-semibold">Search here...</h2>
+                <p class="text-sm">Search for program, activity or user.</p>
+            </div>
+        </template>
+        <template v-if="activities.length + programs.length > 0" #results>
+            <h2 v-if="activities.length > 0" class="text-sm font-semibold">
+                Activities
+            </h2>
+            <NuxtLink
+                v-for="activity in activities"
+                :key="activity.id"
+                :to="'/activities/' + activity.id"
+                class="py-2 px-2 rounded-md border flex flex-col gap-2 hover:bg-accent transition-colors shadow-xs"
+                @click="close"
+            >
+                <div class="flex items-center gap-2">
+                    <img
+                        :src="'/media/' + activity.image_url"
+                        alt=""
+                        class="h-8 aspect-square rounded-lg"
+                    />
+                    <h3
+                        class="font-semibold text-sm hover:underline cursor-pointer"
+                    >
+                        {{ activity.name }}
+                    </h3>
+                    <Badge
+                        class="text-xs rounded-md"
+                        :class="DifficultiesColors[activity.difficulty]"
+                        >{{ Difficulties[activity.difficulty] }}</Badge
+                    >
+                    <span class="flex items-center ml-auto text-xs gap-1">
+                        <Icon name="ic:outline-access-time" />
+                        {{ activity.duration_minutes }} minutes
+                    </span>
+                </div>
+                <p class="text-sm text-accent-content">
+                    {{ activity.description }}
+                </p>
+            </NuxtLink>
+
+            <h2 v-if="programs.length > 0" class="text-sm font-semibold">
+                Programs
+            </h2>
+            <NuxtLink
+                v-for="program in programs"
+                :key="program.id"
+                :to="'/programs/' + program.id"
+                class="py-2 px-2 rounded-md border flex flex-col gap-2 hover:bg-accent transition-colors shadow-xs"
+                @click="close"
+            >
+                <div class="flex items-center gap-2">
+                    <img
+                        :src="'/media/' + program.image_url"
+                        alt=""
+                        class="h-8 aspect-square rounded-lg"
+                    />
+                    <h3
+                        class="font-semibold text-sm hover:underline cursor-pointer"
+                    >
+                        {{ program.name }}
+                    </h3>
+                    <span class="flex items-center ml-auto text-xs gap-1">
+                        <Icon name="ic:outline-access-time" />
+                        {{ program.duration_days }} days
+                    </span>
+                </div>
+                <p class="text-sm text-accent-content">
+                    {{ program.description }}
+                </p>
+            </NuxtLink>
+        </template>
     </AppSearch>
 </template>
 
 <script setup lang="ts">
+import { Difficulties, DifficultiesColors } from "~/constants/difficulty";
 import type { Activity } from "~/models/activity.model";
 import type { Program } from "~/models/program.model";
+
+import { Badge } from "./ui/badge";
 
 const { $api } = useNuxtApp();
 
@@ -20,6 +113,15 @@ const programs = ref<Program[]>([]);
 const activities = ref<Activity[]>([]);
 const notFound = ref(false);
 const isLoading = ref(false);
+
+const resetKey = ref(0);
+
+const searchStore = useSearchStore();
+
+function close() {
+    searchStore.close();
+    resetKey.value++;
+}
 
 async function fetchSearchResults(input: string, controller: AbortController) {
     notFound.value = false;
