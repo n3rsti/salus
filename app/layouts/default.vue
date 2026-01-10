@@ -5,7 +5,7 @@
         >
             <AppSidebar />
             <NavBar class="fixed h-16 z-10" />
-            <AppGlobalSearch />
+            <AppGlobalSearch v-if="searchStore.activeTab === ''" />
             <main class="p-4 sm:p-8 flex flex-col grow mt-16 lg:ml-60">
                 <slot />
             </main>
@@ -16,4 +16,6 @@
 <script setup lang="ts">
 import AppSidebar from "@/components/AppSidebar.vue";
 import { SidebarProvider } from "@/components/ui/sidebar";
+
+const searchStore = useSearchStore();
 </script>

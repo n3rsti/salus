@@ -1,4 +1,9 @@
 <template>
+    <AppActivitySearch
+        v-if="searchStore.activeTab === 'activities'"
+        :day="searchDay"
+        @add-activity="addActivity"
+    ></AppActivitySearch>
     <div>
         <div
             class="p-4 rounded-xl bg-primary-light mb-4 flex items-center justify-between shadow-sm"
@@ -115,28 +120,17 @@
                                 <Label :for="day.day_number + '-activities'"
                                     >Add activities</Label
                                 >
-                                <div class="flex gap-2">
-                                    <Input
-                                        :id="day.day_number + '-activities'"
-                                        v-model="activityInputs[day.day_number]"
-                                        type="number"
-                                        min="1"
-                                        placeholder="Enter activity id"
-                                        class="focus:border-text"
-                                    />
-                                    <Button
-                                        class="w-1/4 rounded-lg bg-text text-xs"
-                                        variant="default"
-                                        type="button"
-                                        @click="
-                                            addActivity(
-                                                activityInputs[day.day_number],
-                                                day.day_number,
-                                            )
-                                        "
-                                        >Add</Button
-                                    >
-                                </div>
+                                <button
+                                    :id="day.day_number + '-activities'"
+                                    type="button"
+                                    placeholder="Enter activity id"
+                                    class="px-2 flex grow items-center h-9 rounded-md xl:px-6 py-1 text-base shadow-xs md:text-sm bg-white text-muted-foreground xl:w-2/5 border-input border-2 cursor-text"
+                                    @click.prevent.stop="
+                                        openSearch(day.day_number)
+                                    "
+                                >
+                                    Search...
+                                </button>
                             </div>
                             <div
                                 v-for="activity in day.activities"
@@ -145,7 +139,7 @@
                             >
                                 <div class="flex items-center w-full">
                                     <img
-                                        :src="activity.image_url"
+                                        :src="'/media/' + activity.image_url"
                                         alt=""
                                         class="h-8 aspect-square rounded-lg"
                                     />
@@ -216,6 +210,7 @@ import type { Activity } from "~/models/activity.model";
 import { Textarea } from "./ui/textarea";
 
 const route = useRoute();
+const searchStore = useSearchStore();
 
 const props = defineProps<{
     initialData?: Program;
@@ -227,6 +222,8 @@ const emit = defineEmits<{
 }>();
 
 const fileInput = ref<HTMLInputElement | null>(null);
+
+const searchDay = ref(0);
 
 const formData = ref<Program>({
     name: props.initialData?.name || "",
@@ -244,7 +241,13 @@ const formData = ref<Program>({
     ],
 });
 
-const activityInputs = ref<Record<number, number | undefined>>({});
+async function openSearch(dayNumber: number) {
+    searchDay.value = dayNumber;
+    searchStore.activeTab = "activities";
+
+    await nextTick();
+    searchStore.open();
+}
 
 function removeActivity(activity_id: number | undefined, dayNumber: number) {
     if (activity_id === undefined) return;
@@ -255,29 +258,16 @@ function removeActivity(activity_id: number | undefined, dayNumber: number) {
     }
 }
 
-async function addActivity(activity_id: number | undefined, dayNumber: number) {
-    if (activity_id === undefined) return;
-
+async function addActivity(activity: Activity, dayNumber: number) {
     const day = formData.value.days?.find((d) => d.day_number === dayNumber);
     if (!day) return;
 
-    const isAlreadyAdded = day.activities?.some((a) => a.id === activity_id);
+    const isAlreadyAdded = day.activities?.some((a) => a.id === activity.id);
     if (isAlreadyAdded) {
-        activityInputs.value[dayNumber] = undefined;
         return;
     }
 
-    try {
-        const data = await $fetch<Activity>(`/api/activities/${activity_id}/`);
-
-        if (!day.activities) {
-            day.activities = [];
-        }
-        day.activities.push(data);
-        activityInputs.value[dayNumber] = undefined;
-    } catch (error) {
-        console.error("Failed to fetch activity:", error);
-    }
+    day.activities?.push(activity);
 }
 
 function addDay() {

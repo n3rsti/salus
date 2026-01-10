@@ -7,8 +7,7 @@
         @clear="clearData"
     >
         <template #not-found>
-            Unfortunately no program, activity or user was found based on your
-            search.
+            Unfortunately no activity was found based on your search.
         </template>
         <template #loading>
             <div class="flex flex-col rounded-md py-2 px-2 gap-2">
@@ -24,19 +23,19 @@
         <template #default>
             <div class="text-center py-2">
                 <h2 class="font-semibold">Search here...</h2>
-                <p class="text-sm">Search for program, activity or user.</p>
+                <p class="text-sm">Search for activity.</p>
             </div>
         </template>
-        <template v-if="activities.length + programs.length > 0" #results>
+        <template v-if="activities.length > 0" #results>
             <h2 v-if="activities.length > 0" class="text-sm font-semibold">
                 Activities
             </h2>
-            <NuxtLink
+            <button
                 v-for="activity in activities"
                 :key="activity.id"
-                :to="'/activities/' + activity.id"
+                type="button"
                 class="py-2 px-2 rounded-md border flex flex-col gap-2 hover:bg-accent transition-colors shadow-xs"
-                @click="close"
+                @click.prevent.stop="addActivity(activity)"
             >
                 <div class="flex items-center gap-2">
                     <img
@@ -62,38 +61,7 @@
                 <p class="text-sm text-accent-content">
                     {{ activity.description }}
                 </p>
-            </NuxtLink>
-
-            <h2 v-if="programs.length > 0" class="text-sm font-semibold">
-                Programs
-            </h2>
-            <NuxtLink
-                v-for="program in programs"
-                :key="program.id"
-                :to="'/programs/' + program.id"
-                class="py-2 px-2 rounded-md border flex flex-col gap-2 hover:bg-accent transition-colors shadow-xs"
-                @click="close"
-            >
-                <div class="flex items-center gap-2">
-                    <img
-                        :src="'/media/' + program.image_url"
-                        alt=""
-                        class="h-8 aspect-square rounded-lg"
-                    />
-                    <h3
-                        class="font-semibold text-sm hover:underline cursor-pointer"
-                    >
-                        {{ program.name }}
-                    </h3>
-                    <span class="flex items-center ml-auto text-xs gap-1">
-                        <Icon name="ic:outline-access-time" />
-                        {{ program.duration_days }} days
-                    </span>
-                </div>
-                <p class="text-sm text-accent-content">
-                    {{ program.description }}
-                </p>
-            </NuxtLink>
+            </button>
         </template>
     </AppSearch>
 </template>
@@ -101,14 +69,20 @@
 <script setup lang="ts">
 import { Difficulties, DifficultiesColors } from "~/constants/difficulty";
 import type { Activity } from "~/models/activity.model";
-import type { Program } from "~/models/program.model";
 
 import { Badge } from "./ui/badge";
 import { Skeleton } from "./ui/skeleton";
 
+const props = defineProps<{
+    day: number;
+}>();
+
+const emit = defineEmits<{
+    addActivity: [activity: Activity, day: number];
+}>();
+
 const { $api } = useNuxtApp();
 
-const programs = ref<Program[]>([]);
 const activities = ref<Activity[]>([]);
 const notFound = ref(false);
 const isLoading = ref(false);
@@ -116,6 +90,11 @@ const isLoading = ref(false);
 const resetKey = ref(0);
 
 const searchStore = useSearchStore();
+
+function addActivity(activity: Activity) {
+    emit("addActivity", activity, props.day);
+    close();
+}
 
 function close() {
     searchStore.close();
@@ -126,21 +105,16 @@ async function fetchSearchResults(input: string, controller: AbortController) {
     notFound.value = false;
     isLoading.value = true;
     try {
-        const [a, p] = await Promise.all([
+        const [a] = await Promise.all([
             $api<Activity[]>(
-                `/api/activities/?search=${encodeURIComponent(input)}&limit=3`,
-                { signal: controller.signal },
-            ),
-            $api<Program[]>(
-                `/api/programs/?search=${encodeURIComponent(input)}&limit=3`,
+                `/api/activities/?search=${encodeURIComponent(input)}`,
                 { signal: controller.signal },
             ),
         ]);
 
         activities.value = a;
-        programs.value = p;
 
-        if (a.length + p.length == 0) notFound.value = true;
+        if (a.length == 0) notFound.value = true;
     } catch (err: any) {
         if (err?.name !== "AbortError") console.error(err);
     } finally {
@@ -149,7 +123,6 @@ async function fetchSearchResults(input: string, controller: AbortController) {
 }
 
 function clearData() {
-    programs.value = [];
     activities.value = [];
 }
 </script>

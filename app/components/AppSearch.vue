@@ -37,10 +37,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Activity } from "~/models/activity.model";
 import { Card } from "./ui/card";
 import { Input } from "./ui/input";
-import type { Program } from "~/models/program.model";
 import { Skeleton } from "./ui/skeleton";
 
 import { onKeyStroke, watchDebounced } from "@vueuse/core";
@@ -48,8 +46,6 @@ import { onKeyStroke, watchDebounced } from "@vueuse/core";
 const searchStore = useSearchStore();
 
 const props = defineProps<{
-    activities: Activity[];
-    programs: Program[];
     notFound: boolean;
     isLoading: boolean;
     resetKey: number;
@@ -70,7 +66,11 @@ watch(
         if (!isOpen) return;
 
         await nextTick();
-        searchInputRef.value?.$el.focus();
+        console.log("Focusing search input");
+        setTimeout(() => {
+            searchInputRef.value?.$el.focus();
+        }, 100);
+        // searchInputRef.value?.$el.focus();
     },
 );
 
