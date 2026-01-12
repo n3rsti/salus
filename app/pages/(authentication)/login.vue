@@ -13,7 +13,7 @@
                 Log in to salus
             </h2>
             <label
-                class="input validator bg-amber-50 border-2 border-primary-dark rounded-xl focus-within:border-green-500 w-full mt-8"
+                class="input bg-amber-50 border-2 border-primary-dark rounded-xl focus-within:border-green-500 w-full mt-8"
             >
                 <svg
                     class="h-[1em] opacity-50"
@@ -41,10 +41,9 @@
                     required
                 />
             </label>
-            <div class="validator-hint hidden">Enter valid email address</div>
 
             <label
-                class="input validator bg-amber-50 border-2 border-primary-dark rounded-xl focus-within:border-green-500 mt-4 w-full"
+                class="input bg-amber-50 border-2 border-primary-dark rounded-xl focus-within:border-green-500 mt-4 w-full"
             >
                 <svg
                     class="h-[1em] opacity-50"
@@ -75,16 +74,8 @@
                     type="password"
                     required
                     placeholder="Password"
-                    minlength="8"
-                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-                    title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
                 />
             </label>
-            <p class="validator-hint hidden">
-                Must be more than 8 characters, including
-                <br />At least one number <br />At least one lowercase letter
-                <br />At least one uppercase letter
-            </p>
 
             <Button class="w-full mt-4" variant="success" type="submit">
                 <svg

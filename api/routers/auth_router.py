@@ -30,6 +30,7 @@ GOOGLE_CLIENT_ID = _env.get("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = _env.get("GOOGLE_CLIENT_SECRET")
 GOOGLE_REDIRECT_URI = _env.get("GOOGLE_REDIRECT_URI")
 FRONTEND_URL = _env.get("FRONTEND_URL", "http://localhost:3000")
+COOKIE_DOMAIN = _env.get("COOKIE_DOMAIN")  # e.g., ".app.github.dev" for Codespaces
 
 GOOGLE_AUTH_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth"
 GOOGLE_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
@@ -207,8 +208,9 @@ async def google_callback(code: str, session: SessionDep):
             key="access_token",
             value=jwt_token,
             httponly=True,
-            secure=False,  # set True in prod
-            samesite="lax",
+            secure=True,
+            samesite="none",
+            domain=COOKIE_DOMAIN,
         )
         return response
     except Exception:
@@ -255,8 +257,9 @@ def classic_login(
         key="access_token",
         value=token,
         httponly=True,
-        secure=False,  # set True in prod
-        samesite="lax",
+        secure=True,
+        samesite="none",
+        domain=COOKIE_DOMAIN,  # Required for cross-origin in Codespaces
     )
 
     return {
