@@ -4,18 +4,20 @@
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton
+                        as-child
                         size="lg"
                         class="hover:bg-green-600 hover:text-white"
                     >
-                        <div
-                            class="grid flex-1 text-left text-sm leading-tight"
-                        >
-                            <span class="truncate font-semibold">{{
-                                store.username
-                            }}</span>
-                            <span class="truncate text-xs">User</span>
-                        </div>
-                    </SidebarMenuButton>
+                    <NuxtLink to="/profile"
+                        class="grid flex-1 text-left text-sm leading-tight"
+                >
+                    <span class="truncate font-semibold">
+                    {{ store.username || "User" }}
+                 </span>
+            <span class="truncate text-xs">User</span>
+    </NuxtLink>
+</SidebarMenuButton>
+                    
                 </SidebarMenuItem>
             </SidebarMenu>
         </SidebarHeader>
