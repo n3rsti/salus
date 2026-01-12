@@ -1,13 +1,15 @@
 import re
 import urllib.parse
-from typing import Any
+from typing import Annotated, Any
 import httpx
-from fastapi import APIRouter, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi.responses import RedirectResponse
 from sqlmodel import select, or_
 from api.database import SessionDep
 from dotenv import dotenv_values
 from api.models.user_models import Role, Users
 from api.security.jwt import create_access_token
+from api.security.auth import verify_jwt_token
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from pydantic import BaseModel
@@ -177,39 +179,43 @@ async def google_callback(code: str, session: SessionDep):
     _ensure_oauth_configured()
 
     if not code:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Missing code"
+        return RedirectResponse(url="/login?oauth=error", status_code=302)
+
+    try:
+        tokens = await _exchange_code_for_tokens(code)
+        access_token = tokens.get("access_token")
+        if not access_token:
+            return RedirectResponse(url="/login?oauth=error", status_code=302)
+
+        userinfo = await _fetch_userinfo(access_token)
+        user = _upsert_user_from_google(session, userinfo)
+
+        jwt_token = create_access_token(
+            subject=str(user.id),
+            extra_claims={
+                "username": user.username,
+                "email": user.email or "",
+                "role": user.role_id,
+                "provider": "google",
+            },
         )
 
-    tokens = await _exchange_code_for_tokens(code)
-    access_token = tokens.get("access_token")
-    if not access_token:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Google token response missing access_token",
+        # Create redirect response and set cookie
+        response = RedirectResponse(url="/login?oauth=success", status_code=302)
+        response.set_cookie(
+            key="access_token",
+            value=jwt_token,
+            httponly=True,
+            secure=False,  # set True in prod
+            samesite="lax",
         )
 
-    userinfo = await _fetch_userinfo(access_token)
-    user = _upsert_user_from_google(session, userinfo)
+        return response
 
-    jwt_token = create_access_token(
-        subject=str(user.id),
-        extra_claims={
-            "username": user.username,
-            "email": user.email or "",
-            "provider": "google",
-        },
-    )
-
-    return {
-        "access_token": jwt_token,
-        "token_type": "bearer",
-        "user": {
-            "id": user.id,
-            "username": user.username,
-            "email": user.email,
-        },
-    }
+    except HTTPException:
+        return RedirectResponse(url="/login?oauth=error", status_code=302)
+    except Exception:
+        return RedirectResponse(url="/login?oauth=error", status_code=302)
 
 
 @router.post("/login", status_code=status.HTTP_200_OK)
@@ -266,3 +272,29 @@ def classic_login(
 def logout(response: Response):
     response.delete_cookie(key="access_token")
     return {"message": "Logged out successfully"}
+
+
+@router.get("/me", status_code=status.HTTP_200_OK)
+async def get_current_user_info(
+    token_payload: Annotated[dict[str, Any], Depends(verify_jwt_token)],
+    session: SessionDep,
+):
+    """Return current authenticated user info from cookie."""
+    user_id = token_payload.get("sub")
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+        )
+
+    user = session.get(Users, int(user_id))
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+
+    return {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "role_id": user.role_id,
+    }

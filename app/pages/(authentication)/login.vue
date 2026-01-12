@@ -1,8 +1,11 @@
 <template>
     <main class="flex flex-col justify-center items-center content-center p-4">
         <NuxtLink class="absolute top-4 left-4 text-white" to="/"
-            ><Button variant="success">
-                <Icon class="text-4xl" name="dashicons:admin-home" /> </Button
+            ><AppButton :color="'green'">
+                <Icon
+                    class="text-4xl"
+                    name="dashicons:admin-home"
+                /> </AppButton
         ></NuxtLink>
         <form
             class="rounded-xl bg-primary-light text-green-700 p-8 w-11/12 shadow border-neutral-100 border-t border-t-transparent"
@@ -12,7 +15,7 @@
                 Log in to salus
             </h2>
             <label
-                class="input bg-amber-50 border-2 border-primary-dark rounded-xl focus-within:border-green-500 w-full mt-8"
+                class="input validator bg-amber-50 border-2 border-primary-dark rounded-xl focus-within:border-green-500 w-full mt-8"
             >
                 <svg
                     class="h-[1em] opacity-50"
@@ -40,9 +43,10 @@
                     required
                 />
             </label>
+            <div class="validator-hint hidden">Enter valid email address</div>
 
             <label
-                class="input bg-amber-50 border-2 border-primary-dark rounded-xl focus-within:border-green-500 mt-4 w-full"
+                class="input validator bg-amber-50 border-2 border-primary-dark rounded-xl focus-within:border-green-500 mt-4 w-full"
             >
                 <svg
                     class="h-[1em] opacity-50"
@@ -73,10 +77,22 @@
                     type="password"
                     required
                     placeholder="Password"
+                    minlength="8"
+                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                    title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
                 />
             </label>
+            <p class="validator-hint hidden">
+                Must be more than 8 characters, including
+                <br />At least one number <br />At least one lowercase letter
+                <br />At least one uppercase letter
+            </p>
 
-            <Button class="w-full mt-4" variant="success" type="submit">
+            <AppButton
+                class="w-full shadow-sm border-t-transparent text-white mt-4"
+                :color="'green'"
+                type="submit"
+            >
                 <svg
                     aria-label="Email icon"
                     width="16"
@@ -98,7 +114,7 @@
                     </g>
                 </svg>
                 <span class="ml-1">Login with Email</span>
-            </Button>
+            </AppButton>
 
             <p class="mt-4">
                 Not yet a user?<br />
@@ -110,18 +126,22 @@
             </p>
 
             <button
+                type="button"
                 class="btn bg-white text-black border-green-500 w-full mt-10 hover:bg-gray-300"
             >
                 <Icon name="logos:microsoft-icon" />
                 Login with Microsoft
             </button>
             <button
+                type="button"
                 class="btn bg-white text-black border-blue-500 w-full mt-4 hover:bg-gray-300"
+                @click="handleGoogleLogin"
             >
                 <Icon name="logos:google-icon" />
                 Login with Google
             </button>
             <button
+                type="button"
                 class="btn bg-white text-black border-black w-full mt-4 hover:bg-gray-300"
             >
                 <Icon name="logos:github-icon" />
@@ -131,19 +151,63 @@
     </main>
 </template>
 <script setup lang="ts">
-import { Button } from "~/components/ui/button";
-
 definePageMeta({
     layout: "authentication",
 });
 
 const email = ref("");
 const password = ref("");
+const route = useRoute();
 
 interface Response {
     message: string;
     user: Record<string, string | number>;
 }
+
+interface MeResponse {
+    id: number;
+    username: string;
+    email: string;
+    role_id: number;
+}
+
+// Handle OAuth callback on page load
+onMounted(async () => {
+    const oauthStatus = route.query.oauth as string | undefined;
+
+    if (oauthStatus === "success") {
+        // Clean URL immediately
+        history.replaceState(null, "", "/login");
+
+        try {
+            // Fetch user info from /api/auth/me
+            const userData = await $fetch<MeResponse>("/api/auth/me");
+            const userStore = useUserStore();
+
+            userStore.username = userData.username;
+            userStore.id = userData.id;
+
+            alert(`Welcome, ${userData.username}! Login with Google successful.`);
+            await navigateTo("/");
+        } catch {
+            alert("OAuth login failed. Please try again.");
+        }
+    } else if (oauthStatus === "error") {
+        // Clean URL and show error
+        history.replaceState(null, "", "/login");
+        alert("Google login failed. Please try again.");
+    }
+});
+
+async function handleGoogleLogin() {
+    try {
+        const data = await $fetch<{ authorization_url: string }>("/api/auth/google/login");
+        window.location.href = data.authorization_url;
+    } catch {
+        alert("Failed to initiate Google login. Please try again.");
+    }
+}
+
 async function handleLogin() {
     await $fetch<Response>("/api/auth/login", {
         method: "POST",
