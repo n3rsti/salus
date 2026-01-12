@@ -1,10 +1,10 @@
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional
 from datetime import datetime
 from pydantic import field_validator
 
+
 class ReviewBase(SQLModel):
-    # user_id: int | None = Field(default=None, foreign_key="user.id", ondelete="CASCADE") commented out for now, we dont have user table yet
     content_type: str = Field(description="Either 'program' or 'activity'")
     content_id: int
     rating: int
@@ -15,7 +15,7 @@ class ReviewBase(SQLModel):
         if v not in {"program", "activity"}:
             raise ValueError("content_type must be 'program' or 'activity'")
         return v
-    
+
     @field_validator("rating")
     def validate_rating(cls, v):
         if v is None:
@@ -24,12 +24,17 @@ class ReviewBase(SQLModel):
             raise ValueError("Rating must be between 1 and 5")
         return v
 
+
 class Review(ReviewBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    user_id: int = Field(foreign_key="users.id", nullable=False)
+    user: Optional["Users"] = Relationship()
+
 
 class ReviewCreate(ReviewBase):
     pass
+
 
 class ReviewUpdate(SQLModel):
     rating: Optional[int] = None
@@ -43,6 +48,13 @@ class ReviewUpdate(SQLModel):
             raise ValueError("Rating must be between 1 and 5")
         return v
 
+
 class ReviewRead(ReviewBase):
     id: int
     created_at: datetime
+    user: "UsersRead"
+
+
+from api.models.user_models import Users, UsersRead
+
+SQLModel.model_rebuild()

@@ -23,17 +23,15 @@
                 </section>
             </div>
 
-            <AppButton
-                class="text-white mt-2 w-full lg:mt-auto"
-                :color="'green'"
-            >
+            <Button class="text-white mt-2 w-full lg:mt-auto" variant="success">
                 Add daily log
-            </AppButton>
+            </Button>
         </article>
     </div>
 </template>
 <script setup lang="ts">
 import { faker } from "@faker-js/faker";
+import { Button } from "./ui/button";
 
 interface MoodLog {
     mood: number;

@@ -1,6 +1,6 @@
 <template>
     <AppCard
-        :image="props.program.image_url"
+        :image="'/media/' + props.program.image_url"
         :title="props.program.name"
         :description="props.program.description"
     >
@@ -9,7 +9,7 @@
             class="flex items-center justify-between mt-auto"
         >
             <p
-                class="font-medium text-muted/90 text-sm flex items-center gap-1"
+                class="font-medium text-muted-foreground text-sm flex items-center gap-1"
             >
                 <Icon name="ic:baseline-calendar-month" />
                 Day
@@ -26,7 +26,7 @@
         </div>
 
         <div v-else class="flex items-center justify-between mt-auto">
-            <p class="text-muted/90 text-sm flex items-center gap-1">
+            <p class="text-muted-foreground text-sm flex items-center gap-1">
                 <Icon name="ic:outline-access-time" />
                 {{ props.program.duration_days }}
                 days
@@ -40,7 +40,7 @@
                     />
                 </template>
                 <template v-else>
-                    <span class="text-muted/80 text-xs">No rating</span>
+                    <span class="text-muted-foreground text-xs">No rating</span>
                 </template>
             </p>
         </div>
@@ -53,29 +53,26 @@
         ></progress>
 
         <NuxtLink :to="'/programs/' + props.program.id">
-            <AppButton
+            <Button
                 v-if="props.program.progress"
-                class="w-full shadow-sm border-t-transparent text-white mt-3"
-                :color="'green'"
+                class="w-full mt-3"
+                variant="success"
             >
                 Continue
 
                 <Icon class="text-lg ml-2" name="ic:round-play-arrow" />
-            </AppButton>
-            <AppButton
-                v-else
-                class="w-full shadow-sm border-t-transparent text-white mt-3"
-                :color="'green_dark'"
-            >
+            </Button>
+            <Button v-else class="w-full mt-3" variant="success_shadow">
                 View info
                 <Icon class="text-lg ml-2" name="ic:round-remove-red-eye" />
-            </AppButton>
+            </Button>
         </NuxtLink>
     </AppCard>
 </template>
 <script setup lang="ts">
 import { faker } from "@faker-js/faker";
 import type { Program } from "~/models/program.model";
+import { Button } from "./ui/button";
 
 const props = defineProps<{
     program: Program;

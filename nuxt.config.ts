@@ -2,6 +2,11 @@
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
+    app: {
+        head: {
+            title: "Salus",
+        },
+    },
     compatibilityDate: "2025-07-15",
     devtools: { enabled: true },
     modules: [
@@ -10,6 +15,7 @@ export default defineNuxtConfig({
         "@nuxt/fonts",
         "@pinia/nuxt",
         "pinia-plugin-persistedstate/nuxt",
+        "shadcn-nuxt",
     ],
     css: ["./app/assets/css/main.css"],
     vite: {
@@ -27,8 +33,13 @@ export default defineNuxtConfig({
         routeRules: {
             "/api/**": {
                 proxy: process.env.API_BASE_URL
-                    ? process.env.API_BASE_URL + "/**"
+                    ? `${process.env.API_BASE_URL}/api/**`
                     : "http://salus-api:8080/api/**",
+            },
+            "/media/**": {
+                proxy: process.env.API_BASE_URL
+                    ? `${process.env.API_BASE_URL}/media/**`
+                    : "http://salus-api:8080/media/**",
             },
         },
     },

@@ -1,8 +1,10 @@
 from typing import Annotated
 from fastapi import Depends
+from sqlalchemy import text
 from sqlmodel import Session, SQLModel, create_engine, select
 from dotenv import dotenv_values
-from api.models.user_models import Role
+from api.models.user_models import Role, Users
+from api.security.crypto import hash_password
 
 config = dotenv_values(".env")
 
@@ -19,16 +21,33 @@ def create_db_and_tables():
     # SQLModel.metadata.drop_all(engine)
     SQLModel.metadata.create_all(engine)
 
-    #vvvv to be removed later
+    # vvvv to be removed later
     with Session(engine) as session:
+        # Add extension for fuzzy finder
+        session.connection().execute(text("CREATE EXTENSION IF NOT EXISTS pg_trgm;"))
+        session.commit()
+
         result = session.exec(select(Role).where(Role.name == "user")).first()
         if not result:
             default_role = Role(id=1, name="user")
             session.add(default_role)
             session.commit()
 
+        result = session.exec(select(Users).where(Users.username == "test")).first()
+        if not result:
+            test_user = Users(
+                username="test",
+                email="test@test.com",
+                role_id=1,
+                password=hash_password("test"),
+            )
+            session.add(test_user)
+            session.commit()
+
+
 def get_session():
     with Session(engine) as session:
         yield session
+
 
 SessionDep = Annotated[Session, Depends(get_session)]

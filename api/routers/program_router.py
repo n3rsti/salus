@@ -1,46 +1,129 @@
-from fastapi import APIRouter, HTTPException
-from sqlmodel import select
-from sqlalchemy.orm import selectinload
+from typing import List
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from sqlmodel import delete, select, update
 
 from api.database import SessionDep
-from api.models.program_models import Program, ProgramRead, ProgramDay, ProgramDayCreate,ProgramDayUpdate, Activity, ProgramCreate, ProgramUpdate
 from api.models.program_day_activities_link import ProgramDayActivityLink
-
-# This file contains API endpoints related to Programs
+from api.models.program_models import (
+    Program,
+    ProgramCreate,
+    ProgramDay,
+    ProgramDayInput,
+    ProgramFilters,
+    ProgramRead,
+    ProgramUpdate,
+)
+from api.security.auth import JwtPayload, get_current_user
+from api.utils.files import save_file
 
 router = APIRouter(prefix="/api/programs", tags=["Programs"])
 
-@router.get("/", response_model=list[ProgramRead])
-def get_programs(session: SessionDep):
-    programs = session.exec(select(Program)).all()
+
+@router.get("", response_model=list[ProgramRead])
+def get_programs(session: SessionDep, filters: ProgramFilters = Depends()):
+    query = select(Program)
+    query = filters.apply(query)
+    programs = session.exec(query).all()
 
     if programs:
         return programs
     else:
         return []
 
-@router.post("/", response_model=ProgramRead)
-def create_program(program_in: ProgramCreate, session: SessionDep):
-    program = Program.model_validate(program_in)
+
+def link_days(session: SessionDep, program_id: int, days_in: List[ProgramDayInput]):
+    days = []
+    for day_in in days_in:
+        day = ProgramDay(
+            description=day_in.description,
+            day_number=day_in.day_number,
+            program_id=program_id,
+        )
+        session.add(day)
+        days.append(day)
+
+    session.flush()
+
+    for day, day_in in zip(days, days_in):
+        for activity_id in day_in.activities_ids:
+            link = ProgramDayActivityLink(
+                program_day_id=day.id, activity_id=activity_id
+            )
+            session.add(link)
+
+
+@router.post("", response_model=ProgramRead)
+async def create_program(
+    image: UploadFile,
+    session: SessionDep,
+    program_in: str = Form(...),
+    current_user: JwtPayload = Depends(get_current_user),
+):
+    program_create = ProgramCreate.model_validate_json(program_in)
+
+    program_data = program_create.model_dump(exclude={"days"})
+    program_data["owner_id"] = current_user.id
+
+    image_url = await save_file(image)
+    program_data["image_url"] = image_url
+
+    program = Program.model_validate(program_data)
     session.add(program)
+    session.flush()
+
+    if program.id and program_create.days:
+        link_days(session, program.id, program_create.days)
+
     session.commit()
     session.refresh(program)
     return program
 
-@router.put("/{program_id}", response_model=ProgramRead)
-def update_program(session: SessionDep, program_id: int, program_update: ProgramUpdate):
-    program = session.get(Program, program_id)
 
+@router.put("/{program_id}", response_model=ProgramRead)
+async def update_program(
+    program_id: int,
+    session: SessionDep,
+    program_update: str = Form(...),
+    image: UploadFile | None = None,
+    current_user: JwtPayload = Depends(get_current_user),
+):
+    program_update_obj = ProgramUpdate.model_validate_json(program_update)
+
+    update_data = program_update_obj.model_dump(exclude_unset=True, exclude={"days"})
+
+    if image is not None:
+        image_url = await save_file(image)
+        update_data["image_url"] = image_url
+
+    if update_data:
+        statement = (
+            update(Program)
+            .where((Program.id == program_id) & (Program.owner_id == current_user.id))
+            .values(**update_data)
+        )
+        result = session.exec(statement)
+        if result.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Program not found")
+
+    if program_update_obj.days is not None:
+        program = session.exec(
+            select(Program).where(
+                (Program.id == program_id) & (Program.owner_id == current_user.id)
+            )
+        ).first()
+        if not program:
+            raise HTTPException(status_code=404, detail="Program not found")
+
+        session.exec(delete(ProgramDay).where(ProgramDay.program_id == program_id))
+        session.flush()
+        link_days(session, program_id, program_update_obj.days)
+
+    session.commit()
+
+    program = session.get(Program, program_id)
     if not program:
         raise HTTPException(status_code=404, detail="Program not found")
-
-    update_data = program_update.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(program, key, value)
-
-    session.add(program)
-    session.commit()
-    session.refresh(program)
     return program
 
 
@@ -53,66 +136,20 @@ def get_program(session: SessionDep, program_id: int):
 
     return program
 
+
 @router.delete("/{program_id}")
-def delete_program(session: SessionDep, program_id: int):
-    program = session.get(Program, program_id)
-    if not program:
+def delete_program(
+    session: SessionDep,
+    program_id: int,
+    current_user: JwtPayload = Depends(get_current_user),
+):
+    statement = delete(Program).where(
+        (Program.id == program_id) & (Program.owner_id == current_user.id)
+    )
+    result = session.exec(statement)
+    session.commit()
+
+    if result.rowcount == 0:
         raise HTTPException(status_code=404, detail="Program not found")
-    session.delete(program)
-    session.commit()
+
     return {"ok": True}
-
-@router.post("/days", response_model=ProgramDay)
-def create_program_day(day_in: ProgramDayCreate, session: SessionDep):
-    program = session.get(Program, day_in.program_id)
-    if not program:
-        raise HTTPException(status_code=404, detail=f"Program with id={day_in.program_id} not found")
-
-    day = ProgramDay.model_validate(day_in)
-    session.add(day)
-    session.commit()
-    session.refresh(day)
-    return day
-
-@router.put("/days/{program_day_id}", response_model=ProgramDay)
-def update_program_day(session: SessionDep, program_day_id: int, program_day_update: ProgramDayUpdate):
-    program_day = session.get(ProgramDay, program_day_id)
-
-    if not program_day:
-        raise HTTPException(status_code=404, detail="Program day not found")
-
-    if program_day_update.program_id != None:
-        program = session.get(Program, program_day_update.program_id)
-        if not program:
-            raise HTTPException(status_code=404, detail=f"Program with id={program_day_update.program_id} not found")
-
-    update_data = program_day_update.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(program_day, key, value)
-
-    session.add(program_day)
-    session.commit()
-    session.refresh(program_day)
-    return program_day
-
-@router.delete("/days/{program_day_id}")
-def delete_program_day(session: SessionDep, program_day_id: int):
-    program_day = session.get(ProgramDay, program_day_id)
-    if not program_day:
-        raise HTTPException(status_code=404, detail="Program day not found")
-    session.delete(program_day)
-    session.commit()
-    return {"ok": True}
-
-@router.post("/days/{program_day_id}/activities/{activity_id}")
-def link_activity_to_program_day(program_day_id: int, activity_id: int, session: SessionDep):
-    program_day = session.get(ProgramDay, program_day_id)
-    activity = session.get(Activity, activity_id)
-
-    if not program_day or not activity:
-        raise HTTPException(status_code=404, detail="ProgramDay or Activity not found")
-
-    link = ProgramDayActivityLink(program_day_id=program_day_id, activity_id=activity_id)
-    session.add(link)
-    session.commit()
-    return {"ok": True, "message": f"Activity {activity_id} linked to ProgramDay {program_day_id}"}

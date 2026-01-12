@@ -3,21 +3,46 @@
         class="flex flex-col border rounded-xl p-3 sm:p-5 md:p-6 lg:p-7 bg-primary-light border-neutral-100 border-t border-t-transparent shadow grow"
     >
         <img
-            :src="program?.image_url"
+            :src="'/media/' + program?.image_url"
             alt=""
             class="object-cover w-full h-32 rounded-xl shadow border-primary-light border-t-transparent"
         />
         <div class="flex flex-col grow p-2 mt-3">
-            <div class="flex items-end">
-                <h1 class="font-bold text-3xl text-text mt-1">
-                    {{ program?.name }}
-                </h1>
-                <p class="ml-3 text-muted flex items-center">
-                    <Icon class="" name="ic:outline-access-time" />
-                    <span class="ml-1">{{ program?.duration_days }} days</span>
-                </p>
+            <div>
+                <div class="flex mt-1">
+                    <h1 class="font-bold text-3xl text-text">
+                        {{ program?.name }}
+                    </h1>
+                    <NuxtLink
+                        v-if="userStore.id == program?.owner?.id"
+                        :to="'/programs/' + route.params.id + '/edit'"
+                        class="ml-auto"
+                    >
+                        <Button variant="default" class="ml-auto px-4"
+                            >Edit</Button
+                        >
+                    </NuxtLink>
+                </div>
+                <div class="flex mt-1">
+                    <p class="text-muted-foreground flex items-center">
+                        <Icon class="" name="ic:outline-access-time" />
+                        <span class="ml-1"
+                            >{{ program?.duration_days }} days</span
+                        >
+                    </p>
+                    <p class="ml-auto">
+                        by
+                        <NuxtLink
+                            class="font-semibold"
+                            :to="'/users/' + program?.owner?.username"
+                        >
+                            {{ program?.owner?.username }}
+                        </NuxtLink>
+                    </p>
+                </div>
             </div>
-            <p class="text-muted text-sm mt-2 mb-4">
+            <p class="text-text font-medium text-sm mt-3">Description</p>
+            <p class="text-muted-foreground text-sm mb-4 mt-1">
                 {{ program?.description }}
             </p>
 
@@ -29,10 +54,10 @@
                 >
                     <input type="checkbox" checked />
                     <div class="collapse-title font-semibold text-text">
-                        Day {{ day.day_number + 1 }}
+                        Day {{ day.day_number }}
                     </div>
                     <div class="px-2 collapse-content">
-                        <p class="text-sm text-muted px-2 mb-3">
+                        <p class="text-sm text-muted-foreground px-2 mb-3">
                             {{ day.description }}
                         </p>
                         <div
@@ -42,7 +67,7 @@
                         >
                             <div class="flex items-center w-full">
                                 <img
-                                    :src="activity.image_url"
+                                    :src="'/media/' + activity.image_url"
                                     alt=""
                                     class="h-8 aspect-square rounded-lg"
                                 />
@@ -54,20 +79,20 @@
                                     :to="'/activities/' + activity.id"
                                     class="ml-auto"
                                 >
-                                    <AppButton
+                                    <Button
                                         class="w-full shadow-sm border-t-transparent text-white ml-auto"
-                                        :color="'green_dark'"
+                                        variant="success"
                                     >
                                         View info
                                         <Icon
                                             class="text-lg ml-2"
                                             name="ic:round-remove-red-eye"
                                         />
-                                    </AppButton>
+                                    </Button>
                                 </NuxtLink>
                             </div>
                             <div class="w-full">
-                                <p class="text-muted/80 text-xs">
+                                <p class="text-muted-foreground text-xs">
                                     {{ activity.description }}
                                 </p>
                             </div>
@@ -77,15 +102,18 @@
             </div>
 
             <slot></slot>
+            <Button variant="success" class="mt-auto">Start</Button>
         </div>
     </article>
 </template>
 <script setup lang="ts">
+import { Button } from "~/components/ui/button";
 import type { Program } from "~/models/program.model";
 
-const config = useRuntimeConfig();
 const route = useRoute();
+const userStore = useUserStore();
 
-const { data: program } = useFetch<Program>(`/api/programs/${route.params.id}`);
-console.log(program);
+const { data: program } = await useFetch<Program>(
+    `/api/programs/${route.params.id}`,
+);
 </script>

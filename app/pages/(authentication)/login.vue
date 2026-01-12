@@ -1,11 +1,8 @@
 <template>
     <main class="flex flex-col justify-center items-center content-center p-4">
         <NuxtLink class="absolute top-4 left-4 text-white" to="/"
-            ><AppButton :color="'green'">
-                <Icon
-                    class="text-4xl"
-                    name="dashicons:admin-home"
-                /> </AppButton
+            ><Button variant="success">
+                <Icon class="text-4xl" name="dashicons:admin-home" /> </Button
         ></NuxtLink>
         <form
             class="rounded-xl bg-primary-light text-green-700 p-8 w-11/12 shadow border-neutral-100 border-t border-t-transparent"
@@ -15,7 +12,7 @@
                 Log in to salus
             </h2>
             <label
-                class="input validator bg-amber-50 border-2 border-primary-dark rounded-xl focus-within:border-green-500 w-full mt-8"
+                class="input bg-amber-50 border-2 border-primary-dark rounded-xl focus-within:border-green-500 w-full mt-8"
             >
                 <svg
                     class="h-[1em] opacity-50"
@@ -43,10 +40,9 @@
                     required
                 />
             </label>
-            <div class="validator-hint hidden">Enter valid email address</div>
 
             <label
-                class="input validator bg-amber-50 border-2 border-primary-dark rounded-xl focus-within:border-green-500 mt-4 w-full"
+                class="input bg-amber-50 border-2 border-primary-dark rounded-xl focus-within:border-green-500 mt-4 w-full"
             >
                 <svg
                     class="h-[1em] opacity-50"
@@ -77,22 +73,10 @@
                     type="password"
                     required
                     placeholder="Password"
-                    minlength="8"
-                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-                    title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
                 />
             </label>
-            <p class="validator-hint hidden">
-                Must be more than 8 characters, including
-                <br />At least one number <br />At least one lowercase letter
-                <br />At least one uppercase letter
-            </p>
 
-            <AppButton
-                class="w-full shadow-sm border-t-transparent text-white mt-4"
-                :color="'green'"
-                type="submit"
-            >
+            <Button class="w-full mt-4" variant="success" type="submit">
                 <svg
                     aria-label="Email icon"
                     width="16"
@@ -114,7 +98,7 @@
                     </g>
                 </svg>
                 <span class="ml-1">Login with Email</span>
-            </AppButton>
+            </Button>
 
             <p class="mt-4">
                 Not yet a user?<br />
@@ -147,6 +131,8 @@
     </main>
 </template>
 <script setup lang="ts">
+import { Button } from "~/components/ui/button";
+
 definePageMeta({
     layout: "authentication",
 });
@@ -156,7 +142,7 @@ const password = ref("");
 
 interface Response {
     message: string;
-    user: Record<string, string>;
+    user: Record<string, string | number>;
 }
 async function handleLogin() {
     await $fetch<Response>("/api/auth/login", {
@@ -170,7 +156,8 @@ async function handleLogin() {
                 const data: Response = response.response._data;
                 const userStore = useUserStore();
 
-                userStore.username = data.user.username || "";
+                userStore.username = (data.user.username as string) || "";
+                userStore.id = (data.user.id as number) || 0;
                 await navigateTo("/");
             } else {
                 password.value = "";

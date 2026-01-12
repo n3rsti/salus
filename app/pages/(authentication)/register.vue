@@ -1,11 +1,8 @@
 <template>
     <main class="flex flex-col justify-center items-center content-center p-4">
         <NuxtLink class="absolute top-4 left-4 text-white" to="/"
-            ><AppButton :color="'green'">
-                <Icon
-                    class="text-4xl"
-                    name="dashicons:admin-home"
-                /> </AppButton
+            ><Button variant="success">
+                <Icon class="text-4xl" name="dashicons:admin-home" /> </Button
         ></NuxtLink>
         <form
             class="rounded-xl bg-primary-light text-green-700 p-8 w-11/12 max-w-[560px] min-w-[300px] shadow border-neutral-100 border-t border-t-transparent"
@@ -161,12 +158,12 @@
                 <br />At least one uppercase letter <br />Passwords needs to be
                 the same
             </p>
-            <AppButton
+            <Button
                 class="w-full shadow-sm border-t-transparent text-white mt-4"
-                :color="'green'"
+                variant="success"
             >
                 Sign up
-            </AppButton>
+            </Button>
         </form>
         <NuxtLink
             class="text-green-900 underline hover:text-green-600 mt-4"
@@ -177,6 +174,8 @@
 </template>
 
 <script setup lang="ts">
+import { Button } from "~/components/ui/button";
+
 definePageMeta({
     layout: "authentication",
 });
@@ -190,7 +189,7 @@ async function handleRegister() {
         passwordConfirm.value = "";
         return;
     }
-    await $fetch("/api/users/", {
+    await $fetch("/api/users", {
         method: "POST",
         body: {
             email: email.value,
