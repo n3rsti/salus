@@ -124,7 +124,7 @@
                                     :id="day.day_number + '-activities'"
                                     type="button"
                                     placeholder="Enter activity id"
-                                    class="px-2 flex grow items-center h-9 rounded-md xl:px-6 py-1 text-base shadow-xs md:text-sm bg-white text-muted-foreground xl:w-2/5 border-input border-2 cursor-text"
+                                    class="px-3 w-full flex h-9 rounded-md py-1 text-base shadow-xs md:text-sm bg-white text-muted-foreground border-input border-2 cursor-text"
                                     @click.prevent.stop="
                                         openSearch(day.day_number)
                                     "

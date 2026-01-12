@@ -58,7 +58,7 @@
                         {{ activity.duration_minutes }} minutes
                     </span>
                 </div>
-                <p class="text-sm text-accent-content">
+                <p class="text-sm text-accent-content text-start">
                     {{ activity.description }}
                 </p>
             </button>
