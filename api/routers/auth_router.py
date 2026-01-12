@@ -29,6 +29,7 @@ _env = dotenv_values(".env")
 GOOGLE_CLIENT_ID = _env.get("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = _env.get("GOOGLE_CLIENT_SECRET")
 GOOGLE_REDIRECT_URI = _env.get("GOOGLE_REDIRECT_URI")
+FRONTEND_URL = _env.get("FRONTEND_URL", "http://localhost:3000")
 
 GOOGLE_AUTH_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth"
 GOOGLE_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
@@ -179,13 +180,13 @@ async def google_callback(code: str, session: SessionDep):
     _ensure_oauth_configured()
 
     if not code:
-        return RedirectResponse(url="/login?oauth=error", status_code=302)
+        return RedirectResponse(url=f"{FRONTEND_URL}/login?oauth=error", status_code=302)
 
     try:
         tokens = await _exchange_code_for_tokens(code)
         access_token = tokens.get("access_token")
         if not access_token:
-            return RedirectResponse(url="/login?oauth=error", status_code=302)
+            return RedirectResponse(url=f"{FRONTEND_URL}/login?oauth=error", status_code=302)
 
         userinfo = await _fetch_userinfo(access_token)
         user = _upsert_user_from_google(session, userinfo)
@@ -201,7 +202,7 @@ async def google_callback(code: str, session: SessionDep):
         )
 
         # Create redirect response and set cookie
-        response = RedirectResponse(url="/login?oauth=success", status_code=302)
+        response = RedirectResponse(url=f"{FRONTEND_URL}/login?oauth=success", status_code=302)
         response.set_cookie(
             key="access_token",
             value=jwt_token,
@@ -209,13 +210,9 @@ async def google_callback(code: str, session: SessionDep):
             secure=False,  # set True in prod
             samesite="lax",
         )
-
         return response
-
-    except HTTPException:
-        return RedirectResponse(url="/login?oauth=error", status_code=302)
     except Exception:
-        return RedirectResponse(url="/login?oauth=error", status_code=302)
+        return RedirectResponse(url=f"{FRONTEND_URL}/login?oauth=error", status_code=302)
 
 
 @router.post("/login", status_code=status.HTTP_200_OK)
