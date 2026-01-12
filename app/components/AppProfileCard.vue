@@ -1,6 +1,6 @@
 <template>
   <Card class="p-6 w-[360px]">
-    <!-- Header -->
+
     <div class="flex items-center gap-4 mb-6">
       <div
         class="w-14 h-14 rounded-full bg-primary-light flex items-center justify-center text-xl font-semibold text-green-900"
@@ -18,15 +18,15 @@
       </div>
     </div>
 
-    <!-- Divider -->
+   
     <div class="border-t border-gray-200 my-4"></div>
 
-    <!-- Info -->
+    
     <div class="text-sm text-gray-600 space-y-2">
       <p><span class="font-medium">User ID:</span> {{ id }}</p>
     </div>
 
-    <!-- Actions -->
+    
     <div class="mt-6">
       <slot />
     </div>
