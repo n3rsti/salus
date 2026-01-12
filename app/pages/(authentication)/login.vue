@@ -1,12 +1,10 @@
 <template>
     <main class="flex flex-col justify-center items-center content-center p-4">
-        <NuxtLink class="absolute top-4 left-4 text-white" to="/"
-            ><AppButton :color="'green'">
-                <Icon
-                    class="text-4xl"
-                    name="dashicons:admin-home"
-                /> </AppButton
-        ></NuxtLink>
+        <NuxtLink class="absolute top-4 left-4 text-white" to="/">
+            <Button variant="success">
+                <Icon class="text-4xl" name="dashicons:admin-home" />
+            </Button>
+        </NuxtLink>
         <form
             class="rounded-xl bg-primary-light text-green-700 p-8 w-11/12 shadow border-neutral-100 border-t border-t-transparent"
             @submit.prevent="handleLogin"
@@ -88,11 +86,7 @@
                 <br />At least one uppercase letter
             </p>
 
-            <AppButton
-                class="w-full shadow-sm border-t-transparent text-white mt-4"
-                :color="'green'"
-                type="submit"
-            >
+            <Button class="w-full mt-4" variant="success" type="submit">
                 <svg
                     aria-label="Email icon"
                     width="16"
@@ -114,7 +108,7 @@
                     </g>
                 </svg>
                 <span class="ml-1">Login with Email</span>
-            </AppButton>
+            </Button>
 
             <p class="mt-4">
                 Not yet a user?<br />
@@ -151,6 +145,8 @@
     </main>
 </template>
 <script setup lang="ts">
+import { Button } from "~/components/ui/button";
+
 definePageMeta({
     layout: "authentication",
 });
