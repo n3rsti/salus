@@ -30,16 +30,15 @@ export default defineNuxtConfig({
         localApiEndpoint: "/icons/_nuxt_icon",
     },
     nitro: {
-        routeRules: {
-            "/api/**": {
-                proxy: process.env.API_BASE_URL
-                    ? `${process.env.API_BASE_URL}/api/**`
-                    : "http://salus-api:8080/api/**",
+        devProxy: {
+            '/api': {
+                target: 'http://salus-api:8080',
+                changeOrigin: true,
             },
-            "/media/**": {
-                proxy: process.env.API_BASE_URL
-                    ? `${process.env.API_BASE_URL}/media/**`
-                    : "http://salus-api:8080/media/**",
+        },
+        routeRules: {
+            '/api/**': {
+                proxy: 'http://salus-api:8080/api/**',
             },
         },
     },
