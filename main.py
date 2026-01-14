@@ -14,6 +14,10 @@ from api.routers import (
     user_preference_router,
     activity_plan_router,
     user_activity_router,
+
+    #test
+    recommendation_router
+    #test
 )
 from api.utils.files import UPLOAD_DIR
 
@@ -44,6 +48,10 @@ app.include_router(daily_log_router.router)
 app.include_router(user_preference_router.router)
 app.include_router(activity_plan_router.router)
 app.include_router(user_activity_router.router)
+
+#test
+app.include_router(recommendation_router.router)
+#test
 
 app.add_middleware(
     CORSMiddleware,
