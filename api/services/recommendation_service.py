@@ -65,40 +65,67 @@ class RecommendationService:
     def _recommend_programs(self, user_id, user_prefs, explain):
         programs = self.session.exec(select(Program)).all()
         user_program_ids = self._get_user_program_ids(user_id)
+        recent_logs = self._get_recent_daily_logs(user_id)
 
         results = []
 
         for program in programs:
             if program.id in user_program_ids:
-                continue  # nie polecamy aktywnych programów
+                continue
 
             score = 0
             reasons = []
 
             tags = self._get_program_tags(program.id)
 
+            #scoring based off recent mood level
+            if ("stress" in tags) or ("mental health" in tags) or ("focus" in tags):
+                if recent_logs["mood"] <= 5:
+                    score += 8
+                    reasons.append("bad mood lately")
+
             #scoring based off prefered stress reduction
-            if user_prefs.stress >= 6 and ("stress" or "mental health") in tags:
+            if user_prefs.stress >= 6 and (("stress" in tags) or ("mental health" in tags)):
                 score += 4
-                reasons.append("matches high stress level")
+                reasons.append("reducing stress level preference")
+
+            #scoring based off recent stress level
+            if recent_logs["stress"] >= 7 and "stress" in tags:
+                score += 8
+                reasons.append("high stress level lately")
 
             #scoring based off prefered physical activity
             if "workout" in tags:
                 if user_prefs.physical_activity <= 3:
                     score += 2
-                    reasons.append("low physical intensity")
+                    reasons.append("low physical intensity preference")
                 elif 4 <= user_prefs.physical_activity <= 7:
                     score += 3
-                    reasons.append("moderate physical intensity")
+                    reasons.append("moderate physical intensity preference")
                 elif user_prefs.physical_activity >= 8:
                     score += 5
-                    reasons.append("high physical intensity")
+                    reasons.append("high physical intensity preference")
+                
+                if recent_logs["physical_activity"] <= 6 and user_prefs.physical_activity >= 7:
+                    score += 8
+                    reasons.append("low physical activity lately")
+
+                if recent_logs["physical_activity"] <= 3:
+                    score += 8
+                    reasons.append("very low physical activity lately")
 
             #scoring based off prefered focus increasing
             if "focus" in tags:
                 if user_prefs.focus >= 5:
                     score += 5
-                    reasons.append("increasing focus")
+                    reasons.append("increasing focus preference")
+
+                if recent_logs["focus"] <= 5:
+                    score += 5
+                    reasons.append("low focus lately")
+                elif recent_logs["focus"] <= 2:
+                    score += 8
+                    reasons.append("very low focus lately")
 
             #scoring based off prefered sleep improvement
             if "sleep" in tags:
@@ -106,18 +133,14 @@ class RecommendationService:
                     score += 5
                 if 4 <= user_prefs.sleep < 7:
                     score += 2
-                reasons.append("improving sleep")
+                reasons.append("improving sleep preference")
 
-            # Podobieństwo do wcześniejszych programów
-            # if self._shares_tags_with_previous_programs(tags, user_program_ids):
-            #     score += 3
-            #     reasons.append("similar to previous programs")
-
-            # Opinie
-            # avg_rating = self._get_avg_rating(program.id, "program")
-            # if avg_rating is not None and avg_rating >= 4:
-            #     score += 2
-            #     reasons.append("high average rating")
+                if recent_logs["sleep"] <= 70:
+                    score += 5
+                    reasons.append("low quality of sleep lately")
+                elif recent_logs["sleep"] <= 50:
+                    score += 8
+                    reasons.append("very low quality of sleep lately")
 
             if score > 0:
                 results.append({
@@ -133,40 +156,37 @@ class RecommendationService:
     # ACTIVITY RECOMMENDATIONS
     # ==========================================================
 
-    # def _recommend_activities(self, user_id, user_prefs, explain):
-    #     activities = self.session.exec(select(Activity)).all()
-    #     user_activity_ids = self._get_user_activity_ids(user_id)
-    #     recent_logs = self._get_recent_daily_logs(user_id)
+    def _recommend_activities(self, user_id, user_prefs, explain):
+        activities = self.session.exec(select(Activity)).all()
+        user_activity_ids = self._get_user_activity_ids(user_id)
+        recent_logs = self._get_recent_daily_logs(user_id)
 
-    #     results = []
+        results = []
 
-    #     for activity in activities:
-    #         score = 0
-    #         reasons = []
+        for activity in activities:
+            if activity.id in user_activity_ids:
+                continue
 
-    #         # Dopasowanie trudności
-    #         if activity.difficulty <= user_prefs.physical_activity:
-    #             score += 3
-    #             reasons.append("difficulty matches physical condition")
+            score = 0
+            reasons = []
 
-    #         # Wysoki stres → łatwe aktywności
-    #         if recent_logs["stress"] >= 6 and activity.difficulty <= 2:
-    #             score += 4
-    #             reasons.append("helps reduce stress")
+            if activity.difficulty <= user_prefs.physical_activity:
+                score += 3
+                reasons.append("difficulty matches physical condition")
 
-    #         # Nie powtarzamy ostatnich aktywności
-    #         if activity.id in user_activity_ids:
-    #             score -= 5
+            if recent_logs["stress"] >= 6 and activity.difficulty <= 2:
+                score += 4
+                reasons.append("helps reduce stress")
 
-    #         if score > 0:
-    #             results.append({
-    #                 "id": activity.id,
-    #                 "name": activity.name,
-    #                 "score": score,
-    #                 "reasons": reasons if explain else None,
-    #             })
+            if score > 0:
+                results.append({
+                    "id": activity.id,
+                    "name": activity.name,
+                    "score": score,
+                    "reasons": reasons if explain else None,
+                })
 
-    #     return results
+        return results
 
     # ==========================================================
     # DATA ACCESS
@@ -191,14 +211,14 @@ class RecommendationService:
 
         return set(rows)
 
-    # def _get_user_activity_ids(self, user_id):
-    #     rows = self.session.exec(
-    #         select(UserActivities.activity_id)
-    #         .where(UserActivities.user_id == user_id)
-    #         .where(UserActivities.activity_id.is_not(None))
-    #     ).all()
+    def _get_user_activity_ids(self, user_id):
+        rows = self.session.exec(
+            select(UserActivity.activity_id)
+            .where(UserActivity.user_id == user_id)
+            .where(UserActivity.activity_id.is_not(None))
+        ).all()
 
-    #     return set(rows)
+        return set(rows)
 
     def _get_program_tags(self, program_id):
         rows = self.session.exec(
@@ -209,29 +229,28 @@ class RecommendationService:
 
         return set(rows)
 
-    # def _get_avg_rating(self, content_id, content_type):
-    #     return self.session.exec(
-    #         select(func.avg(Reviews.rating))
-    #         .where(Reviews.content_id == content_id)
-    #         .where(Reviews.content_type == content_type)
-    #     ).one()
+    def _get_recent_daily_logs(self, user_id):
+        since = date.today() - timedelta(days=7)
 
-    # def _get_recent_daily_logs(self, user_id):
-    #     since = date.today() - timedelta(days=7)
+        row = self.session.exec(
+            select(
+                func.avg(DailyLog.stress),
+                func.avg(DailyLog.sleep_score),
+                func.avg(DailyLog.focus),
+                func.avg(DailyLog.mood),
+                func.avg(DailyLog.physical_activity)
+            )
+            .where(DailyLog.user_id == user_id)
+            .where(DailyLog.date >= since)
+        ).one()
 
-    #     row = self.session.exec(
-    #         select(
-    #             func.avg(DailyLogs.stress),
-    #             func.avg(DailyLogs.sleep_score),
-    #         )
-    #         .where(DailyLogs.user_id == user_id)
-    #         .where(DailyLogs.date >= since)
-    #     ).one()
-
-    #     return {
-    #         "stress": int(row[0] or 0),
-    #         "sleep": int(row[1] or 0),
-    #     }
+        return {
+            "stress": int(row[0] or 0),
+            "sleep": int(row[1] or 0),
+            "focus": int(row[2] or 0),
+            "mood": int(row[3] or 0),
+            "physical_activity": int(row[4] or 0),
+        }
 
     # ==========================================================
     # HELPERS
