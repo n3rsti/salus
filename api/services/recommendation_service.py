@@ -2,7 +2,7 @@ from typing import Literal
 from datetime import date, timedelta
 
 from sqlmodel import select
-from sqlalchemy import func
+from sqlalchemy import func, text
 
 from api.models.program_models import Program
 from api.models.activity_models import Activity
@@ -15,206 +15,152 @@ class RecommendationService:
     def __init__(self, session):
         self.session = session
 
-    def get(
-        self,
-        user_id: int,
-        content_type: Literal["program", "activity"],
-        limit: int,
-        explain: bool,
-    ):
+    def get(self, user_id: int, content_type: str, limit: int, explain: bool):
         user_prefs = self._get_user_preferences(user_id)
-        recent_logs = self._get_recent_daily_logs(user_id)
-
         if user_prefs is None:
             user_prefs = self._default_user_preferences(user_id)
 
-        if content_type == "program":
-            recommendations = self._recommend_programs(user_id, user_prefs, recent_logs, explain)
-        else:
-            recommendations = self._recommend_activities(user_id, user_prefs, recent_logs, explain)
+        recent_logs = self._get_recent_daily_logs(user_id)
+        rows = self._query_scored_items_sql(user_id, limit * 2)
 
-        recommendations.sort(key=lambda r: r["score"], reverse=True)
+        results = []
+        for row in rows:
+            if row.item_type != content_type:
+                continue
+
+            reasons = (
+                self._build_reasons(row, user_prefs, recent_logs)
+                if explain else None
+            )
+
+            results.append({
+                "id": row.id,
+                "name": row.name,
+                "score": float(row.score),
+                "reasons": reasons
+            })
+
+            if len(results) >= limit:
+                break
 
         return {
             "user_id": user_id,
             "type": content_type,
-            "recommendations": recommendations[:limit],
+            "recommendations": results,
         }
 
-    def _recommend_programs(self, user_id, user_prefs, recent_logs, explain):
-        programs = self.session.exec(select(Program)).all()
-        user_program_ids = self._get_user_program_ids(user_id)
+    def _query_scored_items_sql(self, user_id: int, limit: int):
+        sql = text("""
+            WITH
+            recent AS (
+            SELECT
+                user_id,
+                AVG(mood)              AS avg_mood,
+                AVG(sleep_score)       AS avg_sleep,
+                AVG(stress)            AS avg_stress,
+                AVG(focus)             AS avg_focus,
+                AVG(physical_activity) AS avg_pa
+            FROM dailylog
+            WHERE user_id = :user_id
+                AND date >= CURRENT_DATE - INTERVAL '7 days'
+            GROUP BY user_id
+            ),
+            prefs AS (
+            SELECT
+                user_id,
+                mood,
+                sleep,
+                stress,
+                focus,
+                physical_activity
+            FROM userpreference
+            WHERE user_id = :user_id
+            ),
+            need AS (
+            SELECT
+                p.user_id,
+                GREATEST(COALESCE(r.avg_stress, 0)-p.stress            , 0) AS w_stress,
+                GREATEST(p.sleep       - COALESCE(r.avg_sleep, 0), 0)  AS w_sleep,
+                GREATEST(p.focus             - COALESCE(r.avg_focus, 0), 0)  AS w_focus,
+                GREATEST(p.physical_activity - COALESCE(r.avg_pa, 0), 0)     AS w_workout,
+                GREATEST(p.mood              - COALESCE(r.avg_mood, 0), 0)   AS w_mental
+            FROM prefs p
+            LEFT JOIN recent r USING (user_id)
+            ),
+            tag_weights AS (
+            SELECT 1 AS tag, w_stress  AS w FROM need
+            UNION ALL SELECT 2, w_workout FROM need
+            UNION ALL SELECT 3, w_sleep   FROM need
+            UNION ALL SELECT 4, w_focus   FROM need
+            UNION ALL SELECT 5, w_mental  FROM need
+            ),
+            items AS (
+            SELECT 'activity' AS item_type, id, name, tags FROM activity
+            UNION ALL
+            SELECT 'program', id, name, tags FROM program
+            ),
+            scored AS (
+            SELECT
+                i.item_type,
+                i.id,
+                i.name,
+                jsonb_agg(DISTINCT itag.tag) AS tags,
 
-        results = []
+                SUM(tw.w) AS raw_score,
 
-        for program in programs:
-            if program.id in user_program_ids:
-                continue
+                SUM(tw.w)
+                / NULLIF(
+                    SQRT(jsonb_array_length(jsonb_agg(DISTINCT itag.tag))),
+                    0
+                    ) AS score
 
-            score = 0
-            reasons = []
+            FROM items i
+            CROSS JOIN LATERAL jsonb_array_elements(i.tags::jsonb) AS itag(tag)
+            JOIN tag_weights tw
+                ON tw.tag = (itag.tag)::int
 
-            #scoring based off recent mood level
-            if (Tag.STRESS in program.tags) or (Tag.MENTAL_HEALTH in program.tags) or (Tag.FOCUS in program.tags):
-                if recent_logs["mood"] <= 5:
-                    score += 8
-                    reasons.append("bad mood lately")
+            GROUP BY
+                i.item_type,
+                i.id,
+                i.name
+            )
+            SELECT
+            item_type,
+            id,
+            name,
+            tags,
+            raw_score,
+            score
+            FROM scored
+            ORDER BY score DESC
+            LIMIT :limit;
+        """).bindparams(
+            user_id=user_id,
+            limit=limit
+        )
 
-            #scoring based off prefered stress reduction
-            if user_prefs.stress >= 6 and ((Tag.STRESS in program.tags) or (Tag.MENTAL_HEALTH in program.tags)):
-                score += 4
-                reasons.append("reducing stress level preference")
+        return self.session.exec(sql).all()
 
-            #scoring based off recent stress level
-            if recent_logs["stress"] >= 7 and Tag.STRESS in program.tags:
-                score += 8
-                reasons.append("high stress level lately")
+    def _build_reasons(self, row, user_prefs, recent_logs):
+        reasons = []
 
-            #scoring based off prefered physical activity
-            if Tag.WORKOUT in program.tags:
-                if user_prefs.physical_activity <= 3:
-                    score += 2
-                    reasons.append("low physical intensity preference")
-                elif 4 <= user_prefs.physical_activity <= 7:
-                    score += 3
-                    reasons.append("moderate physical intensity preference")
-                elif user_prefs.physical_activity >= 8:
-                    score += 5
-                    reasons.append("high physical intensity preference")
-                
-                if recent_logs["physical_activity"] <= 6 and user_prefs.physical_activity >= 7:
-                    score += 8
-                    reasons.append("low physical activity lately")
+        TAG_MAP = {
+            "stress": (Tag.STRESS, "helps reduce stress"),
+            "sleep": (Tag.SLEEP, "improves sleep quality"),
+            "focus": (Tag.FOCUS, "helps improve focus"),
+            "physical_activity": (Tag.WORKOUT, "matches desired activity level"),
+            "mood": (Tag.MENTAL_HEALTH, "supports mental well-being"),
+        }
 
-                if recent_logs["physical_activity"] <= 3:
-                    score += 8
-                    reasons.append("very low physical activity lately")
+        for attr, (tag, text) in TAG_MAP.items():
+            if attr == "stress":
+                need = max(recent_logs[attr] - getattr(user_prefs, attr), 0)
+            else:
+                need = max(getattr(user_prefs, attr) - recent_logs[attr], 0)
+            if need > 0 and tag in row.tags:
+                reasons.append(text)
 
-            #scoring based off prefered focus increasing
-            if Tag.FOCUS in program.tags:
-                if user_prefs.focus >= 5:
-                    score += 5
-                    reasons.append("increasing focus preference")
-
-                if recent_logs["focus"] <= 5:
-                    score += 5
-                    reasons.append("low focus lately")
-                elif recent_logs["focus"] <= 2:
-                    score += 8
-                    reasons.append("very low focus lately")
-
-            #scoring based off prefered sleep improvement
-            if Tag.SLEEP in program.tags:
-                if user_prefs.sleep_score >= 7:
-                    score += 5
-                if 4 <= user_prefs.sleep_score < 7:
-                    score += 2
-                reasons.append("improving sleep preference")
-
-                if recent_logs["sleep"] <= 70:
-                    score += 5
-                    reasons.append("low quality of sleep lately")
-                elif recent_logs["sleep"] <= 50:
-                    score += 8
-                    reasons.append("very low quality of sleep lately")
-
-            if score > 0:
-                results.append({
-                    "id": program.id,
-                    "name": program.name,
-                    "score": score,
-                    "reasons": reasons if explain else None,
-                })
-
-        return results
-
-    def _recommend_activities(self, user_id, user_prefs, recent_logs, explain):
-        activities = self.session.exec(select(Activity)).all()
-        user_activity_ids = self._get_user_activity_ids(user_id)
-
-        results = []
-
-        for activity in activities:
-            if activity.id in user_activity_ids:
-                continue
-
-            score = 0
-            reasons = []
-
-            #scoring based off recent mood level
-            if (Tag.STRESS in activity.tags) or (Tag.MENTAL_HEALTH in activity.tags) or (Tag.FOCUS in activity.tags):
-                if recent_logs["mood"] <= 5:
-                    score += 8
-                    reasons.append("bad mood lately")
-
-            #scoring based off prefered stress reduction
-            if user_prefs.stress >= 6 and ((Tag.STRESS in activity.tags) or (Tag.MENTAL_HEALTH in activity.tags)):
-                score += 4
-                reasons.append("reducing stress level preference")
-
-            #scoring based off recent stress level
-            if recent_logs["stress"] >= 7 and Tag.STRESS in activity.tags:
-                score += 8
-                reasons.append("high stress level lately")
-
-            #scoring based off prefered physical activity
-            if Tag.WORKOUT in activity.tags:
-                if user_prefs.physical_activity <= 3:
-                    score += 2
-                    reasons.append("low physical intensity preference")
-                elif 4 <= user_prefs.physical_activity <= 7:
-                    score += 3
-                    reasons.append("moderate physical intensity preference")
-                elif user_prefs.physical_activity >= 8:
-                    score += 5
-                    reasons.append("high physical intensity preference")
-                
-                if recent_logs["physical_activity"] <= 6 and user_prefs.physical_activity >= 7:
-                    score += 8
-                    reasons.append("low physical activity lately")
-
-                if recent_logs["physical_activity"] <= 3:
-                    score += 8
-                    reasons.append("very low physical activity lately")
-
-            #scoring based off prefered focus increasing
-            if Tag.FOCUS in activity.tags:
-                if user_prefs.focus >= 5:
-                    score += 5
-                    reasons.append("increasing focus preference")
-
-                if recent_logs["focus"] <= 5:
-                    score += 5
-                    reasons.append("low focus lately")
-                elif recent_logs["focus"] <= 2:
-                    score += 8
-                    reasons.append("very low focus lately")
-
-            #scoring based off prefered sleep improvement
-            if Tag.SLEEP in activity.tags:
-                if user_prefs.sleep_score >= 7:
-                    score += 5
-                if 4 <= user_prefs.sleep_score < 7:
-                    score += 2
-                reasons.append("improving sleep preference")
-
-                if recent_logs["sleep"] <= 70:
-                    score += 5
-                    reasons.append("low quality of sleep lately")
-                elif recent_logs["sleep"] <= 50:
-                    score += 8
-                    reasons.append("very low quality of sleep lately")
-
-            if score > 0:
-                results.append({
-                    "id": activity.id,
-                    "name": activity.name,
-                    "score": score,
-                    "reasons": reasons if explain else None,
-                })
-
-
-        return results
+        return reasons
 
     def _get_user_preferences(self, user_id):
         prefs = self.session.exec(
@@ -271,7 +217,7 @@ class RecommendationService:
         return UserPreference(
             user_id=user_id,
             mood=5,
-            sleep_score=5,
+            sleep=5,
             stress=5,
             focus=5,
             physical_activity=3
