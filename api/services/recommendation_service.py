@@ -145,11 +145,11 @@ class RecommendationService:
         reasons = []
 
         TAG_MAP = {
-            "stress": (Tag.STRESS, "helps reduce stress"),
-            "sleep": (Tag.SLEEP, "improves sleep quality"),
-            "focus": (Tag.FOCUS, "helps improve focus"),
-            "physical_activity": (Tag.WORKOUT, "matches desired activity level"),
-            "mood": (Tag.MENTAL_HEALTH, "supports mental well-being"),
+            "stress": (Tag.STRESS, "You nedd to reduce your stress level"),
+            "sleep": (Tag.SLEEP, "You nedd to reduce your sleep quality"),
+            "focus": (Tag.FOCUS, "You nedd to improve your focus"),
+            "physical_activity": (Tag.WORKOUT, "Matches your desired activity level"),
+            "mood": (Tag.MENTAL_HEALTH, "You need to improve your well-being"),
         }
 
         for attr, (tag, text) in TAG_MAP.items():
