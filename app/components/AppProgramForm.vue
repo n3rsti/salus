@@ -12,7 +12,9 @@
                 {{ route.params.id ? "Edit" : "Create" }} program
             </h1>
 
-            <Dialog v-if="route.params.id">
+            <Dialog
+                v-if="route.params.id && userStore.id == initialData?.owner?.id"
+            >
                 <form>
                     <DialogTrigger as-child>
                         <Button variant="destructive">Delete</Button>
@@ -211,6 +213,7 @@ import { Textarea } from "./ui/textarea";
 
 const route = useRoute();
 const searchStore = useSearchStore();
+const userStore = useUserStore();
 
 const props = defineProps<{
     initialData?: Program;

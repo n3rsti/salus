@@ -156,7 +156,7 @@ async function handleLogin() {
                 const data: Response = response.response._data;
                 const userStore = useUserStore();
 
-                userStore.username = (data.user.username as string) || "";
+                userStore.username = (data.user.username as string) || null;
                 userStore.id = (data.user.id as number) || 0;
                 await navigateTo("/");
             } else {

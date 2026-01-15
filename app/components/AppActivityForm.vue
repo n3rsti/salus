@@ -7,7 +7,9 @@
                 <template v-if="route.params.id"> Update activity </template>
                 <template v-else> Create activity </template>
             </h1>
-            <Dialog v-if="route.params.id">
+            <Dialog
+                v-if="route.params.id && userStore.id == activity.owner?.id"
+            >
                 <form>
                     <DialogTrigger as-child>
                         <Button variant="destructive">Delete</Button>
@@ -185,6 +187,7 @@ import type { Activity } from "~/models/activity.model";
 import { Textarea } from "./ui/textarea";
 
 const route = useRoute();
+const userStore = useUserStore();
 
 const props = defineProps<{
     activity: Activity;
