@@ -3,6 +3,7 @@
         :image="'/media/' + props.program.image_url"
         :title="props.program.name"
         :description="props.program.description"
+        :link="'/programs/' + props.program.id"
     >
         <div
             v-if="props.program.progress"
@@ -51,22 +52,6 @@
             :value="props.program.progress"
             max="100"
         ></progress>
-
-        <NuxtLink :to="'/programs/' + props.program.id">
-            <Button
-                v-if="props.program.progress"
-                class="w-full mt-3"
-                variant="success"
-            >
-                Continue
-
-                <Icon class="text-lg ml-2" name="ic:round-play-arrow" />
-            </Button>
-            <Button v-else class="w-full mt-3" variant="success_shadow">
-                View info
-                <Icon class="text-lg ml-2" name="ic:round-remove-red-eye" />
-            </Button>
-        </NuxtLink>
     </AppCard>
 </template>
 <script setup lang="ts">

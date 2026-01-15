@@ -60,10 +60,11 @@
                         <p class="text-sm text-muted-foreground px-2 mb-3">
                             {{ day.description }}
                         </p>
-                        <div
+                        <NuxtLink
                             v-for="activity in day.activities"
                             :key="activity.id"
-                            class="flex flex-col w-full gap-2 p-3 border border-primary-dark rounded-xl mt-2"
+                            :to="'/activities/' + activity.id"
+                            class="flex flex-col w-full gap-2 p-3 border border-primary-dark rounded-xl mt-2 hover:outline"
                         >
                             <div class="flex items-center w-full">
                                 <img
@@ -71,32 +72,18 @@
                                     alt=""
                                     class="h-8 aspect-square rounded-lg"
                                 />
-                                <p class="text-text font-medium text-sm ml-2">
+                                <p
+                                    class="text-text font-medium text-sm ml-2 hover:underline py-1"
+                                >
                                     {{ activity.name }}
                                 </p>
-
-                                <NuxtLink
-                                    :to="'/activities/' + activity.id"
-                                    class="ml-auto"
-                                >
-                                    <Button
-                                        class="w-full shadow-sm border-t-transparent text-white ml-auto"
-                                        variant="success"
-                                    >
-                                        View info
-                                        <Icon
-                                            class="text-lg ml-2"
-                                            name="ic:round-remove-red-eye"
-                                        />
-                                    </Button>
-                                </NuxtLink>
                             </div>
                             <div class="w-full">
                                 <p class="text-muted-foreground text-xs">
                                     {{ activity.description }}
                                 </p>
                             </div>
-                        </div>
+                        </NuxtLink>
                     </div>
                 </div>
             </div>

@@ -1,6 +1,7 @@
 <template>
     <AppCard
         :image="'/media/' + props.activity.image_url"
+        :link="'/activities/' + props.activity.id"
         :title="props.activity.name"
         :description="props.activity.description"
     >
@@ -23,18 +24,10 @@
                 </template>
             </p>
         </div>
-
-        <NuxtLink :to="'/activities/' + props.activity.id">
-            <Button class="w-full mt-3" variant="success_shadow">
-                View info
-                <Icon class="text-lg ml-2" name="ic:round-remove-red-eye" />
-            </Button>
-        </NuxtLink>
     </AppCard>
 </template>
 <script setup lang="ts">
 import type { Activity } from "~/models/activity.model";
-import { Button } from "./ui/button";
 
 const props = defineProps<{
     activity: Activity;
