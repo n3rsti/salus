@@ -4,28 +4,16 @@ from datetime import date, timedelta
 from sqlmodel import select
 from sqlalchemy import func
 
-# from api.models.program_models import Program, ProgramTags
-# from api.models.activity_models import Activity
-# from api.models.tag_models import Tag
-# from api.models.user_models import UserPreferences
-# from api.models.log_models import DailyLogs
-# from api.models.user_activity_models import UserActivities
-
 from api.models.program_models import Program
 from api.models.activity_models import Activity
-from api.models.tag_models import Tag
 from api.models.user_preference_models import UserPreference
 from api.models.user_activity_models import UserActivity
 from api.models.daily_log_models import DailyLog
-from api.models.programs_tags_link import ProgramTagLink
+from api.models.enums import Tag
 
 class RecommendationService:
     def __init__(self, session):
         self.session = session
-
-    # ==========================================================
-    # PUBLIC API
-    # ==========================================================
 
     def get(
         self,
@@ -35,20 +23,15 @@ class RecommendationService:
         explain: bool,
     ):
         user_prefs = self._get_user_preferences(user_id)
+        recent_logs = self._get_recent_daily_logs(user_id)
 
         if user_prefs is None:
-            return {
-                "user_id": user_id,
-                "type": content_type,
-                "recommendations": [],
-            }
+            user_prefs = self._default_user_preferences(user_id)
 
-        # if content_type == "program":
-        #     recommendations = self._recommend_programs(user_id, user_prefs, explain)
-        # else:
-        #     recommendations = self._recommend_activities(user_id, user_prefs, explain)
-
-        recommendations = self._recommend_programs(user_id, user_prefs, explain)
+        if content_type == "program":
+            recommendations = self._recommend_programs(user_id, user_prefs, recent_logs, explain)
+        else:
+            recommendations = self._recommend_activities(user_id, user_prefs, recent_logs, explain)
 
         recommendations.sort(key=lambda r: r["score"], reverse=True)
 
@@ -58,14 +41,9 @@ class RecommendationService:
             "recommendations": recommendations[:limit],
         }
 
-    # ==========================================================
-    # PROGRAM RECOMMENDATIONS
-    # ==========================================================
-
-    def _recommend_programs(self, user_id, user_prefs, explain):
+    def _recommend_programs(self, user_id, user_prefs, recent_logs, explain):
         programs = self.session.exec(select(Program)).all()
         user_program_ids = self._get_user_program_ids(user_id)
-        recent_logs = self._get_recent_daily_logs(user_id)
 
         results = []
 
@@ -76,26 +54,24 @@ class RecommendationService:
             score = 0
             reasons = []
 
-            tags = self._get_program_tags(program.id)
-
             #scoring based off recent mood level
-            if ("stress" in tags) or ("mental health" in tags) or ("focus" in tags):
+            if (Tag.STRESS in program.tags) or (Tag.MENTAL_HEALTH in program.tags) or (Tag.FOCUS in program.tags):
                 if recent_logs["mood"] <= 5:
                     score += 8
                     reasons.append("bad mood lately")
 
             #scoring based off prefered stress reduction
-            if user_prefs.stress >= 6 and (("stress" in tags) or ("mental health" in tags)):
+            if user_prefs.stress >= 6 and ((Tag.STRESS in program.tags) or (Tag.MENTAL_HEALTH in program.tags)):
                 score += 4
                 reasons.append("reducing stress level preference")
 
             #scoring based off recent stress level
-            if recent_logs["stress"] >= 7 and "stress" in tags:
+            if recent_logs["stress"] >= 7 and Tag.STRESS in program.tags:
                 score += 8
                 reasons.append("high stress level lately")
 
             #scoring based off prefered physical activity
-            if "workout" in tags:
+            if Tag.WORKOUT in program.tags:
                 if user_prefs.physical_activity <= 3:
                     score += 2
                     reasons.append("low physical intensity preference")
@@ -115,7 +91,7 @@ class RecommendationService:
                     reasons.append("very low physical activity lately")
 
             #scoring based off prefered focus increasing
-            if "focus" in tags:
+            if Tag.FOCUS in program.tags:
                 if user_prefs.focus >= 5:
                     score += 5
                     reasons.append("increasing focus preference")
@@ -128,10 +104,10 @@ class RecommendationService:
                     reasons.append("very low focus lately")
 
             #scoring based off prefered sleep improvement
-            if "sleep" in tags:
-                if user_prefs.sleep >= 7:
+            if Tag.SLEEP in program.tags:
+                if user_prefs.sleep_score >= 7:
                     score += 5
-                if 4 <= user_prefs.sleep < 7:
+                if 4 <= user_prefs.sleep_score < 7:
                     score += 2
                 reasons.append("improving sleep preference")
 
@@ -152,14 +128,9 @@ class RecommendationService:
 
         return results
 
-    # ==========================================================
-    # ACTIVITY RECOMMENDATIONS
-    # ==========================================================
-
-    def _recommend_activities(self, user_id, user_prefs, explain):
+    def _recommend_activities(self, user_id, user_prefs, recent_logs, explain):
         activities = self.session.exec(select(Activity)).all()
         user_activity_ids = self._get_user_activity_ids(user_id)
-        recent_logs = self._get_recent_daily_logs(user_id)
 
         results = []
 
@@ -170,13 +141,69 @@ class RecommendationService:
             score = 0
             reasons = []
 
-            if activity.difficulty <= user_prefs.physical_activity:
-                score += 3
-                reasons.append("difficulty matches physical condition")
+            #scoring based off recent mood level
+            if (Tag.STRESS in activity.tags) or (Tag.MENTAL_HEALTH in activity.tags) or (Tag.FOCUS in activity.tags):
+                if recent_logs["mood"] <= 5:
+                    score += 8
+                    reasons.append("bad mood lately")
 
-            if recent_logs["stress"] >= 6 and activity.difficulty <= 2:
+            #scoring based off prefered stress reduction
+            if user_prefs.stress >= 6 and ((Tag.STRESS in activity.tags) or (Tag.MENTAL_HEALTH in activity.tags)):
                 score += 4
-                reasons.append("helps reduce stress")
+                reasons.append("reducing stress level preference")
+
+            #scoring based off recent stress level
+            if recent_logs["stress"] >= 7 and Tag.STRESS in activity.tags:
+                score += 8
+                reasons.append("high stress level lately")
+
+            #scoring based off prefered physical activity
+            if Tag.WORKOUT in activity.tags:
+                if user_prefs.physical_activity <= 3:
+                    score += 2
+                    reasons.append("low physical intensity preference")
+                elif 4 <= user_prefs.physical_activity <= 7:
+                    score += 3
+                    reasons.append("moderate physical intensity preference")
+                elif user_prefs.physical_activity >= 8:
+                    score += 5
+                    reasons.append("high physical intensity preference")
+                
+                if recent_logs["physical_activity"] <= 6 and user_prefs.physical_activity >= 7:
+                    score += 8
+                    reasons.append("low physical activity lately")
+
+                if recent_logs["physical_activity"] <= 3:
+                    score += 8
+                    reasons.append("very low physical activity lately")
+
+            #scoring based off prefered focus increasing
+            if Tag.FOCUS in activity.tags:
+                if user_prefs.focus >= 5:
+                    score += 5
+                    reasons.append("increasing focus preference")
+
+                if recent_logs["focus"] <= 5:
+                    score += 5
+                    reasons.append("low focus lately")
+                elif recent_logs["focus"] <= 2:
+                    score += 8
+                    reasons.append("very low focus lately")
+
+            #scoring based off prefered sleep improvement
+            if Tag.SLEEP in activity.tags:
+                if user_prefs.sleep_score >= 7:
+                    score += 5
+                if 4 <= user_prefs.sleep_score < 7:
+                    score += 2
+                reasons.append("improving sleep preference")
+
+                if recent_logs["sleep"] <= 70:
+                    score += 5
+                    reasons.append("low quality of sleep lately")
+                elif recent_logs["sleep"] <= 50:
+                    score += 8
+                    reasons.append("very low quality of sleep lately")
 
             if score > 0:
                 results.append({
@@ -186,11 +213,8 @@ class RecommendationService:
                     "reasons": reasons if explain else None,
                 })
 
-        return results
 
-    # ==========================================================
-    # DATA ACCESS
-    # ==========================================================
+        return results
 
     def _get_user_preferences(self, user_id):
         prefs = self.session.exec(
@@ -220,15 +244,6 @@ class RecommendationService:
 
         return set(rows)
 
-    def _get_program_tags(self, program_id):
-        rows = self.session.exec(
-            select(Tag.name)
-            .join(ProgramTagLink, ProgramTagLink.tag_id == Tag.id)
-            .where(ProgramTagLink.program_id == program_id)
-        ).all()
-
-        return set(rows)
-
     def _get_recent_daily_logs(self, user_id):
         since = date.today() - timedelta(days=7)
 
@@ -245,18 +260,19 @@ class RecommendationService:
         ).one()
 
         return {
-            "stress": int(row[0] or 0),
-            "sleep": int(row[1] or 0),
-            "focus": int(row[2] or 0),
-            "mood": int(row[3] or 0),
-            "physical_activity": int(row[4] or 0),
+            "stress": int(row[0] or 5),
+            "sleep": int(row[1] or 5),
+            "focus": int(row[2] or 5),
+            "mood": int(row[3] or 5),
+            "physical_activity": int(row[4] or 5),
         }
-
-    # ==========================================================
-    # HELPERS
-    # ==========================================================
-
-    def _shares_tags_with_previous_programs(self, current_tags, previous_program_ids):
-        if not previous_program_ids or not current_tags:
-            return False
-        return True  # MVP – do rozbudowy
+    
+    def _default_user_preferences(self, user_id: int) -> UserPreference:
+        return UserPreference(
+            user_id=user_id,
+            mood=5,
+            sleep_score=5,
+            stress=5,
+            focus=5,
+            physical_activity=3
+        )

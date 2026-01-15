@@ -1,9 +1,10 @@
 from typing import List, Optional
 from fastapi import Query
-from sqlalchemy import Select, func, or_
+from sqlalchemy import Select, func, or_, Column, JSON
 from sqlmodel import SQLModel, Field, Relationship, col
 from pydantic import BaseModel, field_validator
 from api.models.program_day_activities_link import ProgramDayActivityLink
+from api.models.enums import Tag
 
 # This file contains models implementing: Activities and ActivitesMedia tables
 
@@ -35,7 +36,9 @@ class Activity(ActivityBase, table=True):
     program_days: List["ProgramDay"] = Relationship(
         back_populates="activities", link_model=ProgramDayActivityLink
     )
-
+    tags: list[Tag] = Field(
+        sa_column=Column(JSON, nullable=False, default=list)
+    )
 
 class ActivityCreate(ActivityBase):
     pass
@@ -61,6 +64,7 @@ class ActivityRead(ActivityBase):
     owner: "UsersRead"
     media: List["ActivityMediaRead"] = []
     image_url: str
+    tags: list[Tag] = []
 
 
 class ActivityMediaBase(SQLModel):

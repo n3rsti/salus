@@ -5,7 +5,6 @@ from api.database import create_db_and_tables
 from api.routers import (
     activity_router,
     program_router,
-    tag_router,
     review_router,
     auth_router,
     user_router,
@@ -14,10 +13,7 @@ from api.routers import (
     user_preference_router,
     activity_plan_router,
     user_activity_router,
-
-    #test
     recommendation_router
-    #test
 )
 from api.utils.files import UPLOAD_DIR
 
@@ -39,7 +35,6 @@ app.mount("/media", StaticFiles(directory=UPLOAD_DIR), name="media")
 
 app.include_router(activity_router.router)
 app.include_router(program_router.router)
-app.include_router(tag_router.router)
 app.include_router(review_router.router)
 app.include_router(user_router.router)
 app.include_router(auth_router.router)
@@ -48,10 +43,7 @@ app.include_router(daily_log_router.router)
 app.include_router(user_preference_router.router)
 app.include_router(activity_plan_router.router)
 app.include_router(user_activity_router.router)
-
-#test
 app.include_router(recommendation_router.router)
-#test
 
 app.add_middleware(
     CORSMiddleware,
