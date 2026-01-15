@@ -50,20 +50,164 @@
 
             <slot></slot>
 
-            <Button variant="success" class="mt-auto">Start</Button>
+            <Dialog v-if="!isStarted">
+                <DialogTrigger class="mt-auto">
+                    <Button variant="success" class="mt-auto w-full"
+                        >Start</Button
+                    >
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Start activity</DialogTitle>
+                        <DialogDescription>
+                            Do you want to start this activity?
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="success" @click="startActivity"
+                            >Start</Button
+                        >
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+            <section
+                v-else
+                class="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-1 w-full mt-auto"
+            >
+                <Dialog>
+                    <DialogTrigger>
+                        <Button variant="success" class="w-full"
+                            >Mark completed <span class="ml-1">🎉</span></Button
+                        >
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Congratulations 🎉</DialogTitle>
+                            <DialogDescription>
+                                Do you want to mark this activity as completed?
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                            <Button variant="success" @click="completeActivity"
+                                >Complete</Button
+                            >
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+                <Dialog>
+                    <DialogTrigger>
+                        <Button variant="destructive" class="w-full"
+                            >Cancel</Button
+                        >
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Cancel activity</DialogTitle>
+                            <DialogDescription>
+                                Do you want to cancel this activity?
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                            <Button
+                                variant="destructive"
+                                @click="cancelActivity"
+                                >Cancel</Button
+                            >
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </section>
         </div>
     </article>
 </template>
 <script setup lang="ts">
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import {
+    Dialog,
+    DialogFooter,
+    DialogHeader,
+    DialogContent,
+    DialogDescription,
+    DialogTitle,
+    DialogTrigger,
+} from "~/components/ui/dialog";
 import { Difficulties, DifficultiesColors } from "~/constants/difficulty";
 import type { Activity } from "~/models/activity.model";
+import type { UserActivity } from "~/models/user_activity.model";
 
 const route = useRoute();
+const program = useRoute().query.program;
 const userStore = useUserStore();
+const { $api } = useNuxtApp();
 
 const { data: activity } = await useFetch<Activity>(
     `/api/activities/${route.params.id}`,
 );
+
+const { data: activity_log } =
+    await useFetch<UserActivity[]>(`/api/user-activities`);
+
+const startedActivity = computed(() => {
+    console.log(activity_log.value);
+    if (program) {
+        return activity_log.value?.find(
+            (log) =>
+                log.activity_id === activity.value?.id &&
+                log.end_date === null &&
+                log.program_id == Number(program),
+        );
+    }
+    return activity_log.value?.find(
+        (log) =>
+            log.activity_id === activity.value?.id && log.end_date === null,
+    );
+});
+const isStarted = computed(() => {
+    return startedActivity.value !== undefined;
+});
+
+async function completeActivity() {
+    try {
+        await $api(
+            `/api/user-activities/${startedActivity.value?.id}/complete`,
+            {
+                method: "POST",
+            },
+        );
+        activity_log.value = activity_log.value?.filter(
+            (log) => log.id !== startedActivity.value?.id,
+        );
+    } catch (err) {
+        console.error("Error completing activity:", err);
+    }
+}
+
+async function startActivity() {
+    try {
+        const newActivity = await $api<UserActivity>(`/api/user-activities`, {
+            method: "POST",
+            body: {
+                activity_id: activity.value?.id,
+            },
+        });
+
+        activity_log.value = [...(activity_log.value || []), newActivity];
+    } catch (err) {
+        console.error("Error starting activity:", err);
+    }
+}
+
+async function cancelActivity() {
+    try {
+        await $api(`/api/user-activities/${startedActivity.value?.id}`, {
+            method: "DELETE",
+        });
+        activity_log.value = activity_log.value?.filter(
+            (log) => log.id !== startedActivity.value?.id,
+        );
+    } catch (err) {
+        console.error("Error cancelling activity:", err);
+    }
+}
 </script>

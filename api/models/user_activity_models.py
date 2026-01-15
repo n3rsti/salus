@@ -10,14 +10,12 @@ from sqlmodel import Field, Relationship, SQLModel
 class UserActivityBase(SQLModel):
     program_id: Optional[int] = Field(default=None, foreign_key="program.id")
     activity_id: Optional[int] = Field(default=None, foreign_key="activity.id")
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
 
     @model_validator(mode="after")
     def check_either_program_or_activity(self) -> "UserActivityBase":
-        if (self.program_id is not None) == (self.activity_id is not None):
+        if (self.program_id is None) and (self.activity_id is None):
             raise ValueError(
-                "Exactly one of program_id or activity_id must be provided"
+                "At least one of program_id or activity_id must be provided"
             )
         return self
 
@@ -29,6 +27,8 @@ class UserActivity(UserActivityBase, table=True):
     user: Optional["Users"] = Relationship(back_populates="user_activities")
     program: Optional["Program"] = Relationship()
     activity: Optional["Activity"] = Relationship()
+    start_date: date
+    end_date: Optional[date] = None
 
 
 class UserActivityCreate(UserActivityBase):
@@ -36,23 +36,14 @@ class UserActivityCreate(UserActivityBase):
 
 
 class UserActivityUpdate(SQLModel):
-    program_id: Optional[int] = None
-    activity_id: Optional[int] = None
-    start_date: Optional[date] = None
     end_date: Optional[date] = None
-
-    @model_validator(mode="after")
-    def check_xor_update(self) -> "UserActivityUpdate":
-        if self.program_id is not None and self.activity_id is not None:
-            raise ValueError(
-                "Cannot set both program_id and activity_id simultaneously"
-            )
-        return self
 
 
 class UserActivityRead(UserActivityBase):
     id: int
     user_id: int
+    start_date: date
+    end_date: Optional[date]
 
 
 from api.models.program_models import Activity, Program

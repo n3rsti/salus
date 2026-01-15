@@ -1,3 +1,5 @@
+from datetime import date
+import time
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -49,26 +51,28 @@ def create_user_activity(
 ):
     user_activity_data = ua_in.model_dump()
     user_activity_data["user_id"] = current_user.id
+    user_activity_data["start_date"] = date.today()
     user_activity = UserActivity.model_validate(user_activity_data)
+
     session.add(user_activity)
     session.commit()
     session.refresh(user_activity)
     return user_activity
 
 
-@router.put("/{ua_id}", response_model=UserActivityRead)
-def update_user_activity(
+@router.post("/{ua_id}/complete", status_code=204)
+def complete_user_activity(
     ua_id: int,
-    ua_update: UserActivityUpdate,
     session: SessionDep,
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    update_data = ua_update.model_dump(exclude_unset=True)
+    # set end_date to today
     statement = (
         update(UserActivity)
         .where((UserActivity.id == ua_id) & (UserActivity.user_id == current_user.id))
-        .values(**update_data)
+        .values(end_date=date.today())
     )
+
     result = session.exec(statement)
     session.commit()
 
@@ -76,9 +80,6 @@ def update_user_activity(
         raise HTTPException(
             status_code=404, detail="User activity assignment not found"
         )
-
-    user_activity = session.get(UserActivity, ua_id)
-    return user_activity
 
 
 @router.delete("/{ua_id}")
