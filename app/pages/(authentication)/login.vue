@@ -1,5 +1,5 @@
 <template>
-    <main class="flex flex-col justify-center items-center content-center p-4">
+    <div class="flex flex-col justify-center items-center content-center p-4">
         <form
             class="rounded-xl bg-primary-light text-green-700 p-8 w-11/12 shadow border-neutral-100 border-t border-t-transparent"
             @submit.prevent="handleLogin"
@@ -124,7 +124,7 @@
                 Login with Github
             </button>
         </form>
-    </main>
+    </div>
 </template>
 <script setup lang="ts">
 import { Button } from "~/components/ui/button";
