@@ -1,3 +1,4 @@
+import type { Tag } from "~/constants/tags";
 import type { ProgramDay } from "./program_day.model";
 import type { User } from "./user.model";
 
@@ -12,4 +13,5 @@ export interface Program {
     rating?: number;
     days?: ProgramDay[];
     owner?: User;
+    tags?: Tag[];
 }

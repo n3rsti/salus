@@ -1,3 +1,4 @@
+import type { Tag } from "~/constants/tags";
 import type { User } from "./user.model";
 
 export interface Activity {
@@ -9,4 +10,5 @@ export interface Activity {
     rating?: number;
     image_url: string;
     owner?: User;
+    tags?: Tag[];
 }

@@ -43,6 +43,20 @@
                     </NuxtLink>
                 </p>
             </div>
+
+            <p class="text-text font-medium text-sm mt-3">Tags</p>
+            <section class="flex gap-1 flex-wrap my-2">
+                <Badge
+                    v-for="tag in activity?.tags"
+                    :key="tag"
+                    class="text-xs rounded-md p-0.5 px-1 text-center shadow-xs font-semibold"
+                    :class="TagColors[tag]"
+                >
+                    <Icon :name="TagIcons[tag]" />
+                    {{ TagNames[tag] }}</Badge
+                >
+            </section>
+
             <p class="text-text font-medium text-sm mt-3">Description</p>
             <p class="text-muted-foreground text-sm mb-4 mt-1">
                 {{ activity?.description }}
@@ -121,7 +135,7 @@
     </article>
 </template>
 <script setup lang="ts">
-import { Badge } from "~/components/ui/badge";
+import Badge from "~/components/ui/badge/Badge.vue";
 import { Button } from "~/components/ui/button";
 import {
     Dialog,
@@ -133,6 +147,7 @@ import {
     DialogTrigger,
 } from "~/components/ui/dialog";
 import { Difficulties, DifficultiesColors } from "~/constants/difficulty";
+import { TagColors, TagIcons, TagNames } from "~/constants/tags";
 import type { Activity } from "~/models/activity.model";
 import type { UserActivity } from "~/models/user_activity.model";
 

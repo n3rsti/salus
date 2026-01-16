@@ -4,7 +4,10 @@
         :title="props.program.name"
         :description="props.program.description"
         :link="'/programs/' + props.program.id"
+        :type="'program'"
+        :tags="props.program.tags || []"
     >
+        <template #type>Program</template>
         <div
             v-if="props.program.progress"
             class="flex items-center justify-between mt-auto"
@@ -26,7 +29,7 @@
             </p>
         </div>
 
-        <div v-else class="flex items-center justify-between mt-auto">
+        <div v-else class="flex items-center justify-between">
             <p class="text-muted-foreground text-sm flex items-center gap-1">
                 <Icon name="ic:outline-access-time" />
                 {{ props.program.duration_days }}
@@ -57,7 +60,6 @@
 <script setup lang="ts">
 import { faker } from "@faker-js/faker";
 import type { Program } from "~/models/program.model";
-import { Button } from "./ui/button";
 
 const props = defineProps<{
     program: Program;

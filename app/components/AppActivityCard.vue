@@ -4,8 +4,12 @@
         :link="'/activities/' + props.activity.id"
         :title="props.activity.name"
         :description="props.activity.description"
+        :type="'activity'"
+        :tags="props.activity.tags || []"
     >
-        <div class="flex items-center justify-between mt-auto">
+        <template #type>Activity</template>
+
+        <div class="flex items-center justify-between">
             <p class="text-muted-foreground text-sm flex items-center gap-1">
                 <Icon name="ic:outline-access-time" />
                 {{ props.activity.duration_minutes }}

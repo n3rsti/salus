@@ -2,6 +2,7 @@ from sqlalchemy import func
 from sqlmodel import Session, select
 from api.database import engine
 from api.models.activity_models import Activity
+from api.models.enums import Tag
 from api.models.program_day_activities_link import ProgramDayActivityLink
 from api.models.program_models import Program, ProgramDay
 from faker import Faker
@@ -21,6 +22,7 @@ def populate_activities(new_activities_count: int = 100, new_programs_count: int
             difficulty=fake.random_int(min=1, max=3),
             owner_id=1,
             image_url=f"{fake.random_int(min=1, max=10)}.jpg",
+            tags=random.sample(list(Tag), k=fake.random_int(min=1, max=2)),
         )
         session.add(activity)
 
@@ -38,6 +40,7 @@ def populate_activities(new_activities_count: int = 100, new_programs_count: int
             language="en",
             image_url=f"{fake.random_int(min=1, max=10)}.jpg",
             owner_id=1,
+            tags=random.sample(list(Tag), k=fake.random_int(min=1, max=2)),
         )
         session.add(program)
         session.flush()
