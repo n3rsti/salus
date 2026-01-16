@@ -1,9 +1,5 @@
 <template>
     <main class="flex flex-col justify-center items-center content-center p-4">
-        <NuxtLink class="absolute top-4 left-4 text-white" to="/"
-            ><Button variant="success">
-                <Icon class="text-4xl" name="dashicons:admin-home" /> </Button
-        ></NuxtLink>
         <form
             class="rounded-xl bg-primary-light text-green-700 p-8 w-11/12 max-w-[560px] min-w-[300px] shadow border-neutral-100 border-t border-t-transparent"
             @submit.prevent="handleRegister"
