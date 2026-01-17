@@ -24,7 +24,5 @@ import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import type { Activity } from "~/models/activity.model";
 
-const config = useRuntimeConfig();
-
 const { data: activities } = await useFetch<Activity[]>(`/api/activities`);
 </script>

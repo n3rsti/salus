@@ -71,6 +71,18 @@
                             required
                         />
                     </div>
+                    <div class="flex flex-col gap-2 flex-1 min-h-0">
+                        <Label for="description">Content</Label>
+
+                        <Textarea
+                            id="content"
+                            v-model="activity.content"
+                            class="md:flex-1 md:min-h-0"
+                            name="content"
+                            placeholder="Add instructions..."
+                            required
+                        />
+                    </div>
                 </div>
                 <div
                     class="flex flex-col gap-4 rounded-xl bg-primary-light md:shadow-sm p-4"

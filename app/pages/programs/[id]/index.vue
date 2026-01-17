@@ -59,9 +59,7 @@
 
             <section>
                 <p class="text-text font-medium text-sm mt-3">Description</p>
-                <p
-                    class="text-muted-foreground text-sm mb-4 mt-1 whitespace-pre-wrap"
-                >
+                <p class="text-muted-foreground text-sm mb-4 mt-1">
                     {{ program?.description }}
                 </p>
             </section>
@@ -120,7 +118,9 @@
 
             <slot></slot>
             <Dialog v-if="!isStarted">
-                <DialogTrigger class="sticky bottom-10 md:w-60 md:self-end">
+                <DialogTrigger
+                    class="sticky mt-auto bottom-10 md:w-60 md:self-end"
+                >
                     <Button
                         variant="success"
                         class="mt-auto w-full py-6 md:py-5"

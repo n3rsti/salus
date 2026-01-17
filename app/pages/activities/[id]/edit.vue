@@ -27,6 +27,7 @@ if (!activity.value) {
 const emptyActivity: Activity = {
     name: "",
     description: "",
+    content: "",
     duration_minutes: 0,
     image_url: "",
     difficulty: 1,

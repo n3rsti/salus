@@ -7,8 +7,8 @@
             alt=""
             class="object-cover w-full h-32 rounded-xl shadow border-primary-light border-t-transparent"
         />
-        <div class="flex flex-col grow p-2 mt-3">
-            <div class="flex">
+        <section class="flex flex-col grow p-2 mt-3 relative gap-3">
+            <section class="flex">
                 <h1 class="font-bold text-3xl mt-1 text-text">
                     {{ activity?.name }}
                     <Badge
@@ -25,50 +25,88 @@
                 >
                     <Button variant="default" class="ml-auto px-4">Edit</Button>
                 </NuxtLink>
-            </div>
-            <div class="flex mt-1">
-                <p class="text-muted-foreground flex items-center">
-                    <Icon class="" name="ic:outline-access-time" />
-                    <span class="ml-1"
-                        >{{ activity?.duration_minutes }} minutes</span
-                    >
-                </p>
-                <p class="ml-auto">
-                    by
+            </section>
+            <section class="flex gap-8">
+                <section>
+                    <p class="text-text font-medium text-sm">Duration</p>
+                    <p class="text-muted-foreground flex items-center">
+                        <Icon class="" name="ic:outline-access-time" />
+                        <span class="ml-1 text-sm"
+                            >{{ activity?.duration_minutes }} minutes</span
+                        >
+                    </p>
+                </section>
+                <section>
+                    <p class="text-text font-medium text-sm">Author</p>
                     <NuxtLink
-                        class="font-semibold"
+                        class="font-semibold text-sm"
                         :to="'/users/' + activity?.owner?.username"
                     >
                         {{ activity?.owner?.username }}
                     </NuxtLink>
-                </p>
-            </div>
-
-            <p class="text-text font-medium text-sm mt-3">Tags</p>
-            <section class="flex gap-1 flex-wrap my-2">
-                <Badge
-                    v-for="tag in activity?.tags"
-                    :key="tag"
-                    class="text-xs rounded-md p-0.5 px-1 text-center shadow-xs font-semibold"
-                    :class="TagColors[tag]"
-                >
-                    <Icon :name="TagIcons[tag]" />
-                    {{ TagNames[tag] }}</Badge
-                >
+                </section>
             </section>
 
-            <p class="text-text font-medium text-sm mt-3">Description</p>
-            <p
-                class="text-muted-foreground text-sm mb-4 mt-1 whitespace-pre-wrap"
-            >
-                {{ activity?.description }}
-            </p>
+            <section>
+                <p class="text-text font-medium text-sm">Tags</p>
+                <section class="flex gap-1 flex-wrap my-2">
+                    <Badge
+                        v-for="tag in activity?.tags"
+                        :key="tag"
+                        class="text-xs rounded-md p-0.5 px-1 text-center shadow-xs font-semibold"
+                        :class="TagColors[tag]"
+                    >
+                        <Icon :name="TagIcons[tag]" />
+                        {{ TagNames[tag] }}</Badge
+                    >
+                </section>
+            </section>
+
+            <section>
+                <p class="text-text font-medium text-sm">Description</p>
+                <p class="text-muted-foreground text-sm mb-4 mt-1">
+                    {{ activity?.description }}
+                </p>
+            </section>
+
+            <section>
+                <p class="text-text font-medium text-sm">Content</p>
+                <div class="text-muted-foreground text-sm mb-4 mt-1">
+                    <template
+                        v-for="(line, index) in parsedDescription"
+                        :key="index"
+                    >
+                        <p
+                            v-if="line.type === 'text'"
+                            class="whitespace-pre-wrap"
+                        >
+                            {{ line.content || "\u00A0" }}
+                        </p>
+                        <div
+                            v-else-if="line.type === 'youtube'"
+                            class="my-4 rounded-lg overflow-hidden aspect-video"
+                        >
+                            <iframe
+                                :src="`https://www.youtube.com/embed/${line.videoId}`"
+                                class="aspect-video rounded-md max-w-md w-full"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen
+                            ></iframe>
+                        </div>
+                    </template>
+                </div>
+            </section>
 
             <slot></slot>
 
             <Dialog v-if="!isStarted">
-                <DialogTrigger class="mt-auto">
-                    <Button variant="success" class="mt-auto w-full"
+                <DialogTrigger
+                    class="sticky mt-auto bottom-10 w-full md:self-end"
+                >
+                    <Button
+                        variant="success"
+                        class="mt-auto w-full py-6 md:py-5"
                         >Start</Button
                     >
                 </DialogTrigger>
@@ -88,11 +126,11 @@
             </Dialog>
             <section
                 v-else
-                class="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-1 w-full mt-auto"
+                class="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-1 w-full mt-auto sticky bottom-10"
             >
                 <Dialog>
                     <DialogTrigger>
-                        <Button variant="success" class="w-full"
+                        <Button variant="success" class="w-full py-5"
                             >Mark completed <span class="ml-1">🎉</span></Button
                         >
                     </DialogTrigger>
@@ -112,7 +150,7 @@
                 </Dialog>
                 <Dialog>
                     <DialogTrigger>
-                        <Button variant="destructive" class="w-full"
+                        <Button variant="destructive" class="w-full py-5"
                             >Cancel</Button
                         >
                     </DialogTrigger>
@@ -133,7 +171,7 @@
                     </DialogContent>
                 </Dialog>
             </section>
-        </div>
+        </section>
     </article>
 </template>
 <script setup lang="ts">
@@ -162,6 +200,28 @@ const userStore = useUserStore();
 const { data: activity } = await useFetch<Activity>(
     `/api/activities/${route.params.id}`,
 );
+
+const parsedDescription = computed(() => {
+    if (!activity.value?.content) return [];
+
+    const lines = activity.value.content.split("\n");
+    const result: Array<{ type: string; content?: string; videoId?: string }> =
+        [];
+
+    const youtubeRegex =
+        /((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(?:-nocookie)?\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|live\/|v\/)?)?([\w-]+)(\S+)?/;
+
+    lines.forEach((line) => {
+        const match = line.match(youtubeRegex);
+        if (match && match[5]) {
+            result.push({ type: "youtube", videoId: match[5] });
+        } else {
+            result.push({ type: "text", content: line });
+        }
+    });
+
+    return result;
+});
 
 const { data: activity_log } =
     await useFetch<UserActivity[]>(`/api/user-activities`);
