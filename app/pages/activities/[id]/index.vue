@@ -58,7 +58,9 @@
             </section>
 
             <p class="text-text font-medium text-sm mt-3">Description</p>
-            <p class="text-muted-foreground text-sm mb-4 mt-1">
+            <p
+                class="text-muted-foreground text-sm mb-4 mt-1 whitespace-pre-wrap"
+            >
                 {{ activity?.description }}
             </p>
 
@@ -135,6 +137,7 @@
     </article>
 </template>
 <script setup lang="ts">
+import { Api } from "~/api/api";
 import Badge from "~/components/ui/badge/Badge.vue";
 import { Button } from "~/components/ui/button";
 import {
@@ -153,8 +156,8 @@ import type { UserActivity } from "~/models/user_activity.model";
 
 const route = useRoute();
 const program = useRoute().query.program;
+const parentProgramId = program ? Number(program) : null;
 const userStore = useUserStore();
-const { $api } = useNuxtApp();
 
 const { data: activity } = await useFetch<Activity>(
     `/api/activities/${route.params.id}`,
@@ -164,7 +167,6 @@ const { data: activity_log } =
     await useFetch<UserActivity[]>(`/api/user-activities`);
 
 const startedActivity = computed(() => {
-    console.log(activity_log.value);
     if (program) {
         return activity_log.value?.find(
             (log) =>
@@ -178,18 +180,14 @@ const startedActivity = computed(() => {
             log.activity_id === activity.value?.id && log.end_date === null,
     );
 });
+
 const isStarted = computed(() => {
     return startedActivity.value !== undefined;
 });
 
 async function completeActivity() {
     try {
-        await $api(
-            `/api/user-activities/${startedActivity.value?.id}/complete`,
-            {
-                method: "POST",
-            },
-        );
+        await Api.completeActivity(startedActivity.value!.id!);
         activity_log.value = activity_log.value?.filter(
             (log) => log.id !== startedActivity.value?.id,
         );
@@ -200,12 +198,10 @@ async function completeActivity() {
 
 async function startActivity() {
     try {
-        const newActivity = await $api<UserActivity>(`/api/user-activities`, {
-            method: "POST",
-            body: {
-                activity_id: activity.value?.id,
-            },
-        });
+        const newActivity = await Api.startActivity(
+            activity.value?.id || null,
+            parentProgramId,
+        );
 
         activity_log.value = [...(activity_log.value || []), newActivity];
     } catch (err) {
@@ -215,9 +211,7 @@ async function startActivity() {
 
 async function cancelActivity() {
     try {
-        await $api(`/api/user-activities/${startedActivity.value?.id}`, {
-            method: "DELETE",
-        });
+        await Api.cancelActivity(startedActivity.value!.id!);
         activity_log.value = activity_log.value?.filter(
             (log) => log.id !== startedActivity.value?.id,
         );

@@ -1,10 +1,10 @@
 <template>
     <SidebarProvider>
-        <div class="flex flex-col">
+        <div class="flex flex-col w-full min-h-screen">
             <AppGlobalSearch v-if="searchStore.activeTab === ''" />
-            <div class="min-h-screen">
+            <div class="min-h-screen flex flex-col">
                 <NavBar />
-                <section class="flex">
+                <section class="flex grow">
                     <AppSidebar />
                     <section
                         class="bg-primary-foreground font-display flex flex-col w-full"
