@@ -100,7 +100,7 @@
                         :key="day.day_number"
                         class="rounded-xl border-primary-dark border collapse collapse-arrow shadow-inner"
                     >
-                        <input type="checkbox" checked />
+                        <input type="checkbox" :checked="day.day_number == 1" />
                         <div class="collapse-title font-semibold text-text">
                             Day {{ day.day_number }}
                         </div>
@@ -137,7 +137,7 @@
                             <div
                                 v-for="activity in day.activities"
                                 :key="activity.id"
-                                class="flex flex-col w-full gap-2 p-3 border border-primary-dark rounded-xl mt-2"
+                                class="flex flex-col w-full gap-2 p-3 border border-primary-dark rounded-xl"
                             >
                                 <div class="flex items-center w-full">
                                     <img
@@ -182,7 +182,7 @@
                 <Button
                     type="submit"
                     variant="success"
-                    class="w-full mt-3 md:col-span-2"
+                    class="w-full mt-3 md:col-span-2 sticky bottom-5"
                     >Submit</Button
                 >
             </form>

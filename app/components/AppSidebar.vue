@@ -16,7 +16,7 @@
                             class="grid flex-1 text-left text-sm leading-tight"
                         >
                             <span class="truncate font-semibold">
-                                {{ store.username || "User" }}
+                                {{ store.username }}
                             </span>
                             <span class="truncate text-xs">User</span>
                         </NuxtLink>

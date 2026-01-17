@@ -46,6 +46,8 @@
 import { faker } from "@faker-js/faker";
 import { Button } from "./ui/button";
 
+faker.seed(1234);
+
 interface MoodLog {
     mood: number;
     day: string;

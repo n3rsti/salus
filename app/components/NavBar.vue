@@ -1,6 +1,6 @@
 <template>
     <nav
-        class="p-3 py-1 bg-white shadow-sm flex w-full items-center justify-between h-16 sticky top-0 z-30"
+        class="p-3 py-1 bg-white shadow-sm flex w-full items-center justify-between h-16 sticky top-0 z-10"
     >
         <NuxtLink to="/">
             <Button
@@ -9,7 +9,7 @@
             >
                 <Icon
                     class="text-2xl text-white"
-                    name="material-symbols:local-fire-department-rounded"
+                    name="material-symbols:digital-wellbeing-rounded"
                 />
                 <span class="shadow-sm font-bold text-white"
                     >{{ streak }}d</span

@@ -41,11 +41,11 @@ import type { Program } from "~/models/program.model";
 
 const limit = 10;
 const { data: activities } = await useFetch<Activity[]>(
-    `/api/activities?limit=${limit}`,
+    `/api/activities?limit=${limit}&light=true`,
 );
 
 const { data: programs } = await useFetch<Program[]>(
-    `/api/programs?limit=${limit}`,
+    `/api/programs?limit=${limit}&light=true`,
 );
 
 const store = useUserStore();

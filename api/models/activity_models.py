@@ -68,6 +68,18 @@ class ActivityRead(ActivityBase):
     tags: list[Tag] = []
 
 
+class ActivityReadLight(SQLModel):
+    id: int
+    owner_id: int
+    owner_username: str
+    name: str
+    description: str
+    duration_minutes: int
+    image_url: str
+    difficulty: int
+    tags: list[Tag] = []
+
+
 class ActivityMediaBase(SQLModel):
     url: str
     type: str

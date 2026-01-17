@@ -64,13 +64,13 @@
                 </p>
             </section>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-2 items-start">
+            <div class="grid grid-cols-1 gap-2 items-start">
                 <div
                     v-for="day in program?.days"
                     :key="day.day_number"
                     class="rounded-xl border-primary-dark border collapse collapse-arrow last:mb-6 md:last:mb-3"
                 >
-                    <input type="checkbox" checked />
+                    <input type="checkbox" :checked="day.day_number == 1" />
                     <div class="collapse-title font-semibold text-text">
                         Day {{ day.day_number }}
                     </div>

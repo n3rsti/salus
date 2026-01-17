@@ -5,7 +5,7 @@
         <img
             :src="'/media/' + activity?.image_url"
             alt=""
-            class="object-cover w-full h-32 rounded-xl shadow border-primary-light border-t-transparent"
+            class="object-cover w-full h-60 rounded-xl shadow border-primary-light border-t-transparent"
         />
         <section class="flex flex-col grow p-2 mt-3 relative gap-3">
             <section class="flex">

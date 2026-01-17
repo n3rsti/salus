@@ -7,9 +7,11 @@ export interface Activity {
     duration_minutes: number;
     description: string;
     difficulty: number;
-    content: string;
+    content?: string;
     rating?: number;
     image_url: string;
     owner?: User;
     tags?: Tag[];
+    owner_id?: number;
+    owner_username?: string;
 }

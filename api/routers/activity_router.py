@@ -12,6 +12,7 @@ from api.models.activity_models import (
     ActivityMediaRead,
     ActivityMediaUpdate,
     ActivityRead,
+    ActivityReadLight,
     ActivityUpdate,
 )
 from api.models.user_models import Users
@@ -21,16 +22,28 @@ from api.utils.files import save_file
 router = APIRouter(prefix="/api/activities", tags=["Activities"])
 
 
-@router.get("", response_model=list[ActivityRead])
-def get_activities(session: SessionDep, filters: ActivityFilters = Depends()):
-    query = select(Activity)
+@router.get("", response_model=list[ActivityRead] | list[ActivityReadLight])
+def get_activities(
+    session: SessionDep, light: bool = False, filters: ActivityFilters = Depends()
+):
+    if light:
+        query = select(
+            Activity.id,
+            Activity.owner_id,
+            Users.username.label("owner_username"),
+            Activity.name,
+            Activity.description,
+            Activity.duration_minutes,
+            Activity.image_url,
+            Activity.difficulty,
+            Activity.tags,
+        ).join(Users, Activity.owner_id == Users.id)
+    else:
+        query = select(Activity)
+
     query = filters.apply(query)
     activities = session.exec(query).all()
-
-    if activities:
-        return activities
-    else:
-        return []
+    return activities if activities else []
 
 
 @router.get("/{activity_id}", response_model=ActivityRead)

@@ -1,12 +1,14 @@
 from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship
 from api.models.program_day_activities_link import ProgramDayActivityLink
+
 # from api.models.programs_tags_link import ProgramTagLink
-from sqlalchemy import Select, func, or_ , Column, JSON
+from sqlalchemy import Select, func, or_, Column, JSON
 from pydantic import BaseModel, field_validator
 from api.models.enums import Tag
 
 # This file contains models implementing: Programs and ProgramDays tables
+
 
 class ProgramBase(SQLModel):
     name: str
@@ -41,9 +43,7 @@ class Program(ProgramBase, table=True):
     #     back_populates="programs", link_model=ProgramTagLink
     # )
 
-    tags: list[Tag] = Field(
-        sa_column=Column(JSON, nullable=False, default=list)
-    )
+    tags: list[Tag] = Field(sa_column=Column(JSON, nullable=False, default=list))
 
 
 class ProgramDayInput(SQLModel):
@@ -129,6 +129,7 @@ class ProgramDayRead(ProgramDayBase):
 
 
 from api.models.activity_models import Activity, ActivityRead
+
 # from api.models.tag_models import Tag, TagRead
 from api.models.user_models import Users, UsersRead
 
