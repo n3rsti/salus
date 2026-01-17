@@ -19,6 +19,7 @@ def populate_activities(new_activities_count: int = 100, new_programs_count: int
             name=fake.sentence(nb_words=3),
             duration_minutes=fake.random_int(min=10, max=120),
             description=fake.paragraph(nb_sentences=3),
+            content=fake.paragraph(nb_sentences=5),
             difficulty=fake.random_int(min=1, max=3),
             owner_id=1,
             image_url=f"{fake.random_int(min=1, max=10)}.webp",

@@ -13,6 +13,7 @@ class ActivityBase(SQLModel):
     name: str
     duration_minutes: int
     description: str
+    content: str
     difficulty: int
 
     @field_validator("difficulty")
@@ -36,9 +37,8 @@ class Activity(ActivityBase, table=True):
     program_days: List["ProgramDay"] = Relationship(
         back_populates="activities", link_model=ProgramDayActivityLink
     )
-    tags: list[Tag] = Field(
-        sa_column=Column(JSON, nullable=False, default=list)
-    )
+    tags: list[Tag] = Field(sa_column=Column(JSON, nullable=False, default=list))
+
 
 class ActivityCreate(ActivityBase):
     pass
@@ -48,6 +48,7 @@ class ActivityUpdate(SQLModel):
     name: Optional[str] = None
     duration_minutes: Optional[int] = None
     description: Optional[str] = None
+    content: Optional[str] = None
     difficulty: Optional[int] = None
 
     @field_validator("difficulty")
