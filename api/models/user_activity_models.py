@@ -1,7 +1,9 @@
 from datetime import date
+from datetime import datetime
 from typing import Optional
 
-from pydantic import model_validator
+from pydantic import BaseModel, model_validator
+from sqlalchemy import Select
 from sqlmodel import Field, Relationship, SQLModel
 
 # This file contains models implementing: UserActivities table
@@ -27,8 +29,8 @@ class UserActivity(UserActivityBase, table=True):
     user: Optional["Users"] = Relationship(back_populates="user_activities")
     program: Optional["Program"] = Relationship()
     activity: Optional["Activity"] = Relationship()
-    start_date: date
-    end_date: Optional[date] = None
+    start_date: datetime
+    end_date: Optional[datetime] = None
 
 
 class UserActivityCreate(UserActivityBase):
@@ -36,14 +38,24 @@ class UserActivityCreate(UserActivityBase):
 
 
 class UserActivityUpdate(SQLModel):
-    end_date: Optional[date] = None
+    end_date: Optional[datetime] = None
 
 
 class UserActivityRead(UserActivityBase):
     id: int
     user_id: int
-    start_date: date
-    end_date: Optional[date]
+    start_date: datetime
+    end_date: Optional[datetime]
+
+
+class UserActivityFilters(BaseModel):
+    limit: Optional[int] = None
+
+    def apply(self, query: Select) -> Select:
+        if self.limit:
+            query = query.limit(self.limit)
+
+        return query
 
 
 from api.models.program_models import Activity, Program
