@@ -139,7 +139,7 @@ def get_my_activities(
         .outerjoin(Activity, UserActivity.activity_id == Activity.id)
         .outerjoin(Users, Activity.owner_id == Users.id)
         .where(UserActivity.user_id == current_user.id)
-        .order_by(UserActivity.start_date.desc())
+        .order_by(UserActivity.start_date.desc(), UserActivity.id.desc())
         .limit(limit)
         .offset(offset)
     ).all()
@@ -171,15 +171,48 @@ def get_my_activities(
         .order_by(Program.id, ProgramDay.day_number, Activity.id)
     ).all()
 
-    user_activities = session.exec(
-        select(UserActivity).where(
+    additional_activities_result = session.exec(
+        select(UserActivity, Activity, Users.username)
+        .outerjoin(Activity, UserActivity.activity_id == Activity.id)
+        .outerjoin(Users, Activity.owner_id == Users.id)
+        .where(
             UserActivity.user_id == current_user.id,
             UserActivity.program_id.in_(list(program_ids)),
         )
     ).all()
 
     programs = build_programs(programs_result)
-    add_user_activities(programs, user_activities)
+
+    existing_ids = {item.id for item in feed_items}
+    for user_activity, activity, owner_username in additional_activities_result:
+        if user_activity.id not in existing_ids:
+            feed_items.append(
+                ActivityFeedItem(
+                    id=user_activity.id,
+                    program_id=user_activity.program_id,
+                    start_date=user_activity.start_date,
+                    end_date=user_activity.end_date,
+                    activity=(
+                        ActivityReadLight(
+                            id=activity.id,
+                            owner_id=activity.owner_id,
+                            owner_username=owner_username,
+                            name=activity.name,
+                            description=activity.description,
+                            duration_minutes=activity.duration_minutes,
+                            image_url=activity.image_url,
+                            difficulty=activity.difficulty,
+                            tags=activity.tags,
+                        )
+                        if activity
+                        else None
+                    ),
+                )
+            )
+
+    for item in feed_items:
+        if item.program_id and item.activity and item.program_id in programs:
+            programs[item.program_id].user_activities[item.activity.id] = item.id
 
     return ActivitiesFeedResponse(
         activities=feed_items,
