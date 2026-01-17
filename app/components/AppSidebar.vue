@@ -1,5 +1,8 @@
 <template>
-    <Sidebar class="mt-16 bg-white">
+    <Sidebar
+        class="bg-white sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto"
+        variant="sidebar"
+    >
         <SidebarHeader class="bg-green-500 text-white">
             <SidebarMenu>
                 <SidebarMenuItem>
@@ -8,16 +11,16 @@
                         size="lg"
                         class="hover:bg-green-600 hover:text-white"
                     >
-                    <NuxtLink to="/profile"
-                        class="grid flex-1 text-left text-sm leading-tight"
-                >
-                    <span class="truncate font-semibold">
-                    {{ store.username || "User" }}
-                 </span>
-            <span class="truncate text-xs">User</span>
-    </NuxtLink>
-</SidebarMenuButton>
-                    
+                        <NuxtLink
+                            to="/profile"
+                            class="grid flex-1 text-left text-sm leading-tight"
+                        >
+                            <span class="truncate font-semibold">
+                                {{ store.username || "User" }}
+                            </span>
+                            <span class="truncate text-xs">User</span>
+                        </NuxtLink>
+                    </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
         </SidebarHeader>

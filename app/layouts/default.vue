@@ -1,25 +1,20 @@
 <template>
     <SidebarProvider>
-        <div
-            class="min-h-screen bg-primary-foreground font-display flex flex-col w-full"
-        >
-            <AppSidebar />
-            <NavBar class="fixed h-16 z-10" />
+        <div class="flex flex-col">
             <AppGlobalSearch v-if="searchStore.activeTab === ''" />
-            <main
-                class="min-h-11/12 p-4 sm:p-8 flex flex-col grow mt-16 lg:ml-60"
-            >
-                <slot />
-            </main>
-            <footer
-                class="flex justify-evenly h-1/12 left-0 right-0 p-2 lg:ml-60 bg-green-500 text-white"
-            >
-                <NuxtLink to="/cookies">Cookies</NuxtLink>
-                <NuxtLink to="https://github.com/n3rsti/salus">Github</NuxtLink>
-                <NuxtLink to="https://github.com/n3rsti/salus/blob/main/LICENSE"
-                    >License</NuxtLink
-                >
-            </footer>
+            <div class="min-h-screen">
+                <NavBar />
+                <section class="flex">
+                    <AppSidebar />
+                    <section
+                        class="bg-primary-foreground font-display flex flex-col w-full"
+                    >
+                        <main class="min-h-11/12 p-4 sm:p-8 flex flex-col grow">
+                            <slot />
+                        </main>
+                    </section>
+                </section>
+            </div>
         </div>
     </SidebarProvider>
 </template>

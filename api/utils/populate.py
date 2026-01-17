@@ -21,7 +21,7 @@ def populate_activities(new_activities_count: int = 100, new_programs_count: int
             description=fake.paragraph(nb_sentences=3),
             difficulty=fake.random_int(min=1, max=3),
             owner_id=1,
-            image_url=f"{fake.random_int(min=1, max=10)}.jpg",
+            image_url=f"{fake.random_int(min=1, max=10)}.webp",
             tags=random.sample(list(Tag), k=fake.random_int(min=1, max=2)),
         )
         session.add(activity)
@@ -38,7 +38,7 @@ def populate_activities(new_activities_count: int = 100, new_programs_count: int
             description=fake.paragraph(nb_sentences=4),
             duration_days=fake.random_int(min=7, max=30),
             language="en",
-            image_url=f"{fake.random_int(min=1, max=10)}.jpg",
+            image_url=f"{fake.random_int(min=1, max=10)}.webp",
             owner_id=1,
             tags=random.sample(list(Tag), k=fake.random_int(min=1, max=2)),
         )

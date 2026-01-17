@@ -1,6 +1,6 @@
 <template>
     <nav
-        class="p-3 py-1 bg-white shadow-sm flex w-full items-center justify-between z-20"
+        class="p-3 py-1 bg-white shadow-sm flex w-full items-center justify-between h-16 sticky top-0 z-30"
     >
         <NuxtLink to="/">
             <Button

@@ -10,9 +10,9 @@
             </h2>
         </Card>
         <section
-            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3"
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 mb-8"
         >
-            <AppMoodCard class="lg:col-span-full"></AppMoodCard>
+            <AppMoodCard class="col-span-full"></AppMoodCard>
 
             <h2 class="font-semibold text-xl mb-1 mt-6 flex col-span-full">
                 Programs

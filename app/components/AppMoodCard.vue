@@ -1,32 +1,32 @@
 <template>
     <div
-        class="flex flex-col lg:flex-row lg:bg-primary-light lg:shadow lg:border-neutral-100 lg:rounded-xl lg:p-4 lg:py-2"
+        class="flex flex-col md:flex-row md:bg-primary-light md:shadow md:border-neutral-100 md:rounded-xl md:p-5 md:py-2"
     >
         <div
-            class="w-full lg:w-auto bg-green-500 lg:bg-transparent p-3 lg:p-0 rounded-t-xl hidden lg:flex items-center"
+            class="w-full md:w-auto bg-green-500 md:bg-transparent p-3 rounded-t-xl hidden md:flex items-center"
         >
             <h2
-                class="text-xl font-semibold text-white lg:text-green-700 text-center"
+                class="text-xl font-semibold text-white md:text-green-700 text-center"
             >
                 Mood log
             </h2>
         </div>
         <article
-            class="flex flex-col lg:flex-row lg:content-center grow items-center border rounded-xl lg:rounded-t-none p-5 lg:p-0 bg-primary-light border-neutral-100 border-t border-t-transparent shadow lg:shadow-none lg:border-none"
+            class="flex flex-col md:flex-row md:content-center grow items-center border rounded-xl md:rounded-t-none p-5 md:p-0 bg-primary-light border-neutral-100 border-t border-t-transparent shadow md:shadow-none md:border-none"
         >
-            <div class="lg:h-full flex flex-col justify-end w-full">
+            <div class="md:h-full flex flex-col justify-end w-full">
                 <section
-                    class="grid grid-cols-7 gap-1 lg:gap-7 w-full lg:w-auto lg:flex items-center justify-center"
+                    class="grid grid-cols-7 gap-1 md:gap-7 w-full md:w-auto md:flex items-center justify-center"
                 >
                     <div
                         v-for="(log, index) in moodLogs"
                         :key="index"
                         class="flex flex-col items-center p-1 rounded-xl"
                     >
-                        <span class="font-sans text-2xl lg:text-xl">{{
+                        <span class="font-sans text-2xl md:text-xl">{{
                             moodEmojis[log.mood]
                         }}</span>
-                        <p class="text-xs mt-2 lg:mt-1 text-text font-medium">
+                        <p class="text-xs mt-2 md:mt-1 text-text font-medium">
                             {{ log.day }}
                         </p>
                     </div>
@@ -34,7 +34,7 @@
             </div>
 
             <Button
-                class="text-white mt-2 lg:mt-0 w-full lg:w-auto lg:ml-auto"
+                class="text-white mt-2 md:mt-0 w-full md:w-auto md:ml-auto"
                 variant="success"
             >
                 Add daily log
