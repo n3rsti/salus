@@ -12,13 +12,27 @@ from sqlmodel import Field, Relationship, SQLModel
 class UserActivityBase(SQLModel):
     program_id: Optional[int] = Field(default=None, foreign_key="program.id")
     activity_id: Optional[int] = Field(default=None, foreign_key="activity.id")
+    program_day_id: Optional[int] = Field(default=None, foreign_key="programday.id")
 
     @model_validator(mode="after")
     def check_either_program_or_activity(self) -> "UserActivityBase":
-        if (self.program_id is None) and (self.activity_id is None):
+        has_program = self.program_id is not None
+        has_activity = self.activity_id is not None
+        has_program_day = self.program_day_id is not None
+
+        if not has_program and not has_activity:
             raise ValueError(
                 "At least one of program_id or activity_id must be provided"
             )
+
+        if has_program and has_activity and not has_program_day:
+            raise ValueError(
+                "program_day_id is required when both program_id and activity_id are set"
+            )
+
+        if has_program_day and not (has_program and has_activity):
+            raise ValueError("program_day_id requires both program_id and activity_id")
+
         return self
 
 

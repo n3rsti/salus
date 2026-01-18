@@ -7,6 +7,7 @@ from sqlmodel import delete, func, select, update
 
 from api.database import SessionDep
 from api.models.activity_models import Activity, ActivityReadLight
+from api.models.program_day_activities_link import ProgramDayActivityLink
 from api.models.program_models import Program, ProgramDay
 from api.models.user_activities_response_models import (
     ActivitiesFeedResponse,
@@ -249,7 +250,25 @@ def create_user_activity(
     user_activity_data = ua_in.model_dump()
     user_activity_data["user_id"] = current_user.id
     user_activity_data["start_date"] = datetime.now()
+
     user_activity = UserActivity.model_validate(user_activity_data)
+
+    if ua_in.program_day_id and ua_in.activity_id and ua_in.program_id:
+        link = session.exec(
+            select(ProgramDayActivityLink)
+            .join(ProgramDay)
+            .where(
+                ProgramDayActivityLink.program_day_id == ua_in.program_day_id,
+                ProgramDayActivityLink.activity_id == ua_in.activity_id,
+                ProgramDay.program_id == ua_in.program_id,
+            )
+        ).first()
+
+        if not link:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid combination: activity not in program day or program day not in program",
+            )
 
     session.add(user_activity)
     session.commit()

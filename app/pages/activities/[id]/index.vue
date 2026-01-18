@@ -195,6 +195,7 @@ import type { UserActivity } from "~/models/user_activity.model";
 const route = useRoute();
 const program = useRoute().query.program;
 const parentProgramId = program ? Number(program) : null;
+const dayId = useRoute().query.day ? Number(useRoute().query.day) : null;
 const userStore = useUserStore();
 
 const { data: activity } = await useFetch<Activity>(
@@ -226,13 +227,16 @@ const parsedDescription = computed(() => {
 const { data: activity_log } =
     await useFetch<UserActivity[]>(`/api/user-activities`);
 
+console.log(activity_log.value);
+
 const startedActivity = computed(() => {
-    if (program) {
+    if (program && dayId) {
         return activity_log.value?.find(
             (log) =>
                 log.activity_id === activity.value?.id &&
                 log.end_date === null &&
-                log.program_id == Number(program),
+                log.program_id == Number(program) &&
+                log.program_day_id == Number(dayId),
         );
     }
     return activity_log.value?.find(
@@ -261,6 +265,7 @@ async function startActivity() {
         const newActivity = await Api.startActivity(
             activity.value?.id || null,
             parentProgramId,
+            dayId,
         );
 
         activity_log.value = [...(activity_log.value || []), newActivity];

@@ -81,7 +81,14 @@
                         <NuxtLink
                             v-for="activity in day.activities"
                             :key="activity.id"
-                            :to="'/activities/' + activity.id"
+                            :to="
+                                '/activities/' +
+                                activity.id +
+                                '?program=' +
+                                program?.id +
+                                '&day=' +
+                                day.id
+                            "
                             class="flex flex-col w-full gap-2 p-3 border border-primary-dark rounded-xl mt-2 hover:outline"
                         >
                             <div class="flex items-center w-full gap-2">

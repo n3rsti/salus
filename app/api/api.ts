@@ -11,6 +11,7 @@ export const Api = {
     startActivity: async (
         activityId: number | null,
         programId: number | null,
+        programDayId: number | null,
     ) => {
         const { $api } = useNuxtApp();
         return $api<UserActivity>(`/api/user-activities`, {
