@@ -9,7 +9,7 @@
         />
         <section class="flex flex-col grow p-2 mt-3 relative gap-3">
             <section class="flex">
-                <h1 class="font-bold text-3xl mt-1 text-text">
+                <h1 class="font-bold text-3xl mt-1 text-primary">
                     {{ activity?.name }}
                     <Badge
                         v-if="activity"
@@ -28,7 +28,7 @@
             </section>
             <section class="flex gap-8">
                 <section>
-                    <p class="text-text font-medium text-sm">Duration</p>
+                    <p class="text-primary font-medium text-sm">Duration</p>
                     <p class="text-muted-foreground flex items-center">
                         <Icon class="" name="ic:outline-access-time" />
                         <span class="ml-1 text-sm"
@@ -37,7 +37,7 @@
                     </p>
                 </section>
                 <section>
-                    <p class="text-text font-medium text-sm">Author</p>
+                    <p class="text-primary font-medium text-sm">Author</p>
                     <NuxtLink
                         class="font-semibold text-sm"
                         :to="'/users/' + activity?.owner?.username"
@@ -48,7 +48,7 @@
             </section>
 
             <section>
-                <p class="text-text font-medium text-sm">Tags</p>
+                <p class="text-primary font-medium text-sm">Tags</p>
                 <section class="flex gap-1 flex-wrap my-2">
                     <Badge
                         v-for="tag in activity?.tags"
@@ -63,14 +63,14 @@
             </section>
 
             <section>
-                <p class="text-text font-medium text-sm">Description</p>
+                <p class="text-primary font-medium text-sm">Description</p>
                 <p class="text-muted-foreground text-sm mb-4 mt-1">
                     {{ activity?.description }}
                 </p>
             </section>
 
             <section>
-                <p class="text-text font-medium text-sm">Content</p>
+                <p class="text-primary font-medium text-sm">Content</p>
                 <div class="text-muted-foreground text-sm mb-4 mt-1">
                     <template
                         v-for="(line, index) in parsedDescription"
@@ -227,9 +227,10 @@ const parsedDescription = computed(() => {
 const { data: activity_log } =
     await useFetch<UserActivity[]>(`/api/user-activities`);
 
-console.log(activity_log.value);
+console.log("Activity log for index:", activity_log.value);
 
 const startedActivity = computed(() => {
+    console.log(program, dayId);
     if (program && dayId) {
         return activity_log.value?.find(
             (log) =>
@@ -241,9 +242,14 @@ const startedActivity = computed(() => {
     }
     return activity_log.value?.find(
         (log) =>
-            log.activity_id === activity.value?.id && log.end_date === null,
+            log.activity_id === activity.value?.id &&
+            log.end_date === null &&
+            !log.program_id &&
+            !log.program_day_id,
     );
 });
+
+console.log("Started activity for index:", startedActivity.value);
 
 const isStarted = computed(() => {
     return startedActivity.value !== undefined;

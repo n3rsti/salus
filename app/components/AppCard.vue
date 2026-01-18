@@ -10,7 +10,7 @@
         <div class="flex flex-col grow">
             <NuxtLink :to="link">
                 <h3
-                    class="font-semibold text-text mt-1 leading-none hover:underline"
+                    class="font-semibold text-primary mt-1 leading-none hover:underline"
                 >
                     {{ props.title }}
                 </h3>

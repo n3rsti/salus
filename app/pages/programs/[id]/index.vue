@@ -9,7 +9,7 @@
         />
         <section class="flex flex-col grow p-2 mt-3 relative gap-3">
             <section class="flex">
-                <h1 class="font-bold text-3xl text-text">
+                <h1 class="font-bold text-3xl text-primary">
                     {{ program?.name }}
                 </h1>
                 <NuxtLink
@@ -23,7 +23,7 @@
 
             <section class="flex gap-8">
                 <section>
-                    <p class="text-text font-medium text-sm">Duration</p>
+                    <p class="text-primary font-medium text-sm">Duration</p>
                     <p class="text-muted-foreground flex items-center">
                         <Icon class="" name="ic:outline-access-time" />
                         <span class="ml-1 text-sm"
@@ -32,7 +32,7 @@
                     </p>
                 </section>
                 <section>
-                    <p class="text-text font-medium text-sm">Author</p>
+                    <p class="text-primary font-medium text-sm">Author</p>
                     <NuxtLink
                         class="font-semibold text-sm"
                         :to="'/users/' + program?.owner?.username"
@@ -43,7 +43,7 @@
             </section>
 
             <section>
-                <p class="text-text font-medium text-sm">Tags</p>
+                <p class="text-primary font-medium text-sm">Tags</p>
                 <div class="flex gap-1 flex-wrap my-2">
                     <Badge
                         v-for="tag in program?.tags"
@@ -58,7 +58,7 @@
             </section>
 
             <section>
-                <p class="text-text font-medium text-sm mt-3">Description</p>
+                <p class="text-primary font-medium text-sm mt-3">Description</p>
                 <p class="text-muted-foreground text-sm mb-4 mt-1">
                     {{ program?.description }}
                 </p>
@@ -71,7 +71,7 @@
                     class="rounded-xl border-primary-dark border collapse collapse-arrow last:mb-6 md:last:mb-3"
                 >
                     <input type="checkbox" :checked="day.day_number == 1" />
-                    <div class="collapse-title font-semibold text-text">
+                    <div class="collapse-title font-semibold text-primary">
                         Day {{ day.day_number }}
                     </div>
                     <div class="px-2 collapse-content">
@@ -98,7 +98,7 @@
                                     class="h-8 aspect-square rounded-lg"
                                 />
                                 <p
-                                    class="text-text font-medium text-sm hover:underline py-1"
+                                    class="text-primary font-medium text-sm hover:underline py-1"
                                 >
                                     {{ activity.name }}
                                 </p>

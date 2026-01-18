@@ -10,12 +10,12 @@
         <template #type>Activity</template>
 
         <div class="flex items-center justify-between">
-            <p class="text-muted-foreground text-sm flex items-center gap-1">
+            <p class="text-muted-foreground text-xs flex items-center gap-1">
                 <Icon name="ic:outline-access-time" />
                 {{ props.activity.duration_minutes }}
                 minutes
             </p>
-            <p class="text-sm flex items-center text-text gap-1">
+            <p class="text-sm flex items-center text-primary gap-1">
                 <template v-if="props.activity.rating">
                     {{ props.activity.rating }}/5
                     <Icon

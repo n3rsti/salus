@@ -101,7 +101,7 @@
                         class="rounded-xl border-primary-dark border collapse collapse-arrow shadow-inner"
                     >
                         <input type="checkbox" :checked="day.day_number == 1" />
-                        <div class="collapse-title font-semibold text-text">
+                        <div class="collapse-title font-semibold text-primary">
                             Day {{ day.day_number }}
                         </div>
                         <div class="px-4 collapse-content flex flex-col gap-3">
@@ -146,7 +146,7 @@
                                         class="h-8 aspect-square rounded-lg"
                                     />
                                     <p
-                                        class="text-text font-medium text-sm ml-2"
+                                        class="text-primary font-medium text-sm ml-2"
                                     >
                                         {{ activity.name }}
                                     </p>

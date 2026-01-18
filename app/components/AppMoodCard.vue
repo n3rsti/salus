@@ -26,7 +26,9 @@
                         <span class="font-sans text-2xl md:text-xl">{{
                             moodEmojis[log.mood]
                         }}</span>
-                        <p class="text-xs mt-2 md:mt-1 text-text font-medium">
+                        <p
+                            class="text-xs mt-2 md:mt-1 text-primary font-medium"
+                        >
                             {{ log.day }}
                         </p>
                     </div>

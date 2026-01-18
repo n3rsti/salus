@@ -1,6 +1,6 @@
 <template>
-    <article
-        class="flex flex-col w-full gap-2 p-3 border border-primary-dark rounded-xl mt-2 hover:outline"
+    <Card
+        class="flex flex-col w-full gap-2 p-3 border border-primary-dark rounded-xl hover:outline"
     >
         <div class="flex items-center w-full gap-2">
             <img
@@ -8,7 +8,7 @@
                 alt=""
                 class="h-8 aspect-square rounded-lg"
             />
-            <p class="text-text font-medium text-sm hover:underline py-1">
+            <p class="text-primary font-medium text-sm hover:underline py-1">
                 <slot name="name"></slot>
             </p>
 
@@ -19,9 +19,11 @@
                 <slot name="description"></slot>
             </p>
         </div>
-    </article>
+    </Card>
 </template>
 <script setup lang="ts">
+import { Card } from "./ui/card";
+
 const props = defineProps<{
     img: string;
 }>();
