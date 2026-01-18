@@ -28,50 +28,100 @@
                                     '?programId=' +
                                     group.program?.id
                                 "
-                                class="flex flex-col w-full gap-2 p-3 border border-primary-dark rounded-xl mt-2 hover:outline"
                             >
-                                <div class="flex items-center w-full gap-2">
-                                    <img
-                                        :src="'/media/' + activity.image_url"
-                                        alt=""
-                                        class="h-8 aspect-square rounded-lg"
-                                    />
-                                    <p
-                                        class="text-text font-medium text-sm hover:underline py-1"
-                                    >
+                                <AppVerticalCard :img="activity.image_url">
+                                    <template #name>
                                         {{ activity.name }}
-                                        {{ activity.id }}
-                                        {{ getStatus(activity.id) }}
-                                    </p>
-
-                                    <Badge
-                                        class="text-xs rounded-md px-1 py-0.5"
-                                        :class="
-                                            DifficultiesColors[
-                                                activity.difficulty
-                                            ]
-                                        "
-                                        >{{
-                                            Difficulties[activity.difficulty]
-                                        }}</Badge
-                                    >
-                                </div>
-                                <div class="w-full">
-                                    <p class="text-muted-foreground text-xs">
+                                    </template>
+                                    <template #badge>
+                                        <Badge
+                                            v-if="
+                                                getStatus(
+                                                    activity.id,
+                                                    day.id,
+                                                ) !== ActivityStatus.NotStarted
+                                            "
+                                            class="text-xs rounded-md px-1 py-0.5"
+                                            :class="
+                                                ActivityStatusColors[
+                                                    getStatus(
+                                                        activity.id,
+                                                        day.id,
+                                                    )
+                                                ]
+                                            "
+                                            >{{
+                                                ActivityStatusNames[
+                                                    getStatus(
+                                                        activity.id,
+                                                        day.id,
+                                                    )
+                                                ]
+                                            }}</Badge
+                                        >
+                                    </template>
+                                    <template #description>
                                         {{ activity.description }}
-                                    </p>
-                                </div>
+                                    </template>
+                                </AppVerticalCard>
                             </NuxtLink>
                         </div>
                     </div>
                 </div>
             </div>
-            <div v-else>Activity</div>
+            <div v-else>
+                <NuxtLink
+                    v-if="group.activity?.activity"
+                    :to="'/activities/' + group.activity.activity.id"
+                >
+                    <AppVerticalCard :img="group.activity.activity.image_url">
+                        <template #name>
+                            {{ group.activity.activity.name }}
+                        </template>
+                        <template #badge>
+                            <Badge
+                                v-if="
+                                    getStatus(
+                                        group.activity.activity.id,
+                                        null,
+                                    ) !== ActivityStatus.NotStarted
+                                "
+                                class="text-xs rounded-md px-1 py-0.5"
+                                :class="
+                                    ActivityStatusColors[
+                                        getStatus(
+                                            group.activity.activity.id,
+                                            null,
+                                        )
+                                    ]
+                                "
+                                >{{
+                                    ActivityStatusNames[
+                                        getStatus(
+                                            group.activity.activity.id,
+                                            null,
+                                        )
+                                    ]
+                                }}</Badge
+                            >
+                        </template>
+                        <template #description>
+                            {{ group.activity.activity.description }}
+                        </template>
+                    </AppVerticalCard>
+                </NuxtLink>
+            </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { Badge } from "~/components/ui/badge";
+import {
+    ActivityStatus,
+    ActivityStatusColors,
+    ActivityStatusNames,
+} from "~/constants/activity_status";
 import { Difficulties, DifficultiesColors } from "~/constants/difficulty";
 import type { Activity } from "~/models/activity.model";
 import type {
@@ -100,7 +150,7 @@ interface renderGroup {
     activity?: UserActivity;
 }
 
-console.log(data.value?.activities);
+console.log(data.value);
 
 interface RenderGroup {
     type: "program" | "standalone";
@@ -112,17 +162,15 @@ interface RenderGroup {
 const renderGroups = computed<RenderGroup[]>(() => {
     if (!data.value) return [];
     const groups: RenderGroup[] = [];
-    const seenProgramStarts = new Set<number>();
+    const seenPrograms = new Set<number>();
 
     for (const activity of data.value?.activities ?? []) {
-        if (activity.program_id && !activity.activity) {
-            if (!seenProgramStarts.has(activity.id)) {
-                seenProgramStarts.add(activity.id);
+        if (activity.program_id) {
+            if (!seenPrograms.has(activity.program_id)) {
+                seenPrograms.add(activity.program_id);
 
                 const programActivities = data.value.activities.filter(
-                    (a) =>
-                        a.program_id === activity.program_id &&
-                        new Date(a.start_date) >= new Date(activity.start_date),
+                    (a) => a.program_id === activity.program_id,
                 );
 
                 const newestActivity = programActivities.reduce(
@@ -142,7 +190,7 @@ const renderGroups = computed<RenderGroup[]>(() => {
                     newestDate: new Date(newestActivity.start_date),
                 });
             }
-        } else if (!activity.program_id && activity.activity) {
+        } else if (activity.program_id === null && activity.activity !== null) {
             groups.push({
                 type: "standalone",
                 activity: activity,
@@ -150,6 +198,7 @@ const renderGroups = computed<RenderGroup[]>(() => {
             });
         }
     }
+    console.log(groups);
 
     return groups.sort(
         (a, b) => b.newestDate.getTime() - a.newestDate.getTime(),
@@ -166,12 +215,15 @@ const formatDate = (date: string | Date) => {
     });
 };
 
-function getStatus(activityId: number | undefined): string {
+function getStatus(
+    activityId: number | undefined,
+    dayNumber: number | undefined | null,
+): ActivityStatus {
     const activity = data.value?.activities.find(
-        (a) => a.activity?.id === activityId,
+        (a) => a.activity?.id === activityId && a.program_day_id === dayNumber,
     );
-    if (!activity) return "not_started";
-    if (activity.end_date) return "completed";
-    return "in_progress";
+    if (!activity) return ActivityStatus.NotStarted;
+    if (activity.end_date) return ActivityStatus.Completed;
+    return ActivityStatus.InProgress;
 }
 </script>

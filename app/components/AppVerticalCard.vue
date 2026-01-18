@@ -1,23 +1,28 @@
 <template>
-    <div
-        class="px-3 py-2 rounded-lg flex items-center gap-3 cursor-pointer transition-colors"
-        :class="
-            props.isActive
-                ? 'bg-green-500 text-white font-bold'
-                : 'text-text hover:bg-green-100'
-        "
+    <article
+        class="flex flex-col w-full gap-2 p-3 border border-primary-dark rounded-xl mt-2 hover:outline"
     >
-        <Icon
-            :name="props.icon"
-            class="text-2xl"
-            :class="props.isActive ? 'text-white' : 'text-green-500'"
-        />
-        <slot />
-    </div>
+        <div class="flex items-center w-full gap-2">
+            <img
+                :src="'/media/' + props.img"
+                alt=""
+                class="h-8 aspect-square rounded-lg"
+            />
+            <p class="text-text font-medium text-sm hover:underline py-1">
+                <slot name="name"></slot>
+            </p>
+
+            <slot name="badge"></slot>
+        </div>
+        <div class="w-full">
+            <p class="text-muted-foreground text-xs">
+                <slot name="description"></slot>
+            </p>
+        </div>
+    </article>
 </template>
 <script setup lang="ts">
 const props = defineProps<{
-    isActive?: boolean;
-    icon: string;
+    img: string;
 }>();
 </script>

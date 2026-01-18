@@ -54,6 +54,7 @@ def build_feed_items(
             ActivityFeedItem(
                 id=user_activity.id,
                 program_id=user_activity.program_id,
+                program_day_id=user_activity.program_day_id,
                 start_date=user_activity.start_date,
                 end_date=user_activity.end_date,
                 activity=(
@@ -95,6 +96,7 @@ def build_programs(programs_result: List[Tuple]) -> Dict[int, ProgramInfo]:
         day_key = (program.id, day.id)
         if day_key not in days_cache:
             day_info = ProgramDayInfo(
+                id=day.id,
                 day_number=day.day_number,
                 description=day.description,
                 activities=[],

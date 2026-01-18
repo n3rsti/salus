@@ -19,6 +19,7 @@ export const Api = {
             body: {
                 activity_id: activityId,
                 program_id: programId,
+                program_day_id: programDayId,
             },
         });
     },

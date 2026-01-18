@@ -7,12 +7,14 @@ from api.models.activity_models import ActivityReadLight
 class ActivityFeedItem(BaseModel):
     id: int
     program_id: Optional[int]
+    program_day_id: Optional[int]
     start_date: datetime
     end_date: Optional[datetime]
     activity: Optional[ActivityReadLight]
 
 
 class ProgramDayInfo(BaseModel):
+    id: int
     day_number: int
     description: str
     activities: List[ActivityReadLight]

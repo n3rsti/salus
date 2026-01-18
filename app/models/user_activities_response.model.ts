@@ -20,6 +20,7 @@ export interface UserActivity {
     owner_username: string;
     activity_id: number | null;
     program_id: number | null;
+    program_day_id: number | null;
     start_date: Date;
     end_date: Date;
     activity: Activity | null;
