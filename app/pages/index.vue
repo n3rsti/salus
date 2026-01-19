@@ -39,9 +39,14 @@ import { Card } from "~/components/ui/card";
 import type { Activity } from "~/models/activity.model";
 import type { Program } from "~/models/program.model";
 
+const { $api } = useNuxtApp();
+
 const limit = 10;
 const { data: activities } = await useFetch<Activity[]>(
     `/api/activities?limit=${limit}&light=true`,
+    {
+        $fetch: $api,
+    },
 );
 
 const { data: programs } = await useFetch<Program[]>(

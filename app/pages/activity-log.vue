@@ -179,9 +179,11 @@ import type {
     ProgramWithActivities,
 } from "~/models/user_activities_response.model";
 
+const { $api } = useNuxtApp();
+
 const { data } = await useFetch<UserActivitiesResponse>(
     "/api/user-activities/me/activities?limit=50",
-    { method: "GET" },
+    { method: "GET", $fetch: $api },
 );
 
 const activities = computed(() => data.value?.activities ?? []);
