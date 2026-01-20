@@ -87,6 +87,13 @@ class ProgramRead(ProgramBase):
     average_rating: Optional[float] = None
 
 
+class ProgramReadLight(ProgramBase):
+    id: int
+    owner: "UsersRead"
+    tags: list[Tag] = []
+    average_rating: Optional[float] = None
+
+
 class ProgramFilters(BaseModel):
     search: Optional[str] = None
     limit: Optional[int] = None

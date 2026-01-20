@@ -13,6 +13,7 @@ from api.models.program_models import (
     ProgramDayInput,
     ProgramFilters,
     ProgramRead,
+    ProgramReadLight,
     ProgramUpdate,
 )
 from api.models.reviews_models import (
@@ -29,7 +30,7 @@ from api.routers.review_router import create_review, get_reviews_by_content_id
 router = APIRouter(prefix="/api/programs", tags=["Programs"])
 
 
-@router.get("", response_model=list[ProgramRead])
+@router.get("", response_model=list[ProgramReadLight])
 def get_programs(session: SessionDep, filters: ProgramFilters = Depends()):
     avg_subq = (
         select(
