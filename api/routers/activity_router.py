@@ -171,7 +171,7 @@ def delete_media(session: SessionDep, media_id: int):
     return {"ok": True}
 
 
-@router.post("/{activity_id}/reviews")
+@router.post("/{activity_id}/reviews", response_model=ReviewRead)
 def post_review(
     review_in: ReviewCreateInput,
     activity_id: int,

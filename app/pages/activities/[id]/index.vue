@@ -185,6 +185,7 @@
             :reviews="reviews"
             :is-reviewed="isReviewed"
             @submit-review="handleReview"
+            @delete-review="deleteReview"
         ></AppReviewCard>
     </section>
 </template>
@@ -315,12 +316,33 @@ async function cancelActivity() {
 
 async function handleReview(description: string, review: number) {
     const { $api } = useNuxtApp();
-    return await $api(`/api/activities/${activity.value?.id}/reviews`, {
-        method: "POST",
-        body: {
-            comment: description,
-            rating: review,
-        },
-    });
+    try {
+        const newReview = await $api<Review>(
+            `/api/activities/${activity.value?.id}/reviews`,
+            {
+                method: "POST",
+                body: {
+                    comment: description,
+                    rating: review,
+                },
+            },
+        );
+
+        reviews.value = [newReview, ...(reviews.value || [])];
+    } catch (err) {
+        console.error("Error posting review:", err);
+    }
+}
+
+async function deleteReview(id: number) {
+    const { $api } = useNuxtApp();
+    try {
+        await $api(`/api/reviews/${id}`, {
+            method: "DELETE",
+        });
+        reviews.value = reviews.value?.filter((r) => r.id !== id);
+    } catch (err) {
+        console.error("Error deleting review:", err);
+    }
 }
 </script>

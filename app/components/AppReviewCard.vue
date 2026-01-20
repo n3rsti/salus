@@ -42,7 +42,7 @@
                 <Button variant="default" class="ml-auto">Post review</Button>
             </section>
         </form>
-        <section class="flex flex-col gap-1">
+        <section class="flex flex-col gap-5">
             <article
                 v-for="review of props.reviews"
                 :key="review.id"
@@ -55,6 +55,40 @@
                     <p class="text-xs text-muted-foreground">
                         {{ formatTimeAgo(review.created_at) }}
                     </p>
+                    <Dialog>
+                        <DropdownMenu v-if="review.user.id == userStore.id">
+                            <DropdownMenuTrigger class="ml-auto">
+                                <Icon
+                                    name="mdi:dots-vertical"
+                                    class="text-xl"
+                                />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuItem>Edit </DropdownMenuItem>
+                                <DialogTrigger as-child>
+                                    <DropdownMenuItem variant="destructive"
+                                        >Delete
+                                    </DropdownMenuItem>
+                                </DialogTrigger>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Delete review</DialogTitle>
+                                <DialogDescription>
+                                    Are you sure you want to delete your review?
+                                </DialogDescription>
+                            </DialogHeader>
+                            <DialogFooter>
+                                <Button
+                                    type="submit"
+                                    variant="destructive"
+                                    @click="deleteReview(review.id)"
+                                    >Delete</Button
+                                >
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </section>
                 <section class="flex items-center">
                     <Icon
@@ -82,9 +116,26 @@
 import type { Review } from "~/models/review.model";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+    Dialog,
+    DialogFooter,
+    DialogHeader,
+    DialogContent,
+    DialogDescription,
+    DialogTitle,
+    DialogTrigger,
+} from "./ui/dialog";
 
 const description = ref("");
 const rating = ref<number>(0);
+
+const userStore = useUserStore();
 
 const props = defineProps<{
     reviews?: Review[];
@@ -93,10 +144,15 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     submitReview: [description: string, rating: number];
+    deleteReview: [id: number];
 }>();
 
 function submitForm() {
     emit("submitReview", description.value, rating.value);
+}
+
+function deleteReview(id: number) {
+    emit("deleteReview", id);
 }
 
 function formatTimeAgo(date: Date | string | number): string {
