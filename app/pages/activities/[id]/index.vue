@@ -185,6 +185,7 @@
             :reviews="reviews"
             :is-reviewed="isReviewed"
             :reset-key="reviewResetKey"
+            :average-rating="activity?.average_rating"
             @submit-review="handleReview"
             @delete-review="deleteReview"
         ></AppReviewCard>

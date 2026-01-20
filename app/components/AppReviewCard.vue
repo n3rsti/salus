@@ -2,7 +2,21 @@
     <section
         class="flex flex-col gap-3 border rounded-xl p-3 sm:p-5 md:p-6 lg:p-7 bg-primary-light border-neutral-100 border-t border-t-transparent shadow"
     >
-        <h2 class="font-medium">Reviews</h2>
+        <section class="flex items-center gap-2">
+            <h2 class="font-medium">Reviews</h2>
+            <section v-if="props.averageRating" class="flex items-center gap-1">
+                <Icon
+                    name="material-symbols:star-rounded"
+                    class="text-yellow-400 text-xl"
+                />
+                <p class="text-xs font-medium">
+                    {{ props.averageRating.toFixed(1) }}
+                </p>
+            </section>
+            <template v-else>
+                <span class="text-muted-foreground text-xs">No rating</span>
+            </template>
+        </section>
         <form
             v-if="!isReviewed"
             action=""
@@ -141,6 +155,7 @@ const props = defineProps<{
     reviews?: Review[];
     isReviewed: boolean;
     resetKey: number;
+    averageRating?: number;
 }>();
 
 watch(
