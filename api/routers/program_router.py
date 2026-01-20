@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlmodel import delete, select, update
@@ -14,11 +14,11 @@ from api.models.program_models import (
     ProgramRead,
     ProgramUpdate,
 )
-from api.models.reviews_models import ReviewCreate, ReviewCreateInput
+from api.models.reviews_models import ReviewCreate, ReviewCreateInput, ReviewRead
 from api.security.auth import JwtPayload, get_current_user
 from api.utils.files import save_file
 
-from api.routers.review_router import create_review
+from api.routers.review_router import create_review, get_reviews_by_content_id
 
 router = APIRouter(prefix="/api/programs", tags=["Programs"])
 
@@ -158,7 +158,7 @@ def delete_program(
     return {"ok": True}
 
 
-@router.post("/{program_id}/reviews")
+@router.post("/{program_id}/reviews", response_model=ReviewRead)
 def post_review(
     review_in: ReviewCreateInput,
     program_id: int,
@@ -173,3 +173,12 @@ def post_review(
     )
 
     return create_review(review, session, current_user)
+
+
+@router.get("/{program_id}/reviews", response_model=List[ReviewRead])
+def get_reviews(
+    program_id: int,
+    session: SessionDep,
+    user_id: Optional[int] = None,
+):
+    return get_reviews_by_content_id(session, program_id, "program", user_id)
