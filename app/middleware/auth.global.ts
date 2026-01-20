@@ -1,4 +1,4 @@
-const allowed_routes = ["/login", "/register"];
+const allowed_routes = ["/login", "/register", "/cookies"];
 
 export default defineNuxtRouteMiddleware((to) => {
     const store = useUserStore();
