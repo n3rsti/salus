@@ -16,12 +16,14 @@
                 minutes
             </p>
             <p class="text-sm flex items-center text-primary gap-1">
-                <template v-if="props.activity.rating">
-                    {{ props.activity.rating }}/5
+                <template v-if="props.activity.average_rating">
                     <Icon
                         name="material-symbols:star-rounded"
-                        class="text-yellow-400 text-2xl"
+                        class="text-yellow-400 text-xl"
                     />
+                    <p class="text-xs font-medium">
+                        {{ props.activity.average_rating.toFixed(1) }}
+                    </p>
                 </template>
                 <template v-else>
                     <span class="text-muted-foreground text-xs">No rating</span>

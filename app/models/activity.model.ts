@@ -8,7 +8,7 @@ export interface Activity {
     description: string;
     difficulty: number;
     content?: string;
-    rating?: number;
+    average_rating?: number;
     image_url: string;
     owner?: User;
     tags?: Tag[];
