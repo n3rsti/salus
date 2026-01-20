@@ -50,6 +50,7 @@ class ActivityUpdate(SQLModel):
     description: Optional[str] = None
     content: Optional[str] = None
     difficulty: Optional[int] = None
+    tags: Optional[list[Tag]] = None
 
     @field_validator("difficulty")
     def validate_difficulty(cls, v):

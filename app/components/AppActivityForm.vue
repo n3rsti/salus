@@ -83,6 +83,13 @@
                             required
                         />
                     </div>
+
+                    <div class="flex flex-col gap-2">
+                        <AppTagInput
+                            :selected-tags="activity.tags"
+                            @update-tags="updateTags"
+                        />
+                    </div>
                 </div>
                 <div
                     class="flex flex-col gap-4 rounded-xl bg-primary-light md:shadow-sm p-4"
@@ -197,6 +204,7 @@ import { Input } from "@/components/ui/input";
 import { Label as Label } from "@/components/ui/label";
 import type { Activity } from "~/models/activity.model";
 import { Textarea } from "./ui/textarea";
+import type { Tag } from "~/constants/tags";
 
 const route = useRoute();
 const userStore = useUserStore();
@@ -207,6 +215,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
     submit: [activity: Activity, file: File | undefined];
+    updateTags: [tags: Tag[]];
     delete: [];
 }>();
 
@@ -257,5 +266,9 @@ const difficulties: Difficulty[] = [
 async function submitForm() {
     const file = fileInput.value?.files?.[0];
     emits("submit", activity.value, file);
+}
+
+function updateTags(tags: Tag[]) {
+    activity.value.tags = tags;
 }
 </script>

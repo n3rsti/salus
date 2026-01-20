@@ -7,10 +7,11 @@
                         v-for="tag in internalValue"
                         :key="tag"
                         :value="tag"
-                        class="text-white"
+                        class="text-white p-1 flex gap-1"
                         :class="TagColors[tag]"
                     >
-                        <span class="text-xs font-semibold p-2">{{
+                        <Icon :name="TagIcons[tag]" />
+                        <span class="text-xs font-semibold">{{
                             TagNames[tag]
                         }}</span>
                         <TagsInputItemDelete />
@@ -90,7 +91,7 @@ import {
     TagsInputItem,
     TagsInputItemDelete,
 } from "@/components/ui/tags-input";
-import { Tag, TagColors, TagNames } from "~/constants/tags";
+import { Tag, TagColors, TagIcons, TagNames } from "~/constants/tags";
 
 const props = defineProps<{
     selectedTags?: Tag[];
