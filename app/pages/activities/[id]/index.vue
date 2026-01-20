@@ -184,6 +184,7 @@
         <AppReviewCard
             :reviews="reviews"
             :is-reviewed="isReviewed"
+            :reset-key="reviewResetKey"
             @submit-review="handleReview"
             @delete-review="deleteReview"
         ></AppReviewCard>
@@ -227,6 +228,8 @@ const isReviewed = computed(() => {
     if (!reviews.value || reviews.value?.length == 0) return false;
     return reviews.value[0]?.user.id == userStore.id;
 });
+
+const reviewResetKey = ref(0);
 
 const parsedDescription = computed(() => {
     if (!activity.value?.content) return [];
@@ -328,6 +331,7 @@ async function handleReview(description: string, review: number) {
             },
         );
 
+        reviewResetKey.value++;
         reviews.value = [newReview, ...(reviews.value || [])];
     } catch (err) {
         console.error("Error posting review:", err);

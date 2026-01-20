@@ -212,6 +212,7 @@
         <AppReviewCard
             :reviews="reviews"
             :is-reviewed="isReviewed"
+            :reset-key="reviewResetKey"
             @submit-review="handleReview"
             @delete-review="deleteReview"
         ></AppReviewCard>
@@ -267,6 +268,8 @@ const isStarted = computed(() => {
     return startedActivity.value !== undefined;
 });
 
+const reviewResetKey = ref(0);
+
 async function completeActivity() {
     try {
         await Api.completeActivity(startedActivity.value!.id!);
@@ -280,7 +283,11 @@ async function completeActivity() {
 
 async function startActivity() {
     try {
-        const newActivity = await Api.startActivity(null, program.value!.id!);
+        const newActivity = await Api.startActivity(
+            null,
+            program.value!.id!,
+            null,
+        );
 
         activity_log.value = [...(activity_log.value || []), newActivity];
     } catch (err) {
@@ -314,6 +321,7 @@ async function handleReview(description: string, review: number) {
         );
 
         reviews.value = [newReview, ...(reviews.value || [])];
+        reviewResetKey.value++;
     } catch (err) {
         console.error("Error posting review:", err);
     }

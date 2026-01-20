@@ -140,7 +140,16 @@ const userStore = useUserStore();
 const props = defineProps<{
     reviews?: Review[];
     isReviewed: boolean;
+    resetKey: number;
 }>();
+
+watch(
+    () => props.resetKey,
+    () => {
+        description.value = "";
+        rating.value = 0;
+    },
+);
 
 const emit = defineEmits<{
     submitReview: [description: string, rating: number];
