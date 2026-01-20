@@ -1,6 +1,7 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import state
 from sqlmodel import delete, select, update
 
 from api.database import SessionDep
@@ -16,7 +17,6 @@ def get_reviews(session: SessionDep):
     return reviews if reviews else []
 
 
-@router.post("", response_model=ReviewRead)
 def create_review(
     review_in: ReviewCreate,
     session: SessionDep,
@@ -24,11 +24,37 @@ def create_review(
 ):
     review_data = review_in.model_dump()
     review_data["user_id"] = current_user.id
+
     review = Review.model_validate(review_data)
+
     session.add(review)
     session.commit()
     session.refresh(review)
+
     return review
+
+
+def get_reviews_by_content_id(
+    session: SessionDep,
+    content_id: int,
+    content_type: str,
+    user_id: Optional[int] = None,
+    limit: int = 10,
+):
+    statement = select(Review).where(
+        Review.content_id == content_id, Review.content_type == content_type
+    )
+
+    if user_id:
+        statement = statement.order_by(
+            (Review.user_id == user_id).desc(), Review.created_at.desc()
+        )
+    else:
+        statement = statement.order_by(Review.created_at.desc())
+
+    statement = statement.limit(limit)
+
+    return session.exec(statement).all()
 
 
 @router.put("/{review_id}", response_model=ReviewRead)

@@ -14,8 +14,11 @@ from api.models.program_models import (
     ProgramRead,
     ProgramUpdate,
 )
+from api.models.reviews_models import ReviewCreate, ReviewCreateInput
 from api.security.auth import JwtPayload, get_current_user
 from api.utils.files import save_file
+
+from api.routers.review_router import create_review
 
 router = APIRouter(prefix="/api/programs", tags=["Programs"])
 
@@ -153,3 +156,20 @@ def delete_program(
         raise HTTPException(status_code=404, detail="Program not found")
 
     return {"ok": True}
+
+
+@router.post("/{program_id}/reviews")
+def post_review(
+    review_in: ReviewCreateInput,
+    program_id: int,
+    session: SessionDep,
+    current_user: JwtPayload = Depends(get_current_user),
+):
+    review = ReviewCreate(
+        content_type="program",
+        content_id=program_id,
+        rating=review_in.rating,
+        comment=review_in.comment,
+    )
+
+    return create_review(review, session, current_user)

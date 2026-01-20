@@ -1,3 +1,4 @@
+from typing import List, Optional
 from fastapi import APIRouter, Depends, Form, HTTPException, File, UploadFile
 from sqlalchemy.orm import selectinload
 from sqlmodel import delete, select, update
@@ -15,7 +16,9 @@ from api.models.activity_models import (
     ActivityReadLight,
     ActivityUpdate,
 )
+from api.models.reviews_models import ReviewCreate, ReviewCreateInput, ReviewRead
 from api.models.user_models import Users
+from api.routers.review_router import create_review, get_reviews_by_content_id
 from api.security.auth import JwtPayload, get_current_user, verify_jwt_token
 from api.utils.files import save_file
 
@@ -166,3 +169,29 @@ def delete_media(session: SessionDep, media_id: int):
         raise HTTPException(status_code=404, detail="Media not found")
 
     return {"ok": True}
+
+
+@router.post("/{activity_id}/reviews")
+def post_review(
+    review_in: ReviewCreateInput,
+    activity_id: int,
+    session: SessionDep,
+    current_user: JwtPayload = Depends(get_current_user),
+):
+    review = ReviewCreate(
+        content_type="activity",
+        content_id=activity_id,
+        rating=review_in.rating,
+        comment=review_in.comment,
+    )
+
+    return create_review(review, session, current_user)
+
+
+@router.get("/{activity_id}/reviews", response_model=List[ReviewRead])
+def get_reviews(
+    activity_id: int,
+    session: SessionDep,
+    user_id: Optional[int] = None,
+):
+    return get_reviews_by_content_id(session, activity_id, "activity", user_id)

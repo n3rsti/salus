@@ -1,3 +1,4 @@
+from sqlalchemy import Index
 from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional
 from datetime import datetime
@@ -30,6 +31,27 @@ class Review(ReviewBase, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     user_id: int = Field(foreign_key="users.id", nullable=False)
     user: Optional["Users"] = Relationship()
+
+    __table_args__ = (
+        Index(
+            "idx_unique_user_content_review",
+            "user_id",
+            "content_type",
+            "content_id",
+            unique=True,
+        ),
+    )
+
+
+class ReviewCreateInput(SQLModel):
+    rating: int
+    comment: Optional[str] = None
+
+    @field_validator("rating")
+    def validate_rating(cls, v):
+        if not (1 <= v <= 5):
+            raise ValueError("Rating must be between 1 and 5")
+        return v
 
 
 class ReviewCreate(ReviewBase):
