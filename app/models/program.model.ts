@@ -10,7 +10,7 @@ export interface Program {
     language: string;
     image_url: string;
     progress?: number;
-    rating?: number;
+    average_rating?: number;
     days?: ProgramDay[];
     owner?: User;
     tags?: Tag[];

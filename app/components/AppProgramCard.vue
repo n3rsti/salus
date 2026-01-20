@@ -35,13 +35,15 @@
                 {{ props.program.duration_days }}
                 days
             </p>
-            <p class="text-sm flex items-center text-primary gap-1">
-                <template v-if="props.program.rating">
-                    {{ props.program.rating }}/5
+            <p class="text-sm flex items-center text-primary">
+                <template v-if="props.program.average_rating">
                     <Icon
                         name="material-symbols:star-rounded"
-                        class="text-yellow-400 text-2xl"
+                        class="text-yellow-400 text-xl"
                     />
+                    <p class="text-xs font-medium">
+                        {{ props.program.average_rating.toFixed(1) }}
+                    </p>
                 </template>
                 <template v-else>
                     <span class="text-muted-foreground text-xs">No rating</span>

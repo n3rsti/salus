@@ -245,6 +245,8 @@ const { data: program } = await useFetch<Program>(
     `/api/programs/${route.params.id}`,
 );
 
+console.log(program);
+
 const { data: reviews } = await useFetch<Review[]>(
     `/api/programs/${programId}/reviews?user_id=${userStore.id}`,
 );

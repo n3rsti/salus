@@ -25,5 +25,5 @@
 import { Button } from "~/components/ui/button";
 import type { Program } from "~/models/program.model";
 
-const { data: programs } = await useFetch<Program[]>(`/api/programs`);
+const { data: programs } = await useFetch<Program[]>(`/api/programs?limit=20`);
 </script>
