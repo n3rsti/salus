@@ -62,6 +62,7 @@ class ProgramUpdate(SQLModel):
     duration_days: Optional[int] = None
     description: Optional[str] = None
     language: Optional[str] = None
+    tags: list[Tag] = []
     days: List[ProgramDayInput] = []
 
     @field_validator("language")

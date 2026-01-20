@@ -91,6 +91,13 @@
                             :required="route.params.id == undefined"
                         />
                     </div>
+
+                    <div class="flex flex-col gap-2">
+                        <AppTagInput
+                            :selected-tags="formData.tags"
+                            @update-tags="(tags) => (formData.tags = tags)"
+                        />
+                    </div>
                 </div>
                 <div
                     class="flex flex-col gap-3 bg-primary-light shadow-sm p-4 rounded-xl"
@@ -194,6 +201,7 @@
 import { Button } from "~/components/ui/button";
 import type { Program } from "~/models/program.model";
 import type { ProgramDay } from "~/models/program_day.model";
+import { ref } from "vue";
 
 import {
     Dialog,
@@ -234,6 +242,7 @@ const formData = ref<Program>({
     duration_days: props.initialData?.duration_days || 1,
     image_url: props.initialData?.image_url || "",
     language: props.initialData?.language || "pl",
+    tags: props.initialData?.tags || [],
     days: props.initialData?.days || [
         {
             day_number: 1,
