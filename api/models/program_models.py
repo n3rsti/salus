@@ -84,6 +84,7 @@ class ProgramRead(ProgramBase):
     owner: "UsersRead"
     days: List["ProgramDayRead"] = []
     tags: list[Tag] = []
+    average_rating: Optional[float] = None
 
 
 class ProgramFilters(BaseModel):
