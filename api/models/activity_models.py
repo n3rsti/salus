@@ -66,6 +66,7 @@ class ActivityRead(ActivityBase):
     media: List["ActivityMediaRead"] = []
     image_url: str
     tags: list[Tag] = []
+    average_rating: Optional[float] = None
 
 
 class ActivityReadLight(SQLModel):
@@ -78,6 +79,7 @@ class ActivityReadLight(SQLModel):
     image_url: str
     difficulty: int
     tags: list[Tag] = []
+    average_rating: Optional[float] = None
 
 
 class ActivityMediaBase(SQLModel):

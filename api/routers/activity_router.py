@@ -1,5 +1,6 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Form, HTTPException, File, UploadFile
+from sqlalchemy import func
 from sqlalchemy.orm import selectinload
 from sqlmodel import delete, select, update
 
@@ -16,7 +17,12 @@ from api.models.activity_models import (
     ActivityReadLight,
     ActivityUpdate,
 )
-from api.models.reviews_models import ReviewCreate, ReviewCreateInput, ReviewRead
+from api.models.reviews_models import (
+    Review,
+    ReviewCreate,
+    ReviewCreateInput,
+    ReviewRead,
+)
 from api.models.user_models import Users
 from api.routers.review_router import create_review, get_reviews_by_content_id
 from api.security.auth import JwtPayload, get_current_user, verify_jwt_token
@@ -46,17 +52,63 @@ def get_activities(
 
     query = filters.apply(query)
     activities = session.exec(query).all()
-    return activities if activities else []
+
+    if not activities:
+        return []
+
+    # Get average ratings
+    activity_ids = [a.id if not light else a.id for a in activities]
+    avg_ratings = session.exec(
+        select(
+            Review.content_id,
+            func.avg(Review.rating).label("avg_rating"),
+        )
+        .where(Review.content_type == "activity")
+        .where(Review.content_id.in_(activity_ids))
+        .group_by(Review.content_id)
+    ).all()
+
+    rating_map = {
+        content_id: float(avg_rating) for content_id, avg_rating in avg_ratings
+    }
+
+    # Build result
+    result = []
+    for activity in activities:
+        if light:
+            activity_dict = activity._asdict()
+            activity_dict["average_rating"] = rating_map.get(activity.id)
+            result.append(activity_dict)
+        else:
+            activity_data = ActivityRead.model_validate(activity)
+            activity_dict = activity_data.model_dump()
+            activity_dict["average_rating"] = rating_map.get(activity.id)
+            result.append(activity_dict)
+
+    return result
 
 
 @router.get("/{activity_id}", response_model=ActivityRead)
 def get_activity(session: SessionDep, activity_id: int):
-    activity = session.get(Activity, activity_id)
+    stmt = (
+        select(Activity, func.avg(Review.rating).label("avg_rating"))
+        .join(
+            Review,
+            (Review.content_id == Activity.id) & (Review.content_type == "activity"),
+            isouter=True,
+        )
+        .where(Activity.id == activity_id)
+        .group_by(Activity.id)
+    )
 
-    if not activity:
+    row = session.exec(stmt).first()
+    if not row:
         raise HTTPException(status_code=404, detail="Activity not found")
 
-    return activity
+    activity, avg_rating = row
+    ar = ActivityRead.model_validate(activity, from_attributes=True)
+    ar.average_rating = float(avg_rating) if avg_rating is not None else None
+    return ar
 
 
 @router.post("", response_model=ActivityRead)
