@@ -30,12 +30,21 @@
                         v-model="description"
                         name="description"
                         placeholder="Describe your experience..."
+                        :disabled="isPending"
                         required
                     ></Textarea>
                 </div>
-                <Button type="submit" variant="success" class="w-full mt-3"
+                <Button
+                    v-if="!isPending"
+                    type="submit"
+                    variant="success"
+                    class="w-full mt-3"
                     >Submit</Button
                 >
+                <p v-else class="text-sm">
+                    You have already submitted a request for the trainer status.
+                    Please wait for the response.
+                </p>
             </form>
         </section>
     </article>
@@ -49,6 +58,16 @@ import type { Request } from "~/models/request.model";
 const description = ref("");
 
 const { $api } = useNuxtApp();
+
+const userStore = useUserStore();
+const isPending = computed(() => {
+    if (!requests.value) return false;
+    return requests.value.filter((r) => !r.resolved).length > 0;
+});
+
+const { data: requests } = await useFetch<Request[]>(
+    `/api/users/${userStore.id}/requests`,
+);
 
 async function submitForm() {
     try {
