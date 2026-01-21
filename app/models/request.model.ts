@@ -4,6 +4,7 @@ export interface Request {
     id: number;
     description: string;
     user: User;
+    admin?: User;
     resolved: boolean;
     created_at: Date;
     resolved_at: Date | null;
