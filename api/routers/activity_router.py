@@ -175,10 +175,8 @@ def delete_activity(
     current_user: JwtPayload = Depends(get_current_user),
 ):
     if is_admin(current_user):
-        print("ADMIN")
         statement = delete(Activity).where((Activity.id == activity_id))
     else:
-        print("NOT ADMIN")
         statement = delete(Activity).where(
             (Activity.id == activity_id) & (Activity.owner_id == current_user.id)
         )

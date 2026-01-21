@@ -10,7 +10,7 @@
             <Dialog
                 v-if="
                     (activityId && userStore.id == activity.owner?.id) ||
-                    userStore.isAdmin()
+                    (userStore.isAdmin() && activityId != undefined)
                 "
             >
                 <form>

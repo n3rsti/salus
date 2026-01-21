@@ -22,7 +22,7 @@ from api.models.reviews_models import (
     ReviewCreateInput,
     ReviewRead,
 )
-from api.security.auth import JwtPayload, get_current_user
+from api.security.auth import JwtPayload, get_current_user, is_admin
 from api.utils.files import save_file
 
 from api.routers.review_router import create_review, get_reviews_by_content_id
@@ -182,9 +182,12 @@ def delete_program(
     program_id: int,
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    statement = delete(Program).where(
-        (Program.id == program_id) & (Program.owner_id == current_user.id)
-    )
+    if is_admin(current_user):
+        statement = delete(Program).where((Program.id == program_id))
+    else:
+        statement = delete(Program).where(
+            (Program.id == program_id) & (Program.owner_id == current_user.id)
+        )
     result = session.exec(statement)
     session.commit()
 

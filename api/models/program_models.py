@@ -2,7 +2,6 @@ from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship
 from api.models.program_day_activities_link import ProgramDayActivityLink
 
-# from api.models.programs_tags_link import ProgramTagLink
 from sqlalchemy import Select, func, or_, Column, JSON
 from pydantic import BaseModel, field_validator
 from api.models.enums import Tag
@@ -39,9 +38,6 @@ class Program(ProgramBase, table=True):
     days: List["ProgramDay"] = Relationship(
         back_populates="program", cascade_delete=True
     )
-    # tags: List["Tag"] = Relationship(
-    #     back_populates="programs", link_model=ProgramTagLink
-    # )
 
     tags: list[Tag] = Field(sa_column=Column(JSON, nullable=False, default=list))
 

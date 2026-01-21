@@ -14,7 +14,10 @@
                         {{ program?.name }}
                     </h1>
                     <NuxtLink
-                        v-if="userStore.id == program?.owner?.id"
+                        v-if="
+                            userStore.id == program?.owner?.id ||
+                            userStore.isAdmin()
+                        "
                         :to="'/programs/' + route.params.id + '/edit'"
                         class="ml-auto"
                     >

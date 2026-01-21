@@ -14,7 +14,7 @@
                         <span class="text-xs font-semibold">{{
                             TagNames[tag]
                         }}</span>
-                        <TagsInputItemDelete />
+                        <TagsInputItemDelete :disabled="props.disabled" />
                     </TagsInputItem>
 
                     <ListboxFilter v-model="searchTerm" as-child>
