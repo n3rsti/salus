@@ -1,0 +1,45 @@
+<template>
+    <article>
+        <section
+            class="p-4 rounded-xl bg-primary-light mb-4 flex items-center justify-between shadow-sm"
+        >
+            <h1 class="text-green-700 text-xl font-semibold">
+                Become a trainer
+            </h1>
+        </section>
+        <section
+            class="flex flex-col p-4 gap-3 rounded-xl bg-primary-light shadow-sm"
+        >
+            <h2 class="font-semibold flex col-span-full">
+                Do you want to become a trainer?
+            </h2>
+            <p class="text-sm text-muted-foreground">
+                Become a trainer and help others reach their fitness goals! You
+                will receive a special badge to show your expertise. <br />You
+                must show proof of your experience in the field of fitness.
+            </p>
+            <form action="" class="mt-3 flex flex-col gap-2">
+                <div class="flex flex-col gap-2">
+                    <Label for="description">Description</Label>
+                    <Textarea
+                        id="description"
+                        v-model="description"
+                        name="description"
+                        placeholder="Describe your experience..."
+                        required
+                    ></Textarea>
+                </div>
+                <Button type="submit" variant="success" class="w-full mt-3"
+                    >Submit</Button
+                >
+            </form>
+        </section>
+    </article>
+</template>
+<script setup lang="ts">
+import { Button } from "~/components/ui/button";
+import { Label } from "~/components/ui/label";
+import { Textarea } from "~/components/ui/textarea";
+
+const description = ref("");
+</script>

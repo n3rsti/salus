@@ -53,7 +53,14 @@
 </template>
 
 <script setup lang="ts">
-import { Calendar, Home, Dumbbell, Smile, ListChecks } from "lucide-vue-next";
+import {
+    Calendar,
+    Home,
+    Dumbbell,
+    Smile,
+    ListChecks,
+    Award,
+} from "lucide-vue-next";
 import {
     Sidebar,
     SidebarContent,
@@ -68,10 +75,13 @@ import {
 } from "@/components/ui/sidebar";
 import AppLogoutModal from "./AppLogoutModal.vue";
 import { useMediaQuery } from "@vueuse/core";
+import { Role } from "~/constants/roles";
 
 const { toggleSidebar } = useSidebar();
 
 const isMobile = useMediaQuery("(max-width: 1024px)");
+
+const store = useUserStore();
 
 function toggle() {
     if (isMobile.value == true) {
@@ -83,6 +93,7 @@ interface MenuItem {
     title: string;
     url?: string;
     icon: any;
+    display?: boolean;
 }
 
 interface MenuSection {
@@ -98,6 +109,12 @@ const menuSections: MenuSection[] = [
                 title: "Home",
                 url: "/",
                 icon: Home,
+            },
+            {
+                title: "Become a trainer",
+                url: "/trainer",
+                icon: Award,
+                display: store.role == Role.User,
             },
         ],
     },
@@ -141,6 +158,4 @@ const menuSections: MenuSection[] = [
         ],
     },
 ];
-
-const store = useUserStore();
 </script>
