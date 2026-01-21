@@ -18,7 +18,11 @@
                 will receive a special badge to show your expertise. <br />You
                 must show proof of your experience in the field of fitness.
             </p>
-            <form action="" class="mt-3 flex flex-col gap-2">
+            <form
+                action=""
+                class="mt-3 flex flex-col gap-2"
+                @submit.prevent="submitForm"
+            >
                 <div class="flex flex-col gap-2">
                     <Label for="description">Description</Label>
                     <Textarea
@@ -40,6 +44,23 @@
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
+import type { Request } from "~/models/request.model";
 
 const description = ref("");
+
+const { $api } = useNuxtApp();
+
+async function submitForm() {
+    try {
+        const newRequest = await $api<Request>("/api/requests", {
+            method: "POST",
+            body: {
+                description: description.value,
+            },
+        });
+        navigateTo("/requests/" + newRequest.id);
+    } catch (error) {
+        console.error("Error while creating request:", error);
+    }
+}
 </script>
