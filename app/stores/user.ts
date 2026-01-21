@@ -1,30 +1,37 @@
-
-import { defineStore } from "pinia"
+import { defineStore } from "pinia";
+import { Role } from "~/constants/roles";
 
 export const useUserStore = defineStore("user", {
-  state: () => ({
-    id: null as number | null,
-    username: null as string | null,
-    email: null as string | null,
-  }),
+    state: () => ({
+        id: null as number | null,
+        username: null as string | null,
+        email: null as string | null,
+        role: null as Role | null,
+    }),
 
-  actions: {
-    async fetchUser(userId: number) {
-      const res = await fetch(`http://localhost:8000/api/users/${userId}`, {
-        credentials: "include",
-      })
+    actions: {
+        async fetchUser(userId: number) {
+            const res = await fetch(
+                `http://localhost:8000/api/users/${userId}`,
+                {
+                    credentials: "include",
+                },
+            );
 
-      if (!res.ok) {
-        throw new Error("Failed to fetch user")
-      }
+            if (!res.ok) {
+                throw new Error("Failed to fetch user");
+            }
 
-      const data = await res.json()
+            const data = await res.json();
 
-      this.id = data.id
-      this.username = data.username
-      this.email = data.email
+            this.id = data.id;
+            this.username = data.username;
+            this.email = data.email;
+        },
+        isAdmin() {
+            return this.role == Role.Admin || this.role == Role.SuperAdmin;
+        },
     },
-  },
 
-  persist: true,
-})
+    persist: true,
+});

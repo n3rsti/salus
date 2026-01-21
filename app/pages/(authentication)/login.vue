@@ -128,6 +128,7 @@
 </template>
 <script setup lang="ts">
 import { Button } from "~/components/ui/button";
+import type { Role } from "~/constants/roles";
 
 definePageMeta({
     layout: "authentication",
@@ -154,6 +155,9 @@ async function handleLogin() {
 
                 userStore.username = (data.user.username as string) || null;
                 userStore.id = (data.user.id as number) || 0;
+                userStore.role = (data.user.role as Role) || null;
+                console.log(userStore.role);
+                console.log(data);
                 await navigateTo("/");
             } else {
                 password.value = "";

@@ -20,6 +20,7 @@
                     <ListboxFilter v-model="searchTerm" as-child>
                         <TagsInputInput
                             placeholder="Tags..."
+                            :disabled="props.disabled"
                             @keydown.enter.prevent
                             @keydown.down="open = true"
                         />
@@ -27,6 +28,7 @@
 
                     <PopoverTrigger as-child>
                         <Button
+                            :disabled="props.disabled"
                             size="icon-sm"
                             variant="ghost"
                             class="order-last self-start ml-auto"
@@ -95,6 +97,7 @@ import { Tag, TagColors, TagIcons, TagNames } from "~/constants/tags";
 
 const props = defineProps<{
     selectedTags?: Tag[];
+    disabled?: boolean;
 }>();
 
 const emit = defineEmits<{

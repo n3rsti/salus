@@ -20,7 +20,10 @@
                         >
                     </h1>
                     <NuxtLink
-                        v-if="userStore.id == activity?.owner?.id"
+                        v-if="
+                            userStore.id == activity?.owner?.id ||
+                            userStore.isAdmin()
+                        "
                         :to="'/activities/' + route.params.id + '/edit'"
                         class="ml-auto"
                     >
