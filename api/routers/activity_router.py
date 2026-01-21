@@ -24,7 +24,11 @@ from api.models.reviews_models import (
     ReviewRead,
 )
 from api.models.user_models import Users
-from api.routers.review_router import create_review, get_reviews_by_content_id
+from api.routers.review_router import (
+    create_review,
+    delete_review_by_content_id,
+    get_reviews_by_content_id,
+)
 from api.security.auth import JwtPayload, get_current_user, is_admin, verify_jwt_token
 from api.utils.files import save_file
 
@@ -185,6 +189,8 @@ def delete_activity(
 
     if result.rowcount == 0:
         raise HTTPException(status_code=404, detail="Activity not found")
+
+    delete_review_by_content_id(session, activity_id, "activity")
 
     return {"ok": True}
 
