@@ -12,7 +12,7 @@ from sqlmodel import SQLModel, Session, create_engine, StaticPool
 
 from main import app
 from api.database import get_session
-from api.models.user_models import Users, Role
+from api.models.user_models import Users
 from api.security.crypto import hash_password
 
 
@@ -42,14 +42,12 @@ def setup_db():
 @pytest.mark.asyncio
 async def test_login_existing_user():
     with Session(engine_test) as session:
-        role = Role(id=1, name="user")
         user = Users(
             username="testuser",
             email="testuser@email.hr",
             password=hash_password("correct_password"),
             role_id=1,
         )
-        session.add(role)
         session.add(user)
         session.commit()
 
