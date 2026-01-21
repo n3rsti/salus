@@ -11,4 +11,5 @@ onMounted(() => {
         <NuxtPage />
     </NuxtLayout>
     <CookieConsent />
+    <UserPreferencesSurvey />
 </template>
