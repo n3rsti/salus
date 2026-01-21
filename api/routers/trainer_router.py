@@ -42,6 +42,19 @@ def get_trainer_requests(
     return requests if requests else []
 
 
+def get_user_trainer_requests(
+    session: SessionDep,
+    user_id: int,
+    current_user: JwtPayload = Depends(get_current_user),
+):
+    if not is_admin(current_user) and current_user.id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    requests = session.exec(
+        select(TrainerRequest).where(TrainerRequest.user_id == user_id)
+    ).all()
+    return requests if requests else []
+
+
 @router.get("/{request_id}", response_model=TrainerRequestRead)
 def get_trainer_request(
     session: SessionDep,

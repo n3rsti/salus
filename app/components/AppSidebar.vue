@@ -60,6 +60,7 @@ import {
     Smile,
     ListChecks,
     Award,
+    Mail,
 } from "lucide-vue-next";
 import {
     Sidebar,
@@ -115,6 +116,12 @@ const menuSections: MenuSection[] = [
                 url: "/trainer",
                 icon: Award,
                 display: store.role == Role.User,
+            },
+
+            {
+                title: "My requests",
+                url: "/requests",
+                icon: Mail,
             },
         ],
     },
