@@ -70,8 +70,15 @@
                         {{ formatTimeAgo(review.created_at) }}
                     </p>
                     <Dialog>
-                        <DropdownMenu v-if="review.user.id == userStore.id">
-                            <DropdownMenuTrigger class="ml-auto">
+                        <DropdownMenu
+                            v-if="
+                                review.user.id == userStore.id ||
+                                userStore.isAdmin()
+                            "
+                        >
+                            <DropdownMenuTrigger
+                                class="ml-auto flex items-center justify-center"
+                            >
                                 <Icon
                                     name="mdi:dots-vertical"
                                     class="text-xl"
