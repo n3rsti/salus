@@ -7,6 +7,7 @@ from api.services.recommendation_service import RecommendationService
 
 router = APIRouter(prefix="/api/recommendations", tags=["Recommendations"])
 
+
 @router.get("/{user_id}")
 def get_recommendations(
     session: SessionDep,

@@ -25,7 +25,7 @@ from api.models.reviews_models import (
 )
 from api.models.user_models import Users
 from api.routers.review_router import create_review, get_reviews_by_content_id
-from api.security.auth import JwtPayload, get_current_user, verify_jwt_token
+from api.security.auth import JwtPayload, get_current_user, is_admin, verify_jwt_token
 from api.utils.files import save_file
 
 router = APIRouter(prefix="/api/activities", tags=["Activities"])
@@ -174,9 +174,14 @@ def delete_activity(
     activity_id: int,
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    statement = delete(Activity).where(
-        (Activity.id == activity_id) & (Activity.owner_id == current_user.id)
-    )
+    if is_admin(current_user):
+        print("ADMIN")
+        statement = delete(Activity).where((Activity.id == activity_id))
+    else:
+        print("NOT ADMIN")
+        statement = delete(Activity).where(
+            (Activity.id == activity_id) & (Activity.owner_id == current_user.id)
+        )
     result = session.exec(statement)
     session.commit()
 

@@ -4,23 +4,6 @@ from sqlalchemy import Column, String
 from sqlmodel import Field, Relationship, SQLModel
 
 
-class RoleBase(SQLModel):
-    name: str = Field(sa_column=Column("name", String, unique=True, nullable=False))
-
-
-class Role(RoleBase, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    users: List["Users"] = Relationship(back_populates="role")
-
-
-class RoleCreate(RoleBase):
-    pass
-
-
-class RoleRead(RoleBase):
-    id: int
-
-
 class UsersBase(SQLModel):
     username: str = Field(
         sa_column=Column("username", String, unique=True, nullable=False)
@@ -30,9 +13,7 @@ class UsersBase(SQLModel):
         sa_column=Column("email", String, unique=True, nullable=True),
         description="Primary email address used for contact or OAuth login",
     )
-    role_id: int = Field(
-        foreign_key="role.id", description="Identifier of the role assigned to the user"
-    )
+    role_id: int
 
 
 class Users(UsersBase, table=True):
@@ -52,7 +33,6 @@ class Users(UsersBase, table=True):
         sa_column=Column("oauth_sub", String, unique=True, nullable=True),
         description="Subject identifier returned by the OAuth provider",
     )
-    role: Optional[Role] = Relationship(back_populates="users")
     activity_plans: list["ActivityPlan"] = Relationship(back_populates="user")
     user_activities: list["UserActivity"] = Relationship(back_populates="user")
 

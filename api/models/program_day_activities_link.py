@@ -9,5 +9,5 @@ class ProgramDayActivityLink(SQLModel, table=True):
         default=None, foreign_key="programday.id", primary_key=True, ondelete="CASCADE"
     )
     activity_id: int | None = Field(
-        default=None, foreign_key="activity.id", primary_key=True
+        default=None, foreign_key="activity.id", primary_key=True, ondelete="CASCADE"
     )

@@ -11,6 +11,7 @@ from api.models.user_activity_models import UserActivity
 from api.models.daily_log_models import DailyLog
 from api.models.enums import Tag
 
+
 class RecommendationService:
     def __init__(self, session):
         self.session = session
@@ -29,16 +30,17 @@ class RecommendationService:
                 continue
 
             reasons = (
-                self._build_reasons(row, user_prefs, recent_logs)
-                if explain else None
+                self._build_reasons(row, user_prefs, recent_logs) if explain else None
             )
 
-            results.append({
-                "id": row.id,
-                "name": row.name,
-                "score": float(row.score),
-                "reasons": reasons
-            })
+            results.append(
+                {
+                    "id": row.id,
+                    "name": row.name,
+                    "score": float(row.score),
+                    "reasons": reasons,
+                }
+            )
 
             if len(results) >= limit:
                 break
@@ -50,7 +52,8 @@ class RecommendationService:
         }
 
     def _query_scored_items_sql(self, user_id: int, limit: int):
-        sql = text("""
+        sql = text(
+            """
             WITH
             recent AS (
             SELECT
@@ -134,10 +137,8 @@ class RecommendationService:
             FROM scored
             ORDER BY score DESC
             LIMIT :limit;
-        """).bindparams(
-            user_id=user_id,
-            limit=limit
-        )
+        """
+        ).bindparams(user_id=user_id, limit=limit)
 
         return self.session.exec(sql).all()
 
@@ -199,7 +200,7 @@ class RecommendationService:
                 func.avg(DailyLog.sleep_score),
                 func.avg(DailyLog.focus),
                 func.avg(DailyLog.mood),
-                func.avg(DailyLog.physical_activity)
+                func.avg(DailyLog.physical_activity),
             )
             .where(DailyLog.user_id == user_id)
             .where(DailyLog.date >= since)
@@ -212,13 +213,8 @@ class RecommendationService:
             "mood": int(row[3] or 5),
             "physical_activity": int(row[4] or 5),
         }
-    
+
     def _default_user_preferences(self, user_id: int) -> UserPreference:
         return UserPreference(
-            user_id=user_id,
-            mood=5,
-            sleep=5,
-            stress=5,
-            focus=5,
-            physical_activity=3
+            user_id=user_id, mood=5, sleep=5, stress=5, focus=5, physical_activity=3
         )

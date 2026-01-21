@@ -7,6 +7,7 @@ from fastapi import Depends
 from sqlmodel import Session, select
 
 from api.database import SessionDep
+from api.models.enums import Role
 from api.models.user_models import Users
 
 from api.security.jwt import decode_access_token
@@ -58,3 +59,7 @@ async def get_current_user(
     id = int(raw_id)
 
     return JwtPayload(username, email, role, id)
+
+
+def is_admin(jwt: JwtPayload) -> bool:
+    return jwt.role == Role.ADMIN or jwt.role == Role.SUPER_ADMIN

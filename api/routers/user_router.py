@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import delete, select
 
 from api.database import SessionDep
-from api.models.user_models import Role, Users, UsersCreate, UsersRead, UsersUpdate
+from api.models.user_models import Users, UsersCreate, UsersRead, UsersUpdate
 from api.security.auth import JwtPayload, get_current_user
 from api.security.crypto import hash_password
 

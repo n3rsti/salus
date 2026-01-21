@@ -26,7 +26,9 @@ try:
     password_input.send_keys("test")
 
     login_button = wait.until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, 'button[type="submit"], input[type="submit"]'))
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, 'button[type="submit"], input[type="submit"]')
+        )
     )
     login_button.click()
 
@@ -34,7 +36,7 @@ try:
         EC.element_to_be_clickable(
             (
                 By.XPATH,
-                '//div[@data-sidebar="content"]//span[normalize-space()="Activities"]'
+                '//div[@data-sidebar="content"]//span[normalize-space()="Activities"]',
             )
         )
     )
@@ -42,19 +44,12 @@ try:
     activity_span.click()
 
     create_button = wait.until(
-        EC.element_to_be_clickable(
-            (
-                By.XPATH,
-                '//button[normalize-space()="Create"]'
-            )
-        )
+        EC.element_to_be_clickable((By.XPATH, '//button[normalize-space()="Create"]'))
     )
 
     create_button.click()
 
-    name_input = wait.until(
-        EC.presence_of_element_located((By.ID, "name"))
-    )
+    name_input = wait.until(EC.presence_of_element_located((By.ID, "name")))
     name_input.clear()
     name_input.send_keys("Morning Cardio")
 
@@ -64,21 +59,19 @@ try:
     description_textarea.clear()
     description_textarea.send_keys("Light cardio workout to start the day.")
 
-    duration_input = wait.until(
-        EC.presence_of_element_located((By.ID, "duration"))
-    )
+    duration_input = wait.until(EC.presence_of_element_located((By.ID, "duration")))
     duration_input.clear()
     duration_input.send_keys("30")
 
     file_path = Path(__file__).parent / "test_image.jpg"
 
-    image_input = wait.until(
-        EC.presence_of_element_located((By.ID, "image"))
-    )
+    image_input = wait.until(EC.presence_of_element_located((By.ID, "image")))
     image_input.send_keys(str(file_path.resolve()))
 
     moderate_radio = wait.until(
-        EC.element_to_be_clickable((By.XPATH, '//button[@role="radio" and @id="moderate"]'))
+        EC.element_to_be_clickable(
+            (By.XPATH, '//button[@role="radio" and @id="moderate"]')
+        )
     )
     moderate_radio.click()
 

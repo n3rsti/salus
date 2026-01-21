@@ -25,21 +25,21 @@ try:
     password_input.send_keys("test")
 
     login_button = wait.until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, 'button[type="submit"], input[type="submit"]'))
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, 'button[type="submit"], input[type="submit"]')
+        )
     )
     login_button.click()
 
     welcome_header = wait.until(
-        EC.visibility_of_element_located(
-            (By.CSS_SELECTOR, 'h2.text-green-700.text-xl')
-        )
+        EC.visibility_of_element_located((By.CSS_SELECTOR, "h2.text-green-700.text-xl"))
     )
 
     search_box = wait.until(
         EC.element_to_be_clickable(
             (
                 By.XPATH,
-                '//div[contains(@class, "cursor-text") and contains(., "Search")]'
+                '//div[contains(@class, "cursor-text") and contains(., "Search")]',
             )
         )
     )

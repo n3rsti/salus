@@ -26,16 +26,15 @@ try:
     password_input.send_keys("test")
 
     login_button = wait.until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, 'button[type="submit"], input[type="submit"]'))
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, 'button[type="submit"], input[type="submit"]')
+        )
     )
     login_button.click()
 
     wait.until(
-        EC.visibility_of_element_located(
-            (By.CSS_SELECTOR, 'h2.text-green-700.text-xl')
-        )
+        EC.visibility_of_element_located((By.CSS_SELECTOR, "h2.text-green-700.text-xl"))
     )
-
 
     driver.get("https://server.tail3ce7af.ts.net/non-existing-feature")
 

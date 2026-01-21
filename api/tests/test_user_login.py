@@ -23,9 +23,11 @@ engine_test = create_engine(
     poolclass=StaticPool,
 )
 
+
 def get_session_override():
     with Session(engine_test) as session:
         yield session
+
 
 app.dependency_overrides[get_session] = get_session_override
 
@@ -60,14 +62,15 @@ async def test_login_existing_user():
             "/api/auth/login",
             json={
                 "username_or_email": "testuser@email.hr",
-                "password": "correct_password"
-            }
+                "password": "correct_password",
+            },
         )
 
         assert res.status_code == 200
         body = res.json()
         assert "user" in body
         assert body["user"]["username"] == "testuser"
+
 
 @pytest.mark.asyncio
 async def test_login_nonexisting_user():
@@ -80,8 +83,8 @@ async def test_login_nonexisting_user():
             "/api/auth/login",
             json={
                 "username_or_email": "nonexisting@email.hr",
-                "password": "nonexisting"
-            }
+                "password": "nonexisting",
+            },
         )
 
         assert res.status_code == 401
