@@ -41,6 +41,7 @@ class Activity(ActivityBase, table=True):
 
 
 class ActivityCreate(ActivityBase):
+    tags: list[Tag] = []
     pass
 
 

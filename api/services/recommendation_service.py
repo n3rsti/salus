@@ -22,13 +22,10 @@ class RecommendationService:
             user_prefs = self._default_user_preferences(user_id)
 
         recent_logs = self._get_recent_daily_logs(user_id)
-        rows = self._query_scored_items_sql(user_id, limit * 2)
+        rows = self._query_scored_items_sql(user_id, limit, content_type)
 
         results = []
         for row in rows:
-            if row.item_type != content_type:
-                continue
-
             reasons = (
                 self._build_reasons(row, user_prefs, recent_logs) if explain else None
             )
@@ -42,18 +39,19 @@ class RecommendationService:
                 }
             )
 
-            if len(results) >= limit:
-                break
-
         return {
             "user_id": user_id,
             "type": content_type,
             "recommendations": results,
         }
 
-    def _query_scored_items_sql(self, user_id: int, limit: int):
+    def _query_scored_items_sql(
+        self, user_id: int, limit: int, content_type: str = None
+    ):
+        where_clause = "WHERE item_type = :content_type" if content_type else ""
+
         sql = text(
-            """
+            f"""
                     WITH
                     recent AS (
                     SELECT
@@ -130,31 +128,38 @@ class RecommendationService:
                     raw_score,
                     score
                     FROM scored
+                    {where_clause}
                     ORDER BY
                     score DESC NULLS LAST,
                     id DESC
                     LIMIT :limit;
         """
-        ).bindparams(user_id=user_id, limit=limit)
-        return self.session.exec(sql).all()
+        )
+
+        params = {"user_id": user_id, "limit": limit}
+        if content_type:
+            params["content_type"] = content_type
+
+        return self.session.exec(sql.bindparams(**params)).all()
 
     def _build_reasons(self, row, user_prefs, recent_logs):
         reasons = []
 
         TAG_MAP = {
-            "stress": (Tag.STRESS, "You nedd to reduce your stress level"),
-            "sleep": (Tag.SLEEP, "You nedd to reduce your sleep quality"),
-            "focus": (Tag.FOCUS, "You nedd to improve your focus"),
+            "stress": (Tag.STRESS, "You need to reduce your stress level"),
+            "sleep": (Tag.SLEEP, "You need to improve your sleep quality"),
+            "focus": (Tag.FOCUS, "You need to improve your focus"),
             "physical_activity": (Tag.WORKOUT, "Matches your desired activity level"),
             "mood": (Tag.MENTAL_HEALTH, "You need to improve your well-being"),
         }
 
-        for attr, (tag, text) in TAG_MAP.items():
+        for attr, (tag_enum, text) in TAG_MAP.items():
             if attr == "stress":
                 need = max(recent_logs[attr] - getattr(user_prefs, attr), 0)
             else:
                 need = max(getattr(user_prefs, attr) - recent_logs[attr], 0)
-            if need > 0 and tag in row.tags:
+
+            if need > 0 and tag_enum.value in [t for t in row.tags]:
                 reasons.append(text)
 
         return reasons

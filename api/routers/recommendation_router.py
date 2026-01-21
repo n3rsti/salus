@@ -17,9 +17,8 @@ def get_recommendations(
     explain: bool = Query(True),
     current_user: JwtPayload = Depends(get_current_user),
 ):
-
     service = RecommendationService(session)
-
+    # No more limit adjustment needed!
     return service.get(
         user_id=current_user.id,
         content_type=type,

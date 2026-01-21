@@ -50,6 +50,7 @@ class ProgramDayInput(SQLModel):
 
 class ProgramCreate(ProgramBase):
     days: List[ProgramDayInput] = []
+    tags: list[Tag] = []
     pass
 
 
