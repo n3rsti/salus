@@ -54,92 +54,88 @@ class RecommendationService:
     def _query_scored_items_sql(self, user_id: int, limit: int):
         sql = text(
             """
-            WITH
-            recent AS (
-            SELECT
-                user_id,
-                AVG(mood)              AS avg_mood,
-                AVG(sleep_score)       AS avg_sleep,
-                AVG(stress)            AS avg_stress,
-                AVG(focus)             AS avg_focus,
-                AVG(physical_activity) AS avg_pa
-            FROM dailylog
-            WHERE user_id = :user_id
-                AND date >= CURRENT_DATE - INTERVAL '7 days'
-            GROUP BY user_id
-            ),
-            prefs AS (
-            SELECT
-                user_id,
-                mood,
-                sleep,
-                stress,
-                focus,
-                physical_activity
-            FROM userpreference
-            WHERE user_id = :user_id
-            ),
-            need AS (
-            SELECT
-                p.user_id,
-                GREATEST(COALESCE(r.avg_stress, 0)-p.stress            , 0) AS w_stress,
-                GREATEST(p.sleep       - COALESCE(r.avg_sleep, 0), 0)  AS w_sleep,
-                GREATEST(p.focus             - COALESCE(r.avg_focus, 0), 0)  AS w_focus,
-                GREATEST(p.physical_activity - COALESCE(r.avg_pa, 0), 0)     AS w_workout,
-                GREATEST(p.mood              - COALESCE(r.avg_mood, 0), 0)   AS w_mental
-            FROM prefs p
-            LEFT JOIN recent r USING (user_id)
-            ),
-            tag_weights AS (
-            SELECT 1 AS tag, w_stress  AS w FROM need
-            UNION ALL SELECT 2, w_workout FROM need
-            UNION ALL SELECT 3, w_sleep   FROM need
-            UNION ALL SELECT 4, w_focus   FROM need
-            UNION ALL SELECT 5, w_mental  FROM need
-            ),
-            items AS (
-            SELECT 'activity' AS item_type, id, name, tags FROM activity
-            UNION ALL
-            SELECT 'program', id, name, tags FROM program
-            ),
-            scored AS (
-            SELECT
-                i.item_type,
-                i.id,
-                i.name,
-                jsonb_agg(DISTINCT itag.tag) AS tags,
-
-                SUM(tw.w) AS raw_score,
-
-                SUM(tw.w)
-                / NULLIF(
-                    SQRT(jsonb_array_length(jsonb_agg(DISTINCT itag.tag))),
-                    0
-                    ) AS score
-
-            FROM items i
-            CROSS JOIN LATERAL jsonb_array_elements(i.tags::jsonb) AS itag(tag)
-            JOIN tag_weights tw
-                ON tw.tag = (itag.tag)::int
-
-            GROUP BY
-                i.item_type,
-                i.id,
-                i.name
-            )
-            SELECT
-            item_type,
-            id,
-            name,
-            tags,
-            raw_score,
-            score
-            FROM scored
-            ORDER BY score DESC
-            LIMIT :limit;
+                    WITH
+                    recent AS (
+                    SELECT
+                        :user_id AS user_id,
+                        COALESCE(AVG(d.mood), 5)              AS avg_mood,
+                        COALESCE(AVG(d.sleep_score), 5)       AS avg_sleep,
+                        COALESCE(AVG(d.stress), 5)            AS avg_stress,
+                        COALESCE(AVG(d.focus), 5)             AS avg_focus,
+                        COALESCE(AVG(d.physical_activity), 5) AS avg_pa
+                    FROM dailylog d
+                    WHERE d.user_id = :user_id
+                        AND d.date >= CURRENT_DATE - INTERVAL '7 days'
+                    ),
+                    prefs AS (
+                    SELECT
+                        u.user_id,
+                        COALESCE(p.mood, 5)              AS mood,
+                        COALESCE(p.sleep, 5)             AS sleep,
+                        COALESCE(p.stress, 5)            AS stress,
+                        COALESCE(p.focus, 5)             AS focus,
+                        COALESCE(p.physical_activity, 5) AS physical_activity
+                    FROM (SELECT :user_id AS user_id) u
+                    LEFT JOIN userpreference p ON p.user_id = u.user_id
+                    ),
+                    need AS (
+                    SELECT
+                        p.user_id,
+                        GREATEST(r.avg_stress - p.stress, 0)            AS w_stress,
+                        GREATEST(p.sleep - r.avg_sleep, 0)              AS w_sleep,
+                        GREATEST(p.focus - r.avg_focus, 0)              AS w_focus,
+                        GREATEST(p.physical_activity - r.avg_pa, 0)     AS w_workout,
+                        GREATEST(p.mood - r.avg_mood, 0)                 AS w_mental
+                    FROM prefs p
+                    JOIN recent r USING (user_id)
+                    ),
+                    tag_weights AS (
+                    SELECT 1 AS tag, w_stress  AS w FROM need
+                    UNION ALL SELECT 2, w_workout FROM need
+                    UNION ALL SELECT 3, w_sleep   FROM need
+                    UNION ALL SELECT 4, w_focus   FROM need
+                    UNION ALL SELECT 5, w_mental  FROM need
+                    ),
+                    items AS (
+                    SELECT 'activity' AS item_type, id, name, tags FROM activity
+                    UNION ALL
+                    SELECT 'program', id, name, tags FROM program
+                    ),
+                    scored AS (
+                    SELECT
+                        i.item_type,
+                        i.id,
+                        i.name,
+                        jsonb_agg(DISTINCT itag.tag) AS tags,
+                        SUM(tw.w) AS raw_score,
+                        SUM(tw.w)
+                        / NULLIF(
+                            SQRT(jsonb_array_length(jsonb_agg(DISTINCT itag.tag))),
+                            0
+                            ) AS score
+                    FROM items i
+                    CROSS JOIN LATERAL jsonb_array_elements(i.tags::jsonb) AS itag(tag)
+                    LEFT JOIN tag_weights tw
+                        ON tw.tag = (itag.tag)::int
+                    GROUP BY
+                        i.item_type,
+                        i.id,
+                        i.name
+                    )
+                    SELECT
+                    item_type,
+                    id,
+                    name,
+                    tags,
+                    raw_score,
+                    score
+                    FROM scored
+                    ORDER BY
+                    score DESC NULLS LAST,
+                    id DESC
+                    LIMIT :limit;
         """
         ).bindparams(user_id=user_id, limit=limit)
-
         return self.session.exec(sql).all()
 
     def _build_reasons(self, row, user_prefs, recent_logs):
