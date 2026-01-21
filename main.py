@@ -7,13 +7,14 @@ from api.routers import (
     program_router,
     review_router,
     auth_router,
+    trainer_router,
     user_router,
     emotion_router,
     daily_log_router,
     user_preference_router,
     activity_plan_router,
     user_activity_router,
-    recommendation_router
+    recommendation_router,
 )
 from api.utils.files import UPLOAD_DIR
 
@@ -44,6 +45,7 @@ app.include_router(user_preference_router.router)
 app.include_router(activity_plan_router.router)
 app.include_router(user_activity_router.router)
 app.include_router(recommendation_router.router)
+app.include_router(trainer_router.router)
 
 app.add_middleware(
     CORSMiddleware,

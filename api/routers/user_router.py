@@ -2,7 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import delete, select
 
 from api.database import SessionDep
+from api.models.trainer_request import TrainerRequestRead
 from api.models.user_models import Users, UsersCreate, UsersRead, UsersUpdate
+from api.routers.trainer_router import get_user_trainer_requests
 from api.security.auth import JwtPayload, get_current_user
 from api.security.crypto import hash_password
 
@@ -129,3 +131,12 @@ def delete_user(
         )
 
     return None
+
+
+@router.get("/{user_id}/requests", response_model=list[TrainerRequestRead])
+def get_user_requests(
+    user_id: int,
+    session: SessionDep,
+    current_user: JwtPayload = Depends(get_current_user),
+):
+    return get_user_trainer_requests(session, user_id, current_user)
