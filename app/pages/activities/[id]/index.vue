@@ -289,8 +289,6 @@ const startedActivity = computed(() => {
     );
 });
 
-console.log("Started activity for index:", startedActivity.value);
-
 const isStarted = computed(() => {
     return startedActivity.value !== undefined;
 });

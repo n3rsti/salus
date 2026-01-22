@@ -259,8 +259,6 @@ const { data: program } = await useFetch<Program>(
     `/api/programs/${route.params.id}`,
 );
 
-console.log(program);
-
 const { data: reviews } = await useFetch<Review[]>(
     `/api/programs/${programId}/reviews?user_id=${userStore.id}`,
 );
@@ -269,8 +267,6 @@ const isReviewed = computed(() => {
     if (!reviews.value || reviews.value?.length == 0) return false;
     return reviews.value[0]?.user.id == userStore.id;
 });
-
-console.log(program.value);
 
 const { data: activity_log } =
     await useFetch<UserActivity[]>(`/api/user-activities`);

@@ -247,7 +247,12 @@ def classic_login(
 
     return {
         "message": "Login successful",
-        "user": {"id": user.id, "username": user.username, "role": user.role_id},
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "role": user.role_id,
+            "email": user.email,
+        },
     }
 
 

@@ -137,8 +137,7 @@ async function handleLogin() {
                 userStore.username = (data.user.username as string) || null;
                 userStore.id = (data.user.id as number) || 0;
                 userStore.role = (data.user.role as Role) || null;
-                console.log(userStore.role);
-                console.log(data);
+                userStore.email = (data.user.email as string) || null;
                 await navigateTo("/");
             } else {
                 password.value = "";

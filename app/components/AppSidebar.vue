@@ -61,6 +61,7 @@ import {
     ListChecks,
     Award,
     Mail,
+    Cog,
 } from "lucide-vue-next";
 import {
     Sidebar,
@@ -158,6 +159,11 @@ const menuSections: MenuSection[] = [
     {
         label: "Settings",
         items: [
+            {
+                title: "User settings",
+                icon: Cog,
+                url: "/settings",
+            },
             {
                 title: "Log out",
                 icon: AppLogoutModal,
