@@ -2,9 +2,14 @@ import os
 from pathlib import Path
 import uuid
 
+from dotenv import dotenv_values
 from fastapi import HTTPException, UploadFile
 
-UPLOAD_DIR = "uploads/"
+
+config = dotenv_values(".env")
+
+UPLOAD_DIR: str = config.get("UPLOAD_DIR") or "/app/uploads"
+Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
 
 
 def sanitize_name(filename: str) -> str:

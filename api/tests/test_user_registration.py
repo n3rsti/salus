@@ -14,7 +14,6 @@ from main import app
 from api.database import get_session
 
 
-
 # Test database (in-memory)
 engine_test = create_engine(
     "sqlite://",
@@ -22,9 +21,11 @@ engine_test = create_engine(
     poolclass=StaticPool,
 )
 
+
 def get_session_override():
     with Session(engine_test) as session:
         yield session
+
 
 app.dependency_overrides[get_session] = get_session_override
 
@@ -49,13 +50,12 @@ async def test_register_user_success():
                 "username": "new_user",
                 "email": "new@test.pl",
                 "password": "StrongPass123*",
-                "role_id": 1
-            }
+                "role_id": 1,
+            },
         )
 
         assert res.status_code == 201
         assert "id" in res.json()
-
 
 
 @pytest.mark.asyncio
@@ -71,8 +71,8 @@ async def test_register_user_duplicate_email():
                 "username": "user1",
                 "email": "dup@test.pl",
                 "password": "Password123*",
-                "role_id": 1
-            }
+                "role_id": 1,
+            },
         )
 
         res = await ac.post(
@@ -81,8 +81,8 @@ async def test_register_user_duplicate_email():
                 "username": "user2",
                 "email": "dup@test.pl",
                 "password": "Password123*",
-                "role_id": 1
-            }
+                "role_id": 1,
+            },
         )
 
         assert res.status_code == 409

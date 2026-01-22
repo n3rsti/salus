@@ -1,4 +1,6 @@
+from typing import List, Optional
 from fastapi import APIRouter, Depends, Form, HTTPException, File, UploadFile
+from sqlalchemy import func
 from sqlalchemy.orm import selectinload
 from sqlmodel import delete, select, update
 
@@ -12,35 +14,104 @@ from api.models.activity_models import (
     ActivityMediaRead,
     ActivityMediaUpdate,
     ActivityRead,
+    ActivityReadLight,
     ActivityUpdate,
 )
+from api.models.reviews_models import (
+    Review,
+    ReviewCreate,
+    ReviewCreateInput,
+    ReviewRead,
+)
 from api.models.user_models import Users
-from api.security.auth import JwtPayload, get_current_user, verify_jwt_token
+from api.routers.review_router import (
+    create_review,
+    delete_review_by_content_id,
+    get_reviews_by_content_id,
+)
+from api.security.auth import JwtPayload, get_current_user, is_admin, verify_jwt_token
 from api.utils.files import save_file
 
 router = APIRouter(prefix="/api/activities", tags=["Activities"])
 
 
-@router.get("", response_model=list[ActivityRead])
-def get_activities(session: SessionDep, filters: ActivityFilters = Depends()):
-    query = select(Activity)
+@router.get("", response_model=list[ActivityRead] | list[ActivityReadLight])
+def get_activities(
+    session: SessionDep, light: bool = False, filters: ActivityFilters = Depends()
+):
+    if light:
+        query = select(
+            Activity.id,
+            Activity.owner_id,
+            Users.username.label("owner_username"),
+            Users.role_id.label("owner_role_id"),
+            Activity.name,
+            Activity.description,
+            Activity.duration_minutes,
+            Activity.image_url,
+            Activity.difficulty,
+            Activity.tags,
+        ).join(Users, Activity.owner_id == Users.id)
+    else:
+        query = select(Activity)
+
     query = filters.apply(query)
     activities = session.exec(query).all()
 
-    if activities:
-        return activities
-    else:
+    if not activities:
         return []
+
+    activity_ids = [a.id if not light else a.id for a in activities]
+    avg_ratings = session.exec(
+        select(
+            Review.content_id,
+            func.avg(Review.rating).label("avg_rating"),
+        )
+        .where(Review.content_type == "activity")
+        .where(Review.content_id.in_(activity_ids))
+        .group_by(Review.content_id)
+    ).all()
+
+    rating_map = {
+        content_id: float(avg_rating) for content_id, avg_rating in avg_ratings
+    }
+
+    result = []
+    for activity in activities:
+        if light:
+            activity_dict = activity._asdict()
+            activity_dict["average_rating"] = rating_map.get(activity.id)
+            result.append(activity_dict)
+        else:
+            activity_data = ActivityRead.model_validate(activity)
+            activity_dict = activity_data.model_dump()
+            activity_dict["average_rating"] = rating_map.get(activity.id)
+            result.append(activity_dict)
+
+    return result
 
 
 @router.get("/{activity_id}", response_model=ActivityRead)
 def get_activity(session: SessionDep, activity_id: int):
-    activity = session.get(Activity, activity_id)
+    stmt = (
+        select(Activity, func.avg(Review.rating).label("avg_rating"))
+        .join(
+            Review,
+            (Review.content_id == Activity.id) & (Review.content_type == "activity"),
+            isouter=True,
+        )
+        .where(Activity.id == activity_id)
+        .group_by(Activity.id)
+    )
 
-    if not activity:
+    row = session.exec(stmt).first()
+    if not row:
         raise HTTPException(status_code=404, detail="Activity not found")
 
-    return activity
+    activity, avg_rating = row
+    ar = ActivityRead.model_validate(activity, from_attributes=True)
+    ar.average_rating = float(avg_rating) if avg_rating is not None else None
+    return ar
 
 
 @router.post("", response_model=ActivityRead)
@@ -106,14 +177,19 @@ def delete_activity(
     activity_id: int,
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    statement = delete(Activity).where(
-        (Activity.id == activity_id) & (Activity.owner_id == current_user.id)
-    )
+    if is_admin(current_user):
+        statement = delete(Activity).where((Activity.id == activity_id))
+    else:
+        statement = delete(Activity).where(
+            (Activity.id == activity_id) & (Activity.owner_id == current_user.id)
+        )
     result = session.exec(statement)
     session.commit()
 
     if result.rowcount == 0:
         raise HTTPException(status_code=404, detail="Activity not found")
+
+    delete_review_by_content_id(session, activity_id, "activity")
 
     return {"ok": True}
 
@@ -153,3 +229,29 @@ def delete_media(session: SessionDep, media_id: int):
         raise HTTPException(status_code=404, detail="Media not found")
 
     return {"ok": True}
+
+
+@router.post("/{activity_id}/reviews", response_model=ReviewRead)
+def post_review(
+    review_in: ReviewCreateInput,
+    activity_id: int,
+    session: SessionDep,
+    current_user: JwtPayload = Depends(get_current_user),
+):
+    review = ReviewCreate(
+        content_type="activity",
+        content_id=activity_id,
+        rating=review_in.rating,
+        comment=review_in.comment,
+    )
+
+    return create_review(review, session, current_user)
+
+
+@router.get("/{activity_id}/reviews", response_model=List[ReviewRead])
+def get_reviews(
+    activity_id: int,
+    session: SessionDep,
+    user_id: Optional[int] = None,
+):
+    return get_reviews_by_content_id(session, activity_id, "activity", user_id)

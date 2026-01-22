@@ -1,6 +1,7 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from sqlalchemy import func
 from sqlmodel import delete, select, update
 
 from api.database import SessionDep
@@ -12,24 +13,56 @@ from api.models.program_models import (
     ProgramDayInput,
     ProgramFilters,
     ProgramRead,
+    ProgramReadLight,
     ProgramUpdate,
 )
-from api.security.auth import JwtPayload, get_current_user
+from api.models.reviews_models import (
+    Review,
+    ReviewCreate,
+    ReviewCreateInput,
+    ReviewRead,
+)
+from api.security.auth import JwtPayload, get_current_user, is_admin
 from api.utils.files import save_file
+
+from api.routers.review_router import (
+    create_review,
+    delete_review_by_content_id,
+    get_reviews_by_content_id,
+)
 
 router = APIRouter(prefix="/api/programs", tags=["Programs"])
 
 
-@router.get("", response_model=list[ProgramRead])
+@router.get("", response_model=list[ProgramReadLight])
 def get_programs(session: SessionDep, filters: ProgramFilters = Depends()):
-    query = select(Program)
-    query = filters.apply(query)
-    programs = session.exec(query).all()
+    avg_subq = (
+        select(
+            Review.content_id.label("program_id"),
+            func.avg(Review.rating).label("avg_rating"),
+        )
+        .where(Review.content_type == "program")
+        .group_by(Review.content_id)
+        .subquery()
+    )
 
-    if programs:
-        return programs
-    else:
+    query = select(Program, avg_subq.c.avg_rating).join(
+        avg_subq, avg_subq.c.program_id == Program.id, isouter=True
+    )
+
+    query = filters.apply(query)
+
+    rows = session.exec(query).all()
+    if not rows:
         return []
+
+    result: list[ProgramRead] = []
+    for program, avg_rating in rows:
+        pr = ProgramRead.model_validate(program, from_attributes=True)
+        pr.average_rating = float(avg_rating) if avg_rating is not None else None
+        result.append(pr)
+
+    return result
 
 
 def link_days(session: SessionDep, program_id: int, days_in: List[ProgramDayInput]):
@@ -128,13 +161,23 @@ async def update_program(
 
 
 @router.get("/{program_id}", response_model=ProgramRead)
-def get_program(session: SessionDep, program_id: int):
+def get_program(program_id: int, session: SessionDep):
     program = session.get(Program, program_id)
-
     if not program:
         raise HTTPException(status_code=404, detail="Program not found")
 
-    return program
+    avg_rating = session.exec(
+        select(func.avg(Review.rating)).where(
+            Review.content_type == "program", Review.content_id == program_id
+        )
+    ).first()
+
+    program_data = ProgramRead.model_validate(program)
+
+    result = program_data.model_dump()
+    result["average_rating"] = round(float(avg_rating), 2) if avg_rating else None
+
+    return result
 
 
 @router.delete("/{program_id}")
@@ -143,13 +186,44 @@ def delete_program(
     program_id: int,
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    statement = delete(Program).where(
-        (Program.id == program_id) & (Program.owner_id == current_user.id)
-    )
+    if is_admin(current_user):
+        statement = delete(Program).where((Program.id == program_id))
+    else:
+        statement = delete(Program).where(
+            (Program.id == program_id) & (Program.owner_id == current_user.id)
+        )
     result = session.exec(statement)
     session.commit()
 
     if result.rowcount == 0:
         raise HTTPException(status_code=404, detail="Program not found")
 
+    delete_review_by_content_id(session, program_id, "program")
+
     return {"ok": True}
+
+
+@router.post("/{program_id}/reviews", response_model=ReviewRead)
+def post_review(
+    review_in: ReviewCreateInput,
+    program_id: int,
+    session: SessionDep,
+    current_user: JwtPayload = Depends(get_current_user),
+):
+    review = ReviewCreate(
+        content_type="program",
+        content_id=program_id,
+        rating=review_in.rating,
+        comment=review_in.comment,
+    )
+
+    return create_review(review, session, current_user)
+
+
+@router.get("/{program_id}/reviews", response_model=List[ReviewRead])
+def get_reviews(
+    program_id: int,
+    session: SessionDep,
+    user_id: Optional[int] = None,
+):
+    return get_reviews_by_content_id(session, program_id, "program", user_id)

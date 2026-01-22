@@ -1,14 +1,20 @@
 <template>
     <SidebarProvider>
-        <div
-            class="min-h-screen bg-primary-foreground font-display flex flex-col w-full"
-        >
-            <AppSidebar />
-            <NavBar class="fixed h-16 z-10" />
+        <div class="flex flex-col w-full min-h-screen">
             <AppGlobalSearch v-if="searchStore.activeTab === ''" />
-            <main class="p-4 sm:p-8 flex flex-col grow mt-16 lg:ml-60">
-                <slot />
-            </main>
+            <div class="min-h-screen flex flex-col">
+                <NavBar />
+                <section class="flex grow">
+                    <AppSidebar />
+                    <section
+                        class="bg-primary-foreground font-display flex flex-col w-full"
+                    >
+                        <main class="min-h-11/12 p-4 sm:p-8 flex flex-col grow">
+                            <slot />
+                        </main>
+                    </section>
+                </section>
+            </div>
         </div>
     </SidebarProvider>
 </template>

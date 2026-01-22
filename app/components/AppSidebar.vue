@@ -1,20 +1,25 @@
 <template>
-    <Sidebar class="mt-16 bg-white">
+    <Sidebar
+        class="bg-white sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto"
+        variant="sidebar"
+    >
         <SidebarHeader class="bg-green-500 text-white">
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton
+                        as-child
                         size="lg"
                         class="hover:bg-green-600 hover:text-white"
                     >
-                        <div
+                        <NuxtLink
+                            :to="'/profile/' + userStore.id"
                             class="grid flex-1 text-left text-sm leading-tight"
                         >
-                            <span class="truncate font-semibold">{{
-                                store.username
-                            }}</span>
+                            <span class="truncate font-semibold">
+                                {{ store.username }}
+                            </span>
                             <span class="truncate text-xs">User</span>
-                        </div>
+                        </NuxtLink>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
@@ -48,7 +53,16 @@
 </template>
 
 <script setup lang="ts">
-import { Calendar, Home, Dumbbell, Smile, ListChecks } from "lucide-vue-next";
+import {
+    Calendar,
+    Home,
+    Dumbbell,
+    Smile,
+    ListChecks,
+    Award,
+    Mail,
+    Cog,
+} from "lucide-vue-next";
 import {
     Sidebar,
     SidebarContent,
@@ -63,10 +77,14 @@ import {
 } from "@/components/ui/sidebar";
 import AppLogoutModal from "./AppLogoutModal.vue";
 import { useMediaQuery } from "@vueuse/core";
+import { Role } from "~/constants/roles";
 
 const { toggleSidebar } = useSidebar();
 
 const isMobile = useMediaQuery("(max-width: 1024px)");
+
+const store = useUserStore();
+const userStore = useUserStore();
 
 function toggle() {
     if (isMobile.value == true) {
@@ -78,6 +96,7 @@ interface MenuItem {
     title: string;
     url?: string;
     icon: any;
+    display?: boolean;
 }
 
 interface MenuSection {
@@ -93,6 +112,18 @@ const menuSections: MenuSection[] = [
                 title: "Home",
                 url: "/",
                 icon: Home,
+            },
+            {
+                title: "Become a trainer",
+                url: "/trainer",
+                icon: Award,
+                display: store.role == Role.User,
+            },
+
+            {
+                title: "My requests",
+                url: "/requests",
+                icon: Mail,
             },
         ],
     },
@@ -130,12 +161,15 @@ const menuSections: MenuSection[] = [
         label: "Settings",
         items: [
             {
+                title: "User settings",
+                icon: Cog,
+                url: "/settings",
+            },
+            {
                 title: "Log out",
                 icon: AppLogoutModal,
             },
         ],
     },
 ];
-
-const store = useUserStore();
 </script>

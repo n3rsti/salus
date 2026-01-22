@@ -12,7 +12,7 @@ from sqlmodel import SQLModel, Session, create_engine, StaticPool
 
 from main import app
 from api.database import get_session
-from api.models.user_models import Users, Role
+from api.models.user_models import Users
 from api.security.crypto import hash_password
 
 
@@ -23,9 +23,11 @@ engine_test = create_engine(
     poolclass=StaticPool,
 )
 
+
 def get_session_override():
     with Session(engine_test) as session:
         yield session
+
 
 app.dependency_overrides[get_session] = get_session_override
 
@@ -40,14 +42,12 @@ def setup_db():
 @pytest.mark.asyncio
 async def test_login_existing_user():
     with Session(engine_test) as session:
-        role = Role(id=1, name="user")
         user = Users(
             username="testuser",
             email="testuser@email.hr",
             password=hash_password("correct_password"),
             role_id=1,
         )
-        session.add(role)
         session.add(user)
         session.commit()
 
@@ -60,14 +60,15 @@ async def test_login_existing_user():
             "/api/auth/login",
             json={
                 "username_or_email": "testuser@email.hr",
-                "password": "correct_password"
-            }
+                "password": "correct_password",
+            },
         )
 
         assert res.status_code == 200
         body = res.json()
         assert "user" in body
         assert body["user"]["username"] == "testuser"
+
 
 @pytest.mark.asyncio
 async def test_login_nonexisting_user():
@@ -80,8 +81,8 @@ async def test_login_nonexisting_user():
             "/api/auth/login",
             json={
                 "username_or_email": "nonexisting@email.hr",
-                "password": "nonexisting"
-            }
+                "password": "nonexisting",
+            },
         )
 
         assert res.status_code == 401

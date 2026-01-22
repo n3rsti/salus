@@ -66,11 +66,9 @@ watch(
         if (!isOpen) return;
 
         await nextTick();
-        console.log("Focusing search input");
         setTimeout(() => {
             searchInputRef.value?.$el.focus();
         }, 100);
-        // searchInputRef.value?.$el.focus();
     },
 );
 

@@ -1,9 +1,5 @@
 <template>
-    <main class="flex flex-col justify-center items-center content-center p-4">
-        <NuxtLink class="absolute top-4 left-4 text-white" to="/"
-            ><Button variant="success">
-                <Icon class="text-4xl" name="dashicons:admin-home" /> </Button
-        ></NuxtLink>
+    <div class="flex flex-col justify-center items-center content-center p-4">
         <form
             class="rounded-xl bg-primary-light text-green-700 p-8 w-11/12 shadow border-neutral-100 border-t border-t-transparent"
             @submit.prevent="handleLogin"
@@ -108,30 +104,12 @@
                     >Sign up</NuxtLink
                 >
             </p>
-
-            <button
-                class="btn bg-white text-black border-green-500 w-full mt-10 hover:bg-gray-300"
-            >
-                <Icon name="logos:microsoft-icon" />
-                Login with Microsoft
-            </button>
-            <button
-                class="btn bg-white text-black border-blue-500 w-full mt-4 hover:bg-gray-300"
-            >
-                <Icon name="logos:google-icon" />
-                Login with Google
-            </button>
-            <button
-                class="btn bg-white text-black border-black w-full mt-4 hover:bg-gray-300"
-            >
-                <Icon name="logos:github-icon" />
-                Login with Github
-            </button>
         </form>
-    </main>
+    </div>
 </template>
 <script setup lang="ts">
 import { Button } from "~/components/ui/button";
+import type { Role } from "~/constants/roles";
 
 definePageMeta({
     layout: "authentication",
@@ -156,8 +134,10 @@ async function handleLogin() {
                 const data: Response = response.response._data;
                 const userStore = useUserStore();
 
-                userStore.username = (data.user.username as string) || "";
+                userStore.username = (data.user.username as string) || null;
                 userStore.id = (data.user.id as number) || 0;
+                userStore.role = (data.user.role as Role) || null;
+                userStore.email = (data.user.email as string) || null;
                 await navigateTo("/");
             } else {
                 password.value = "";

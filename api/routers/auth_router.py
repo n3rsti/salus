@@ -6,7 +6,8 @@ from fastapi import APIRouter, HTTPException, Response, status
 from sqlmodel import select, or_
 from api.database import SessionDep
 from dotenv import dotenv_values
-from api.models.user_models import Role, Users
+from api.models.enums import Role
+from api.models.user_models import Users
 from api.security.jwt import create_access_token
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
@@ -116,18 +117,6 @@ async def _fetch_userinfo(access_token: str) -> dict[str, Any]:
     return response.json()
 
 
-def _get_or_create_default_role(session: SessionDep) -> Role:
-    role = session.exec(select(Role).where(Role.name == DEFAULT_ROLE_NAME)).first()
-    if role:
-        return role
-
-    role = Role(name=DEFAULT_ROLE_NAME)
-    session.add(role)
-    session.commit()
-    session.refresh(role)
-    return role
-
-
 def _upsert_user_from_google(session: SessionDep, userinfo: dict[str, Any]) -> Users:
     google_sub = userinfo.get("sub")
     email = userinfo.get("email")
@@ -154,14 +143,14 @@ def _upsert_user_from_google(session: SessionDep, userinfo: dict[str, Any]) -> U
         session.refresh(user)
         return user
 
-    role = _get_or_create_default_role(session)
+    role_id = Role.USER
 
     username = _generate_unique_username(session, name)
 
     user = Users(
         username=username,
         email=email,
-        role_id=role.id,
+        role_id=role_id,
         password=None,
         oauth_provider="google",
         oauth_sub=google_sub,
@@ -258,7 +247,12 @@ def classic_login(
 
     return {
         "message": "Login successful",
-        "user": {"id": user.id, "username": user.username, "role": user.role_id},
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "role": user.role_id,
+            "email": user.email,
+        },
     }
 
 

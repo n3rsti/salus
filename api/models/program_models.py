@@ -1,9 +1,10 @@
 from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship
 from api.models.program_day_activities_link import ProgramDayActivityLink
-from api.models.programs_tags_link import ProgramTagLink
-from sqlalchemy import Select, func, or_
+
+from sqlalchemy import Select, func, or_, Column, JSON
 from pydantic import BaseModel, field_validator
+from api.models.enums import Tag
 
 # This file contains models implementing: Programs and ProgramDays tables
 
@@ -37,9 +38,8 @@ class Program(ProgramBase, table=True):
     days: List["ProgramDay"] = Relationship(
         back_populates="program", cascade_delete=True
     )
-    tags: List["Tag"] = Relationship(
-        back_populates="programs", link_model=ProgramTagLink
-    )
+
+    tags: list[Tag] = Field(sa_column=Column(JSON, nullable=False, default=list))
 
 
 class ProgramDayInput(SQLModel):
@@ -50,6 +50,7 @@ class ProgramDayInput(SQLModel):
 
 class ProgramCreate(ProgramBase):
     days: List[ProgramDayInput] = []
+    tags: list[Tag] = []
     pass
 
 
@@ -58,6 +59,7 @@ class ProgramUpdate(SQLModel):
     duration_days: Optional[int] = None
     description: Optional[str] = None
     language: Optional[str] = None
+    tags: Optional[list[Tag]] = None
     days: List[ProgramDayInput] = []
 
     @field_validator("language")
@@ -79,12 +81,22 @@ class ProgramRead(ProgramBase):
     id: int
     owner: "UsersRead"
     days: List["ProgramDayRead"] = []
-    tags: List["TagRead"] = []
+    tags: list[Tag] = []
+    average_rating: Optional[float] = None
+
+
+class ProgramReadLight(ProgramBase):
+    id: int
+    owner: "UsersRead"
+    tags: list[Tag] = []
+    average_rating: Optional[float] = None
 
 
 class ProgramFilters(BaseModel):
     search: Optional[str] = None
     limit: Optional[int] = None
+    skip: Optional[int] = None
+    user_id: Optional[int] = None
 
     def apply(self, query: Select) -> Select:
         if self.search:
@@ -97,6 +109,12 @@ class ProgramFilters(BaseModel):
 
         if self.limit:
             query = query.limit(self.limit)
+
+        if self.user_id:
+            query = query.where(Program.owner_id == self.user_id)
+
+        if self.skip:
+            query = query.offset(self.skip)
 
         return query
 
@@ -125,7 +143,8 @@ class ProgramDayRead(ProgramDayBase):
 
 
 from api.models.activity_models import Activity, ActivityRead
-from api.models.tag_models import Tag, TagRead
+
+# from api.models.tag_models import Tag, TagRead
 from api.models.user_models import Users, UsersRead
 
 SQLModel.model_rebuild()

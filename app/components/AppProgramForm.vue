@@ -9,10 +9,15 @@
             class="p-4 rounded-xl bg-primary-light mb-4 flex items-center justify-between shadow-sm"
         >
             <h1 class="text-green-700 text-xl font-semibold">
-                {{ route.params.id ? "Edit" : "Create" }} program
+                {{ programId ? "Edit" : "Create" }} program
             </h1>
 
-            <Dialog v-if="route.params.id">
+            <Dialog
+                v-if="
+                    (programId && userStore.id == initialData?.owner?.id) ||
+                    (userStore.isAdmin() && programId != undefined)
+                "
+            >
                 <form>
                     <DialogTrigger as-child>
                         <Button variant="destructive">Delete</Button>
@@ -59,6 +64,9 @@
                             v-model="formData.name"
                             type="text"
                             placeholder="Enter name"
+                            :disabled="
+                                userStore.isAdmin() && programId != undefined
+                            "
                             required
                         />
                     </div>
@@ -69,6 +77,9 @@
                             v-model="formData.description"
                             name="description"
                             placeholder="Describe your program..."
+                            :disabled="
+                                userStore.isAdmin() && programId != undefined
+                            "
                             required
                         ></Textarea>
                     </div>
@@ -86,7 +97,20 @@
                             name="image"
                             accept="image/*"
                             class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
-                            :required="route.params.id == undefined"
+                            :disabled="
+                                userStore.isAdmin() && programId != undefined
+                            "
+                            :required="programId == undefined"
+                        />
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <AppTagInput
+                            :selected-tags="formData.tags"
+                            :disabled="
+                                userStore.isAdmin() && programId != undefined
+                            "
+                            @update-tags="(tags) => (formData.tags = tags)"
                         />
                     </div>
                 </div>
@@ -98,8 +122,8 @@
                         :key="day.day_number"
                         class="rounded-xl border-primary-dark border collapse collapse-arrow shadow-inner"
                     >
-                        <input type="checkbox" checked />
-                        <div class="collapse-title font-semibold text-text">
+                        <input type="checkbox" :checked="day.day_number == 1" />
+                        <div class="collapse-title font-semibold text-primary">
                             Day {{ day.day_number }}
                         </div>
                         <div class="px-4 collapse-content flex flex-col gap-3">
@@ -112,6 +136,10 @@
                                     v-model="day.description"
                                     class="focus:border-text"
                                     placeholder="Describe the day..."
+                                    :disabled="
+                                        userStore.isAdmin() &&
+                                        programId != undefined
+                                    "
                                     required
                                 ></Textarea>
                             </div>
@@ -125,6 +153,10 @@
                                     type="button"
                                     placeholder="Enter activity id"
                                     class="px-3 w-full flex h-9 rounded-md py-1 text-base shadow-xs md:text-sm bg-white text-muted-foreground border-input border-2 cursor-text"
+                                    :disabled="
+                                        userStore.isAdmin() &&
+                                        programId != undefined
+                                    "
                                     @click.prevent.stop="
                                         openSearch(day.day_number)
                                     "
@@ -135,7 +167,7 @@
                             <div
                                 v-for="activity in day.activities"
                                 :key="activity.id"
-                                class="flex flex-col w-full gap-2 p-3 border border-primary-dark rounded-xl mt-2"
+                                class="flex flex-col w-full gap-2 p-3 border border-primary-dark rounded-xl"
                             >
                                 <div class="flex items-center w-full">
                                     <img
@@ -144,13 +176,17 @@
                                         class="h-8 aspect-square rounded-lg"
                                     />
                                     <p
-                                        class="text-text font-medium text-sm ml-2"
+                                        class="text-primary font-medium text-sm ml-2"
                                     >
                                         {{ activity.name }}
                                     </p>
                                     <Button
                                         variant="destructive"
                                         class="ml-auto btn-xs text-xs"
+                                        :disabled="
+                                            userStore.isAdmin() &&
+                                            programId != undefined
+                                        "
                                         @click="
                                             removeActivity(
                                                 activity.id,
@@ -172,6 +208,9 @@
                         class="text-xs mt-auto"
                         variant="default"
                         type="button"
+                        :disabled="
+                            userStore.isAdmin() && programId != undefined
+                        "
                         @click="addDay"
                         >Add day</Button
                     >
@@ -180,7 +219,7 @@
                 <Button
                     type="submit"
                     variant="success"
-                    class="w-full mt-3 md:col-span-2"
+                    class="w-full mt-3 md:col-span-2 sticky bottom-5"
                     >Submit</Button
                 >
             </form>
@@ -192,6 +231,7 @@
 import { Button } from "~/components/ui/button";
 import type { Program } from "~/models/program.model";
 import type { ProgramDay } from "~/models/program_day.model";
+import { ref } from "vue";
 
 import {
     Dialog,
@@ -210,7 +250,9 @@ import type { Activity } from "~/models/activity.model";
 import { Textarea } from "./ui/textarea";
 
 const route = useRoute();
+const programId = route.params.id;
 const searchStore = useSearchStore();
+const userStore = useUserStore();
 
 const props = defineProps<{
     initialData?: Program;
@@ -231,6 +273,7 @@ const formData = ref<Program>({
     duration_days: props.initialData?.duration_days || 1,
     image_url: props.initialData?.image_url || "",
     language: props.initialData?.language || "pl",
+    tags: props.initialData?.tags || [],
     days: props.initialData?.days || [
         {
             day_number: 1,

@@ -14,6 +14,9 @@ export const buttonVariants = cva(
                     "bg-green-500 text-primary-foreground hover:bg-green-600",
                 success_shadow:
                     "bg-green-600 border-green-400 shadow-green-400 shadow hover:bg-green-700 hover:shadow-none text-primary-foreground",
+
+                secondary_shadow:
+                    "bg-emerald-700 border-emerald-500 shadow-emerald-500 shadow hover:bg-emerald-600 hover:shadow-none text-primary-foreground",
                 destructive:
                     "bg-destructive text-white hover:bg-red-700 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
                 outline:

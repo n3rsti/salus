@@ -45,7 +45,8 @@
                         class="h-8 aspect-square rounded-lg"
                     />
                     <h3
-                        class="font-semibold text-sm hover:underline cursor-pointer"
+                        class="font-semibold text-sm hover:underline cursor-pointer line-clamp-1"
+                        :title="activity.name"
                     >
                         {{ activity.name }}
                     </h3>
@@ -59,7 +60,10 @@
                         {{ activity.duration_minutes }} minutes
                     </span>
                 </div>
-                <p class="text-sm text-accent-content">
+                <p
+                    class="text-xs text-muted-foreground line-clamp-1"
+                    :title="activity.description"
+                >
                     {{ activity.description }}
                 </p>
             </NuxtLink>
@@ -81,7 +85,8 @@
                         class="h-8 aspect-square rounded-lg"
                     />
                     <h3
-                        class="font-semibold text-sm hover:underline cursor-pointer"
+                        class="font-semibold text-sm hover:underline cursor-pointer line-clamp-1"
+                        :title="program.name"
                     >
                         {{ program.name }}
                     </h3>
@@ -90,7 +95,10 @@
                         {{ program.duration_days }} days
                     </span>
                 </div>
-                <p class="text-sm text-accent-content">
+                <p
+                    class="text-xs text-muted-foreground line-clamp-1"
+                    :title="program.description"
+                >
                     {{ program.description }}
                 </p>
             </NuxtLink>

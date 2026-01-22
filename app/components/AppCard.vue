@@ -1,38 +1,62 @@
 <template>
     <Card class="flex flex-col p-3 gap-3">
-        <img
-            :src="props.image"
-            alt=""
-            class="object-cover w-full h-32 rounded-xl shadow border-primary-light border-t-transparent"
-        />
+        <NuxtLink :to="link" class="relative">
+            <img
+                :src="props.image"
+                alt=""
+                class="object-cover w-full h-32 rounded-lg shadow border-primary-light border-t-transparent hover:outline-2"
+            />
+
+            <Icon
+                v-if="props.isVerified"
+                name="material-symbols:verified"
+                class="text-green-500 text-xl absolute right-2 top-2"
+                title="By verified trainer"
+            />
+        </NuxtLink>
         <div class="flex flex-col grow">
-            <h3 class="font-semibold text-text text-lg mt-1">
-                {{ props.title }}
-            </h3>
-            <small class="mt-1 mb-4">
+            <NuxtLink :to="link">
+                <h3
+                    class="font-semibold text-primary mt-1 leading-none hover:underline"
+                >
+                    {{ props.title }}
+                </h3>
+            </NuxtLink>
+            <small
+                v-if="props.description"
+                class="mt-1 mb-4 text-xs text-muted-foreground line-clamp-2"
+                :title="props.description"
+            >
                 {{ props.description }}
             </small>
+
+            <section class="flex gap-1 flex-wrap mt-auto mb-2">
+                <Badge
+                    v-for="tag in tags"
+                    :key="tag"
+                    class="text-xs rounded-md p-0.5 px-1 text-center shadow-xs font-semibold"
+                    :class="TagColors[tag]"
+                >
+                    <Icon :name="TagIcons[tag]" />
+                    {{ TagNames[tag] }}</Badge
+                >
+            </section>
 
             <slot></slot>
         </div>
     </Card>
 </template>
 <script setup lang="ts">
-import { Button } from "@/components/ui/button";
-import {
-    Card,
-    CardAction,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
+import { TagColors, TagIcons, TagNames, type Tag } from "~/constants/tags";
+import Badge from "./ui/badge/Badge.vue";
 const props = defineProps<{
     image?: string;
     title?: string;
     description?: string;
+    link?: string;
+    tags: Tag[];
+    type: "activity" | "program";
+    isVerified?: boolean;
 }>();
 </script>

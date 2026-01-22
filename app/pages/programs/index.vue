@@ -1,7 +1,7 @@
 <template>
-    <div>
+    <div class="flex flex-col items-center">
         <div
-            class="p-4 rounded-xl bg-primary-light mb-4 flex items-center justify-between shadow-sm"
+            class="p-4 rounded-xl bg-primary-light mb-4 flex items-center justify-between shadow-sm w-full"
         >
             <h1 class="text-green-700 text-xl font-semibold">Programs</h1>
             <NuxtLink to="/programs/create">
@@ -18,6 +18,15 @@
                 :program="program"
             />
         </section>
+
+        <Button
+            v-if="programs && programs.length > 0"
+            class="mt-4"
+            variant="success"
+            @click="fetchMorePrograms(10)"
+        >
+            Load more
+        </Button>
     </div>
 </template>
 
@@ -25,5 +34,21 @@
 import { Button } from "~/components/ui/button";
 import type { Program } from "~/models/program.model";
 
-const { data: programs } = await useFetch<Program[]>(`/api/programs`);
+const { data: programs } = await useFetch<Program[]>(`/api/programs?limit=20`);
+
+async function fetchMorePrograms(limit: number) {
+    const current = programs.value ?? [];
+    if (current.length === 0) return;
+
+    const { data, error } = await useFetch<Program[]>(
+        `/api/programs?skip=${current.length}&limit=${limit}`,
+    );
+
+    if (error.value) return;
+
+    const more = data.value ?? [];
+    if (more.length === 0) return;
+
+    programs.value = [...current, ...more];
+}
 </script>

@@ -1,9 +1,10 @@
 from typing import List, Optional
 from fastapi import Query
-from sqlalchemy import Select, func, or_
+from sqlalchemy import Select, func, or_, Column, JSON
 from sqlmodel import SQLModel, Field, Relationship, col
 from pydantic import BaseModel, field_validator
 from api.models.program_day_activities_link import ProgramDayActivityLink
+from api.models.enums import Tag
 
 # This file contains models implementing: Activities and ActivitesMedia tables
 
@@ -12,6 +13,7 @@ class ActivityBase(SQLModel):
     name: str
     duration_minutes: int
     description: str
+    content: str
     difficulty: int
 
     @field_validator("difficulty")
@@ -35,9 +37,11 @@ class Activity(ActivityBase, table=True):
     program_days: List["ProgramDay"] = Relationship(
         back_populates="activities", link_model=ProgramDayActivityLink
     )
+    tags: list[Tag] = Field(sa_column=Column(JSON, nullable=False, default=list))
 
 
 class ActivityCreate(ActivityBase):
+    tags: list[Tag] = []
     pass
 
 
@@ -45,7 +49,9 @@ class ActivityUpdate(SQLModel):
     name: Optional[str] = None
     duration_minutes: Optional[int] = None
     description: Optional[str] = None
+    content: Optional[str] = None
     difficulty: Optional[int] = None
+    tags: Optional[list[Tag]] = None
 
     @field_validator("difficulty")
     def validate_difficulty(cls, v):
@@ -61,6 +67,22 @@ class ActivityRead(ActivityBase):
     owner: "UsersRead"
     media: List["ActivityMediaRead"] = []
     image_url: str
+    tags: list[Tag] = []
+    average_rating: Optional[float] = None
+
+
+class ActivityReadLight(SQLModel):
+    id: int
+    owner_id: int
+    owner_role_id: int
+    owner_username: str
+    name: str
+    description: str
+    duration_minutes: int
+    image_url: str
+    difficulty: int
+    tags: list[Tag] = []
+    average_rating: Optional[float] = None
 
 
 class ActivityMediaBase(SQLModel):
@@ -110,6 +132,8 @@ class ActivityMediaRead(ActivityMediaBase):
 class ActivityFilters(BaseModel):
     search: Optional[str] = None
     limit: Optional[int] = None
+    skip: Optional[int] = None
+    user_id: Optional[int] = None
 
     def apply(self, query: Select) -> Select:
         if self.search:
@@ -130,6 +154,12 @@ class ActivityFilters(BaseModel):
 
         if self.limit:
             query = query.limit(self.limit)
+
+        if self.user_id:
+            query = query.where(Activity.owner_id == self.user_id)
+
+        if self.skip:
+            query = query.offset(self.skip)
 
         return query
 

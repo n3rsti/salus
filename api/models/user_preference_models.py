@@ -7,7 +7,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 class UserPreferenceBase(SQLModel):
     mood: Optional[int] = Field(default=None)
-    sleep_score: Optional[int] = Field(default=None)
+    sleep: Optional[int] = Field(default=None)
     stress: Optional[int] = Field(default=None)
     focus: Optional[int] = Field(default=None)
     physical_activity: Optional[int] = Field(default=None)
@@ -24,7 +24,7 @@ class UserPreferenceCreate(UserPreferenceBase):
 
 class UserPreferenceUpdate(SQLModel):
     mood: Optional[int] = None
-    sleep_score: Optional[int] = None
+    sleep: Optional[int] = None
     stress: Optional[int] = None
     focus: Optional[int] = None
     physical_activity: Optional[int] = None

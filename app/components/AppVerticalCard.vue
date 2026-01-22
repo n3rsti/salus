@@ -1,23 +1,30 @@
 <template>
-    <div
-        class="px-3 py-2 rounded-lg flex items-center gap-3 cursor-pointer transition-colors"
-        :class="
-            props.isActive
-                ? 'bg-green-500 text-white font-bold'
-                : 'text-text hover:bg-green-100'
-        "
+    <Card
+        class="flex flex-col w-full gap-2 p-3 border border-primary-dark rounded-xl hover:outline"
     >
-        <Icon
-            :name="props.icon"
-            class="text-2xl"
-            :class="props.isActive ? 'text-white' : 'text-green-500'"
-        />
-        <slot />
-    </div>
+        <div class="flex items-center w-full gap-2">
+            <img
+                :src="'/media/' + props.img"
+                alt=""
+                class="h-8 aspect-square rounded-lg"
+            />
+            <p class="text-primary font-medium text-sm hover:underline py-1">
+                <slot name="name"></slot>
+            </p>
+
+            <slot name="badge"></slot>
+        </div>
+        <div class="w-full">
+            <p class="text-muted-foreground text-xs">
+                <slot name="description"></slot>
+            </p>
+        </div>
+    </Card>
 </template>
 <script setup lang="ts">
+import { Card } from "./ui/card";
+
 const props = defineProps<{
-    isActive?: boolean;
-    icon: string;
+    img: string;
 }>();
 </script>
