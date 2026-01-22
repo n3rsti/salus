@@ -27,11 +27,11 @@ Throughout this project, we’re learning to:
 
 - Explore new technologies and frameworks, such as:
 
-  - Frontend: Nuxt / Vue.js
+  - Frontend: Nuxt / Vue
 
-  - Backend: Django / Python
+  - Backend: Fastapi / Python
 
-  - Data & AI: Recommendation algorithms for personalization
+  - Relational databases: PostgreSQL
 
 ## Deployment
 
@@ -72,7 +72,11 @@ If running in docker you should set:
 
 - Frontend
   - Nuxt framework
-  - Vue.js
+  - Vue
+  - tailwindcss
+    
+- Database
+  - PostgreSQL
 
 ## Team Members
 
