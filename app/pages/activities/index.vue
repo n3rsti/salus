@@ -24,5 +24,7 @@ import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import type { Activity } from "~/models/activity.model";
 
-const { data: activities } = await useFetch<Activity[]>(`/api/activities`);
+const { data: activities } = await useFetch<Activity[]>(
+    `/api/activities?light=true`,
+);
 </script>

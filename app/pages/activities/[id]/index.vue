@@ -3,11 +3,20 @@
         <article
             class="flex flex-col border rounded-xl p-3 sm:p-5 md:p-6 lg:p-7 bg-primary-light border-neutral-100 border-t border-t-transparent shadow grow"
         >
-            <img
-                :src="'/media/' + activity?.image_url"
-                alt=""
-                class="object-cover w-full h-60 rounded-xl shadow border-primary-light border-t-transparent"
-            />
+            <div class="relative">
+                <img
+                    :src="'/media/' + activity?.image_url"
+                    alt=""
+                    class="object-cover w-full h-60 rounded-xl shadow border-primary-light border-t-transparent"
+                />
+
+                <Icon
+                    v-if="activity?.owner?.role_id == Role.Trainer"
+                    name="material-symbols:verified"
+                    class="text-green-500 text-xl absolute right-3 top-3"
+                    title="By verified trainer"
+                />
+            </div>
             <section class="flex flex-col grow p-2 mt-3 relative gap-3">
                 <section class="flex">
                     <h1 class="font-bold text-3xl mt-1 text-primary">
@@ -208,6 +217,7 @@ import {
     DialogTrigger,
 } from "~/components/ui/dialog";
 import { Difficulties, DifficultiesColors } from "~/constants/difficulty";
+import { Role } from "~/constants/roles";
 import { TagColors, TagIcons, TagNames } from "~/constants/tags";
 import type { Activity } from "~/models/activity.model";
 import type { Review } from "~/models/review.model";
