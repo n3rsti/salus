@@ -35,7 +35,7 @@
         </div>
       </Card>
 
-      <!-- RIGHT: EDIT -->
+      
       <Card class="p-6 space-y-4">
         <h2 class="text-lg font-semibold">Edit username</h2>
 
