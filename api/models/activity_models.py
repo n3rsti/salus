@@ -74,6 +74,7 @@ class ActivityRead(ActivityBase):
 class ActivityReadLight(SQLModel):
     id: int
     owner_id: int
+    owner_role_id: int
     owner_username: str
     name: str
     description: str

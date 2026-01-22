@@ -63,3 +63,7 @@ async def get_current_user(
 
 def is_admin(jwt: JwtPayload) -> bool:
     return jwt.role == Role.ADMIN or jwt.role == Role.SUPER_ADMIN
+
+
+def is_super_admin(jwt: JwtPayload) -> bool:
+    return jwt.role == Role.SUPER_ADMIN

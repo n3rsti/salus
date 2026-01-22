@@ -44,6 +44,7 @@ def get_activities(
             Activity.id,
             Activity.owner_id,
             Users.username.label("owner_username"),
+            Users.role_id.label("owner_role_id"),
             Activity.name,
             Activity.description,
             Activity.duration_minutes,

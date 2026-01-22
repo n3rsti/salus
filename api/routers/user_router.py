@@ -2,10 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import delete, select
 
 from api.database import SessionDep
+from api.models.enums import Role
 from api.models.trainer_request import TrainerRequestRead
 from api.models.user_models import Users, UsersCreate, UsersRead, UsersUpdate
 from api.routers.trainer_router import get_user_trainer_requests
-from api.security.auth import JwtPayload, get_current_user
+from api.security.auth import JwtPayload, get_current_user, is_admin, is_super_admin
 from api.security.crypto import hash_password
 
 router = APIRouter(prefix="/api/users", tags=["Users"])
@@ -75,44 +76,41 @@ def update_user(
     session: SessionDep,
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    user = session.get(Users, user_id)
-    if not user:
+    if not is_admin(current_user) and current_user.id != user_id:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized"
         )
 
-    if data.username is not None:
-        existing = session.exec(
-            select(Users).where(Users.username == data.username, Users.id != user_id)
-        ).first()
-        if existing:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Username already taken",
-            )
-        user.username = data.username
+    user_data = data.model_dump(exclude_unset=True)
 
     if data.password is not None:
-        user.password = hash_password(data.password)
-
-    if data.email is not None:
-        email_owner = session.exec(
-            select(Users).where(Users.email == data.email, Users.id != user_id)
-        ).first()
-        if email_owner:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Email already registered",
-            )
-        user.email = data.email
+        user_data["password"] = hash_password(data.password)
 
     if data.role_id is not None:
-        user.role_id = data.role_id
+        if not is_admin(current_user):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized"
+            )
 
-    session.add(user)
+        if data.role_id not in [Role.USER, Role.TRAINER] and not is_super_admin(
+            current_user
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized"
+            )
+        user_data["role_id"] = data.role_id
+
+    statement = (
+        update(Users).where(Users.id == user_id).values(**user_data).returning(Users)
+    )
+    result = session.exec(statement)
     session.commit()
-    session.refresh(user)
-    return user
+
+    updated_user = result.scalar_one_or_none()
+    if not updated_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return updated_user
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)

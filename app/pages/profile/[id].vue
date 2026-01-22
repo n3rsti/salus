@@ -1,4 +1,15 @@
 <script setup lang="ts">
+import { Button } from "~/components/ui/button";
+import {
+    Dialog,
+    DialogFooter,
+    DialogHeader,
+    DialogContent,
+    DialogDescription,
+    DialogTitle,
+    DialogTrigger,
+    DialogClose,
+} from "~/components/ui/dialog";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Role } from "~/constants/roles";
 import type { Activity } from "~/models/activity.model";
@@ -20,6 +31,17 @@ const { data: programs } = useFetch<Program[]>(
 const { data: activities } = useFetch<Activity[]>(
     `/api/activities?user_id=${user_id}&light=true`,
 );
+
+const { $api } = useNuxtApp();
+
+async function handleVerify() {
+    await $api(`/api/users/${user_id}`, {
+        method: "PUT",
+        body: {
+            role_id: Role.Trainer,
+        },
+    });
+}
 </script>
 
 <template>
@@ -36,6 +58,38 @@ const { data: activities } = useFetch<Activity[]>(
                 class="text-xl text-green-500"
                 title="Verified trainer"
             />
+
+            <Dialog>
+                <DialogTrigger as-child>
+                    <Button variant="success" class="ml-auto"
+                        >Verify trainer
+
+                        <Icon
+                            name="material-symbols:verified"
+                            class="text-lg text-white"
+                        />
+                    </Button>
+                </DialogTrigger>
+                <DialogContent class="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Verify trainer</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to verify this trainer?
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <DialogClose as-child>
+                            <Button variant="outline"> Cancel </Button>
+                        </DialogClose>
+                        <Button
+                            type="submit"
+                            variant="success"
+                            @click="handleVerify"
+                            >Verify</Button
+                        >
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
 
         <div>

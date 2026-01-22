@@ -14,4 +14,5 @@ export interface Activity {
     tags?: Tag[];
     owner_id?: number;
     owner_username?: string;
+    owner_role_id?: number;
 }

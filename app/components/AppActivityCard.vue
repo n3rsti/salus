@@ -6,7 +6,7 @@
         :description="props.activity.description"
         :type="'activity'"
         :tags="props.activity.tags || []"
-        :is-verified="props.activity.owner?.role_id == Role.Trainer"
+        :is-verified="props.activity.owner_role_id == Role.Trainer"
     >
         <template #type>Activity</template>
 
