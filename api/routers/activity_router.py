@@ -60,7 +60,6 @@ def get_activities(
     if not activities:
         return []
 
-    # Get average ratings
     activity_ids = [a.id if not light else a.id for a in activities]
     avg_ratings = session.exec(
         select(
@@ -76,7 +75,6 @@ def get_activities(
         content_id: float(avg_rating) for content_id, avg_rating in avg_ratings
     }
 
-    # Build result
     result = []
     for activity in activities:
         if light:

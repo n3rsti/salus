@@ -46,7 +46,7 @@
                         <p class="text-primary font-medium text-sm">Author</p>
                         <NuxtLink
                             class="font-semibold text-sm"
-                            :to="'/users/' + activity?.owner?.username"
+                            :to="'/profile/' + activity?.owner?.id"
                         >
                             {{ activity?.owner?.username }}
                         </NuxtLink>
