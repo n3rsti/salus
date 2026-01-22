@@ -11,9 +11,7 @@
                     class="text-2xl text-white"
                     name="material-symbols:digital-wellbeing-rounded"
                 />
-                <span class="shadow-sm font-bold text-white"
-                    >{{ streak }}d</span
-                >
+                <span class="shadow-sm font-bold text-white">Salus</span>
             </Button>
         </NuxtLink>
         <div
