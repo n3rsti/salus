@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlmodel import delete, select
+from sqlmodel import delete, select, update
 
 from api.database import SessionDep
 from api.models.enums import Role

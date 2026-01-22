@@ -20,6 +20,8 @@ definePageMeta({
     public: true,
 });
 
+const userStore = useUserStore();
+
 const route = useRoute();
 const user_id = route.params.id;
 
@@ -35,61 +37,189 @@ const { data: activities } = useFetch<Activity[]>(
 const { $api } = useNuxtApp();
 
 async function handleVerify() {
-    await $api(`/api/users/${user_id}`, {
+    const updatedUser = await $api<User>(`/api/users/${user_id}`, {
         method: "PUT",
         body: {
             role_id: Role.Trainer,
         },
     });
+    user.value = updatedUser;
+}
+
+async function handleRevoke() {
+    const updatedUser = await $api<User>(`/api/users/${user_id}`, {
+        method: "PUT",
+        body: {
+            role_id: Role.User,
+        },
+    });
+    user.value = updatedUser;
+}
+
+async function handleMakeAdmin() {
+    const updatedUser = await $api<User>(`/api/users/${user_id}`, {
+        method: "PUT",
+        body: {
+            role_id: Role.Admin,
+        },
+    });
+    user.value = updatedUser;
+}
+
+async function handleRevokeAdmin() {
+    const updatedUser = await $api<User>(`/api/users/${user_id}`, {
+        method: "PUT",
+        body: {
+            role_id: Role.User,
+        },
+    });
+
+    user.value = updatedUser;
 }
 </script>
 
 <template>
     <div class="flex flex-col gap-3">
         <div
-            class="p-4 rounded-xl bg-primary-light flex items-center gap-2 shadow-sm"
+            class="p-4 rounded-xl bg-primary-light flex justify-between items-center gap-2 shadow-sm"
         >
-            <h1 class="text-green-700 text-xl font-semibold">
-                {{ user?.username }}
-            </h1>
-            <Icon
-                v-if="user?.role_id == Role.Trainer"
-                name="material-symbols:verified"
-                class="text-xl text-green-500"
-                title="Verified trainer"
-            />
+            <div class="flex items-center">
+                <h1 class="text-green-700 text-xl font-semibold">
+                    {{ user?.username }}
+                </h1>
+                <Icon
+                    v-if="user?.role_id == Role.Trainer"
+                    name="material-symbols:verified"
+                    class="text-xl text-green-500"
+                    title="Verified trainer"
+                />
+            </div>
+            <div
+                v-if="
+                    (userStore?.role == Role.Admin ||
+                        userStore?.role == Role.SuperAdmin) &&
+                    userStore.id != user?.id
+                "
+                class="flex gap-1"
+            >
+                <Dialog v-if="user?.role_id == Role.User">
+                    <DialogTrigger as-child>
+                        <Button variant="success"
+                            >Verify trainer
 
-            <Dialog>
-                <DialogTrigger as-child>
-                    <Button variant="success" class="ml-auto"
-                        >Verify trainer
-
-                        <Icon
-                            name="material-symbols:verified"
-                            class="text-lg text-white"
-                        />
-                    </Button>
-                </DialogTrigger>
-                <DialogContent class="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle>Verify trainer</DialogTitle>
-                        <DialogDescription>
-                            Are you sure you want to verify this trainer?
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <DialogClose as-child>
-                            <Button variant="outline"> Cancel </Button>
-                        </DialogClose>
-                        <Button
-                            type="submit"
-                            variant="success"
-                            @click="handleVerify"
-                            >Verify</Button
-                        >
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                            <Icon
+                                name="material-symbols:verified"
+                                class="text-lg text-white"
+                            />
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent class="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Verify trainer</DialogTitle>
+                            <DialogDescription>
+                                Are you sure you want to verify this trainer?
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                            <DialogClose as-child>
+                                <Button variant="outline"> Cancel </Button>
+                            </DialogClose>
+                            <Button
+                                type="submit"
+                                variant="success"
+                                @click="handleVerify"
+                                >Verify</Button
+                            >
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+                <Dialog v-else-if="user?.role_id == Role.Trainer">
+                    <DialogTrigger as-child>
+                        <Button variant="destructive"
+                            >Revoke trainer status
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent class="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Revoke trainer status</DialogTitle>
+                            <DialogDescription>
+                                Are you sure you want to revoke this trainer
+                                status?
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                            <DialogClose as-child>
+                                <Button variant="outline"> Cancel </Button>
+                            </DialogClose>
+                            <Button
+                                type="submit"
+                                variant="destructive"
+                                @click="handleRevoke"
+                                >Revoke</Button
+                            >
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+                <Dialog
+                    v-if="
+                        userStore?.role == Role.SuperAdmin &&
+                        user?.role_id != Role.Admin
+                    "
+                >
+                    <DialogTrigger as-child>
+                        <Button variant="default"> Add admin role </Button>
+                    </DialogTrigger>
+                    <DialogContent class="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Add admin role</DialogTitle>
+                            <DialogDescription>
+                                Are you sure you want to add this user as admin?
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                            <DialogClose as-child>
+                                <Button variant="outline"> Cancel </Button>
+                            </DialogClose>
+                            <Button
+                                type="submit"
+                                variant="default"
+                                @click="handleMakeAdmin"
+                                >Confirm</Button
+                            >
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+                <Dialog
+                    v-if="
+                        userStore?.role == Role.SuperAdmin &&
+                        user?.role_id == Role.Admin
+                    "
+                >
+                    <DialogTrigger as-child>
+                        <Button variant="default">Revoke admin role</Button>
+                    </DialogTrigger>
+                    <DialogContent class="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Revoke admin role</DialogTitle>
+                            <DialogDescription>
+                                Are you sure you want to revoke this user as
+                                admin?
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                            <DialogClose as-child>
+                                <Button variant="outline"> Cancel </Button>
+                            </DialogClose>
+                            <Button
+                                type="submit"
+                                variant="default"
+                                @click="handleRevokeAdmin"
+                                >Confirm</Button
+                            >
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </div>
         </div>
 
         <div>
