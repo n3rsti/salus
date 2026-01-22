@@ -3,7 +3,7 @@
         <section
             class="p-4 rounded-xl bg-primary-light flex items-center justify-between shadow-sm"
         >
-            <h1 class="text-green-700 text-xl font-semibold">Activity log</h1>
+            <h1 class="text-green-700 text-xl font-semibold">My requests</h1>
         </section>
         <section class="flex flex-col gap-3 justify-between">
             <article

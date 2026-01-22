@@ -131,6 +131,7 @@ class ActivityMediaRead(ActivityMediaBase):
 class ActivityFilters(BaseModel):
     search: Optional[str] = None
     limit: Optional[int] = None
+    user_id: Optional[int] = None
 
     def apply(self, query: Select) -> Select:
         if self.search:
@@ -151,6 +152,9 @@ class ActivityFilters(BaseModel):
 
         if self.limit:
             query = query.limit(self.limit)
+
+        if self.user_id:
+            query = query.where(Activity.owner_id == self.user_id)
 
         return query
 
