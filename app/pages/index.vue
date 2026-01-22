@@ -14,18 +14,28 @@
         >
             <AppMoodCard class="col-span-full"></AppMoodCard>
 
-            <h2 class="font-semibold text-xl mb-1 mt-6 flex col-span-full">
-                Programs
-            </h2>
+            <div
+                class="flex items-center justify-between col-span-full mb-1 mt-6"
+            >
+                <h2 class="font-semibold text-xl flex">Programs</h2>
+                <NuxtLink to="/programs/" class="ml-auto">
+                    <Button variant="default">See more</Button>
+                </NuxtLink>
+            </div>
             <AppProgramCard
                 v-for="program in programs"
                 :key="program.id"
                 :program="program"
             />
 
-            <h2 class="font-semibold text-xl mb-1 mt-10 flex col-span-full">
-                Activities
-            </h2>
+            <div
+                class="flex items-center justify-between col-span-full mb-1 mt-10"
+            >
+                <h2 class="font-semibold text-xl flex">Activities</h2>
+                <NuxtLink to="/activities/" class="ml-auto">
+                    <Button variant="default">See more</Button>
+                </NuxtLink>
+            </div>
             <AppActivityCard
                 v-for="activity in activities"
                 :key="activity.id"
@@ -35,6 +45,7 @@
     </div>
 </template>
 <script setup lang="ts">
+import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import type { Activity } from "~/models/activity.model";
 import type { Program } from "~/models/program.model";

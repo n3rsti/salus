@@ -95,6 +95,7 @@ class ProgramReadLight(ProgramBase):
 class ProgramFilters(BaseModel):
     search: Optional[str] = None
     limit: Optional[int] = None
+    skip: Optional[int] = None
     user_id: Optional[int] = None
 
     def apply(self, query: Select) -> Select:
@@ -111,6 +112,9 @@ class ProgramFilters(BaseModel):
 
         if self.user_id:
             query = query.where(Program.owner_id == self.user_id)
+
+        if self.skip:
+            query = query.offset(self.skip)
 
         return query
 

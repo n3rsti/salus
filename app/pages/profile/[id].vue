@@ -28,10 +28,10 @@ const user_id = route.params.id;
 const { data: user } = useFetch<User>(`/api/users/${user_id}`);
 
 const { data: programs } = useFetch<Program[]>(
-    `/api/programs?user_id=${user_id}`,
+    `/api/programs?user_id=${user_id}&limit=10`,
 );
 const { data: activities } = useFetch<Activity[]>(
-    `/api/activities?user_id=${user_id}&light=true`,
+    `/api/activities?user_id=${user_id}&light=true&limit=10`,
 );
 
 const { $api } = useNuxtApp();
@@ -75,6 +75,38 @@ async function handleRevokeAdmin() {
     });
 
     user.value = updatedUser;
+}
+
+async function fetchMorePrograms(limit: number) {
+    const current = programs.value ?? [];
+    if (current.length === 0) return;
+
+    const { data, error } = await useFetch<Program[]>(
+        `/api/programs?skip=${current.length}&limit=${limit}`,
+    );
+
+    if (error.value) return;
+
+    const more = data.value ?? [];
+    if (more.length === 0) return;
+
+    programs.value = [...current, ...more];
+}
+
+async function fetchMoreActivities(limit: number) {
+    const current = activities.value ?? [];
+    if (current.length === 0) return;
+
+    const { data, error } = await useFetch<Activity[]>(
+        `/api/activities?light=true&skip=${current.length}&limit=${limit}`,
+    );
+
+    if (error.value) return;
+
+    const more = data.value ?? [];
+    if (more.length === 0) return;
+
+    activities.value = [...current, ...more];
 }
 </script>
 
@@ -222,11 +254,11 @@ async function handleRevokeAdmin() {
             </div>
         </div>
 
-        <div>
-            <Card class="p-6">
-                <h2 class="text-lg font-semibold mb-2">
+        <div class="flex flex-col gap-6 mt-4">
+            <Card class="flex flex-col">
+                <h2 class="text-lg font-semibold">
                     Created programs
-                    <span v-if="programs" class="text-sm text-muted-foreground"
+                    <span v-if="false" class="text-sm text-muted-foreground"
                         >({{ programs?.length }})</span
                     >
                 </h2>
@@ -277,14 +309,21 @@ async function handleRevokeAdmin() {
                         </AppVerticalCard>
                     </NuxtLink>
                 </section>
+
+                <Button
+                    v-if="programs && programs.length > 0"
+                    class="mt-4 self-center"
+                    variant="success"
+                    @click="fetchMorePrograms(10)"
+                >
+                    Load more
+                </Button>
             </Card>
 
-            <Card class="p-6">
-                <h2 class="text-lg font-semibold mb-2">
+            <Card class="flex flex-col">
+                <h2 class="text-lg font-semibold">
                     Created activities
-                    <span
-                        v-if="activities"
-                        class="text-sm text-muted-foreground"
+                    <span v-if="false" class="text-sm text-muted-foreground"
                         >({{ activities?.length }})</span
                     >
                 </h2>
@@ -336,6 +375,15 @@ async function handleRevokeAdmin() {
                         </AppVerticalCard>
                     </NuxtLink>
                 </section>
+
+                <Button
+                    v-if="activities && activities.length > 0"
+                    class="mt-4 self-center"
+                    variant="success"
+                    @click="fetchMoreActivities(10)"
+                >
+                    Load more
+                </Button>
             </Card>
         </div>
     </div>
