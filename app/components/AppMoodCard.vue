@@ -11,6 +11,7 @@
                 Mood log
             </h2>
         </div>
+
         <article
             class="flex flex-col md:flex-row md:content-center grow items-center border rounded-xl md:rounded-t-none p-5 md:p-0 bg-primary-light border-neutral-100 border-t border-t-transparent shadow md:shadow-none md:border-none"
         >
@@ -19,35 +20,36 @@
                     class="grid grid-cols-7 gap-1 md:gap-7 w-full md:w-auto md:flex items-center justify-center"
                 >
                     <div
-                        v-for="(log, index) in moodLogs"
-                        :key="index"
+                        v-for="section in lastSections"
+                        :key="section.key"
                         class="flex flex-col items-center p-1 rounded-xl"
                     >
-                        <span class="font-sans text-2xl md:text-xl">{{
-                            moodEmojis[log.mood]
-                        }}</span>
+                        <span class="text-2xl md:text-xl">
+                            {{ getEmoji(section.items[0]) }}
+                        </span>
                         <p
                             class="text-xs mt-2 md:mt-1 text-primary font-medium"
                         >
-                            {{ log.day }}
+                            {{ formatDateShort(section.items[0].date) }}
                         </p>
                     </div>
                 </section>
             </div>
 
             <NuxtLink :to="todayLog ? '/mood/edit' : '/mood/add'">
-                <Button variant="success">
+                <Button variant="success" class="ml-4 md:ml-8">
                     {{ todayLog ? "Edit today's mood" : "Add current mood" }}
                 </Button>
             </NuxtLink>
         </article>
     </div>
 </template>
-<script setup lang="ts">
-import { faker } from "@faker-js/faker";
-import { Button } from "./ui/button";
-const { $api } = useNuxtApp();
 
+<script setup lang="ts">
+import { Button } from "~/components/ui/button";
+import { onMounted, computed, ref } from "vue";
+
+const { $api } = useNuxtApp();
 interface DailyLog {
     id: number;
     date: string;
@@ -66,36 +68,66 @@ const todayKey = () => {
         "0",
     )}-${String(d.getDate()).padStart(2, "0")}`;
 };
-const todayLog = computed(() =>
-    logs.value.find((log) => log.date.slice(0, 10) === todayKey()),
-);
-const { data } = await useFetch<DailyLog[]>("/api/daily-logs", {
+
+const formatDateShort = (date: string) => {
+    const d = new Date(date);
+    return `${d.getDate()} ${d.toLocaleString("en-US", { month: "short" })}`;
+};
+const { data, refresh } = await useFetch<DailyLog[]>("/api/daily-logs", {
     method: "GET",
     credentials: "include",
     $fetch: $api,
+    cache: "no-store",
 });
 
-const logs = computed(() =>
-    [...(data.value ?? [])].sort(
+const logs = computed(() => {
+    const allLogs = data.value ?? [];
+    allLogs.sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-    ),
-);
-
-//----------------------//
-faker.seed(1234);
-interface MoodLog {
-    mood: number;
-    day: string;
+    );
+    return allLogs.slice(0, 7).reverse();
+});
+function dateKey(date: string) {
+    const d = new Date(date);
+    return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 }
 
-const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const moodEmojis = ["💀", "😕", "😐", "🤠", "🥳"];
-const moodLogs: MoodLog[] = [];
+const dateSections = computed(() => {
+    const sections: { key: string; label: string; items: DailyLog[] }[] = [];
 
-days.forEach((day) => {
-    moodLogs.push({
-        mood: faker.number.int({ min: 0, max: 4 }),
-        day: day,
-    });
+    for (const log of logs.value) {
+        const key = dateKey(log.date);
+        const last = sections.at(-1);
+
+        if (!last || last.key !== key) {
+            sections.push({
+                key,
+                label: formatDateShort(log.date),
+                items: [log],
+            });
+        } else {
+            last.items.push(log);
+        }
+    }
+
+    return sections;
 });
+const lastSections = computed(() => dateSections.value.slice(-7));
+const todayLog = computed(() =>
+    (data.value ?? []).find((log) => log.date.slice(0, 10) === todayKey()),
+);
+function getEmoji(log: DailyLog) {
+    const scores = [
+        { key: "mood", value: log.mood, emoji: "😊" },
+        { key: "sleep_score", value: log.sleep_score, emoji: "😴" },
+        { key: "stress", value: log.stress, emoji: "😣" },
+        { key: "focus", value: log.focus, emoji: "🎯" },
+        { key: "physical_activity", value: log.physical_activity, emoji: "🏃" },
+        { key: "alcohol_intake", value: log.alcohol_intake, emoji: "🍷" },
+    ];
+
+    const maxScore = Math.max(...scores.map((s) => s.value));
+    const best = scores.find((s) => s.value === maxScore);
+    return best?.emoji ?? "❔";
+}
 </script>
