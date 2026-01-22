@@ -35,21 +35,54 @@
                 </section>
             </div>
 
-            <Button
-                class="text-white mt-2 md:mt-0 w-full md:w-auto md:ml-auto"
-                variant="success"
-            >
-                Add daily log
-            </Button>
+            <NuxtLink :to="todayLog ? '/mood/edit' : '/mood/add'">
+                <Button variant="success">
+                    {{ todayLog ? "Edit today's mood" : "Add current mood" }}
+                </Button>
+            </NuxtLink>
         </article>
     </div>
 </template>
 <script setup lang="ts">
 import { faker } from "@faker-js/faker";
 import { Button } from "./ui/button";
+const { $api } = useNuxtApp();
 
+interface DailyLog {
+    id: number;
+    date: string;
+    mood: number;
+    sleep_score: number;
+    stress: number;
+    focus: number;
+    physical_activity: number;
+    alcohol_intake: number;
+    notes: string;
+}
+const todayKey = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+        2,
+        "0",
+    )}-${String(d.getDate()).padStart(2, "0")}`;
+};
+const todayLog = computed(() =>
+    logs.value.find((log) => log.date.slice(0, 10) === todayKey()),
+);
+const { data } = await useFetch<DailyLog[]>("/api/daily-logs", {
+    method: "GET",
+    credentials: "include",
+    $fetch: $api,
+});
+
+const logs = computed(() =>
+    [...(data.value ?? [])].sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    ),
+);
+
+//----------------------//
 faker.seed(1234);
-
 interface MoodLog {
     mood: number;
     day: string;

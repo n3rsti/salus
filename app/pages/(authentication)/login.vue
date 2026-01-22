@@ -104,25 +104,6 @@
                     >Sign up</NuxtLink
                 >
             </p>
-
-            <button
-                class="btn bg-white text-black border-green-500 w-full mt-10 hover:bg-gray-300"
-            >
-                <Icon name="logos:microsoft-icon" />
-                Login with Microsoft
-            </button>
-            <button
-                class="btn bg-white text-black border-blue-500 w-full mt-4 hover:bg-gray-300"
-            >
-                <Icon name="logos:google-icon" />
-                Login with Google
-            </button>
-            <button
-                class="btn bg-white text-black border-black w-full mt-4 hover:bg-gray-300"
-            >
-                <Icon name="logos:github-icon" />
-                Login with Github
-            </button>
         </form>
     </div>
 </template>
