@@ -6,6 +6,13 @@
                 alt=""
                 class="object-cover w-full h-32 rounded-lg shadow border-primary-light border-t-transparent hover:outline-2"
             />
+
+            <Icon
+                v-if="props.isVerified"
+                name="material-symbols:verified"
+                class="text-green-500 text-xl absolute right-2 top-2"
+                title="By verified trainer"
+            />
         </NuxtLink>
         <div class="flex flex-col grow">
             <NuxtLink :to="link">
@@ -50,5 +57,6 @@ const props = defineProps<{
     link?: string;
     tags: Tag[];
     type: "activity" | "program";
+    isVerified?: boolean;
 }>();
 </script>

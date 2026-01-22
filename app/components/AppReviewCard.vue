@@ -85,7 +85,6 @@
                                 />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
-                                <DropdownMenuItem>Edit </DropdownMenuItem>
                                 <DialogTrigger as-child>
                                     <DropdownMenuItem variant="destructive"
                                         >Delete

@@ -6,6 +6,7 @@
         :description="props.activity.description"
         :type="'activity'"
         :tags="props.activity.tags || []"
+        :is-verified="props.activity.owner?.role_id == Role.Trainer"
     >
         <template #type>Activity</template>
 
@@ -33,6 +34,7 @@
     </AppCard>
 </template>
 <script setup lang="ts">
+import { Role } from "~/constants/roles";
 import type { Activity } from "~/models/activity.model";
 
 const props = defineProps<{

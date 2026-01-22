@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Skeleton } from "~/components/ui/skeleton";
+import { Role } from "~/constants/roles";
 import type { Activity } from "~/models/activity.model";
 import type { Program } from "~/models/program.model";
 import type { User } from "~/models/user.model";
@@ -24,11 +25,17 @@ const { data: activities } = useFetch<Activity[]>(
 <template>
     <div class="flex flex-col gap-3">
         <div
-            class="p-4 rounded-xl bg-primary-light flex items-center justify-between shadow-sm"
+            class="p-4 rounded-xl bg-primary-light flex items-center gap-2 shadow-sm"
         >
             <h1 class="text-green-700 text-xl font-semibold">
                 {{ user?.username }}
             </h1>
+            <Icon
+                v-if="user?.role_id == Role.Trainer"
+                name="material-symbols:verified"
+                class="text-xl text-green-500"
+                title="Verified trainer"
+            />
         </div>
 
         <div>

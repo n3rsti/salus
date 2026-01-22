@@ -6,6 +6,7 @@
         :link="'/programs/' + props.program.id"
         :type="'program'"
         :tags="props.program.tags || []"
+        :is-verified="props.program.owner?.role_id == Role.Trainer"
     >
         <template #type>Program</template>
         <div
@@ -61,6 +62,7 @@
 </template>
 <script setup lang="ts">
 import { faker } from "@faker-js/faker";
+import { Role } from "~/constants/roles";
 import type { Program } from "~/models/program.model";
 
 const props = defineProps<{
