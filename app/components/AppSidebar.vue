@@ -12,7 +12,7 @@
                         class="hover:bg-green-600 hover:text-white"
                     >
                         <NuxtLink
-                            to="/profile"
+                            :to="'/profile/' + userStore.id"
                             class="grid flex-1 text-left text-sm leading-tight"
                         >
                             <span class="truncate font-semibold">
@@ -84,6 +84,7 @@ const { toggleSidebar } = useSidebar();
 const isMobile = useMediaQuery("(max-width: 1024px)");
 
 const store = useUserStore();
+const userStore = useUserStore();
 
 function toggle() {
     if (isMobile.value == true) {

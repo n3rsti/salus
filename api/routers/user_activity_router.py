@@ -46,10 +46,14 @@ def build_feed_items(
     activities_result: List[Tuple], program_ids: set
 ) -> List[ActivityFeedItem]:
     items = []
-    for user_activity, activity, owner_username in activities_result:
+    for (
+        user_activity,
+        activity,
+        owner_username,
+        owner_role_id,
+    ) in activities_result:
         if user_activity.program_id:
             program_ids.add(user_activity.program_id)
-
         items.append(
             ActivityFeedItem(
                 id=user_activity.id,
@@ -61,6 +65,7 @@ def build_feed_items(
                     ActivityReadLight(
                         id=activity.id,
                         owner_id=activity.owner_id,
+                        owner_role_id=owner_role_id,
                         owner_username=owner_username,
                         name=activity.name,
                         description=activity.description,
@@ -80,8 +85,14 @@ def build_feed_items(
 def build_programs(programs_result: List[Tuple]) -> Dict[int, ProgramInfo]:
     programs = {}
     days_cache = {}
-
-    for program, day, activity, owner_username, owner in programs_result:
+    for (
+        program,
+        day,
+        activity,
+        owner_username,
+        owner_role_id,
+        owner,
+    ) in programs_result:
         if program.id not in programs:
             programs[program.id] = ProgramInfo(
                 id=program.id,
@@ -108,6 +119,7 @@ def build_programs(programs_result: List[Tuple]) -> Dict[int, ProgramInfo]:
             ActivityReadLight(
                 id=activity.id,
                 owner_id=activity.owner_id,
+                owner_role_id=owner_role_id,
                 owner_username=owner_username,
                 name=activity.name,
                 description=activity.description,
@@ -117,17 +129,7 @@ def build_programs(programs_result: List[Tuple]) -> Dict[int, ProgramInfo]:
                 tags=activity.tags,
             )
         )
-
     return programs
-
-
-def add_user_activities(
-    programs: Dict[int, ProgramInfo],
-    user_activities: List[UserActivity],
-) -> None:
-    for ua in user_activities:
-        if ua.activity_id and ua.program_id in programs:
-            programs[ua.program_id].user_activities[ua.activity_id] = ua.id
 
 
 @router.get("/me/activities", response_model=ActivitiesFeedResponse)
@@ -138,7 +140,7 @@ def get_my_activities(
     current_user: JwtPayload = Depends(get_current_user),
 ):
     activities_result = session.exec(
-        select(UserActivity, Activity, Users.username)
+        select(UserActivity, Activity, Users.username, Users.role_id)
         .outerjoin(Activity, UserActivity.activity_id == Activity.id)
         .outerjoin(Users, Activity.owner_id == Users.id)
         .where(UserActivity.user_id == current_user.id)
@@ -166,7 +168,7 @@ def get_my_activities(
         )
 
     programs_result = session.exec(
-        select(Program, ProgramDay, Activity, Users.username, Users)
+        select(Program, ProgramDay, Activity, Users.username, Users.role_id, Users)
         .join(ProgramDay, Program.id == ProgramDay.program_id)
         .join(ProgramDay.activities)
         .join(Users, Program.owner_id == Users.id)
@@ -175,7 +177,7 @@ def get_my_activities(
     ).all()
 
     additional_activities_result = session.exec(
-        select(UserActivity, Activity, Users.username)
+        select(UserActivity, Activity, Users.username, Users.role_id)
         .outerjoin(Activity, UserActivity.activity_id == Activity.id)
         .outerjoin(Users, Activity.owner_id == Users.id)
         .where(
@@ -185,9 +187,14 @@ def get_my_activities(
     ).all()
 
     programs = build_programs(programs_result)
-
     existing_ids = {item.id for item in feed_items}
-    for user_activity, activity, owner_username in additional_activities_result:
+
+    for (
+        user_activity,
+        activity,
+        owner_username,
+        owner_role_id,
+    ) in additional_activities_result:
         if user_activity.id not in existing_ids:
             feed_items.append(
                 ActivityFeedItem(
@@ -199,6 +206,7 @@ def get_my_activities(
                         ActivityReadLight(
                             id=activity.id,
                             owner_id=activity.owner_id,
+                            owner_role_id=owner_role_id,
                             owner_username=owner_username,
                             name=activity.name,
                             description=activity.description,
@@ -284,7 +292,6 @@ def complete_user_activity(
     session: SessionDep,
     current_user: JwtPayload = Depends(get_current_user),
 ):
-    # set end_date to today
     statement = (
         update(UserActivity)
         .where((UserActivity.id == ua_id) & (UserActivity.user_id == current_user.id))
