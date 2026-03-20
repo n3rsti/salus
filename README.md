@@ -1,4 +1,5 @@
 # Salus - mental health and mindfulness platform
+![salus app showcase](public/salus_showcase.png)
 
 
 # Project Description
